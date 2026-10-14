@@ -1,0 +1,12 @@
+<Window x:Class="SaveEditor.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Save Editor" Height="760" Width="1140" MinWidth="860" MinHeight="540"
+        Background="{StaticResource PageBrush}" Closing="Window_Closing">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock x:Name="StatusText"/>
+        </StatusBar>
+        <ContentControl x:Name="PageHost" Focusable="False"/>
+    </DockPanel>
+</Window>

@@ -252,9 +252,9 @@ found by counting non-zero entries per struct table across the saves. Under the 
 | `0x739B7568` | 100 structs `[done, ?, skipped?, order, ?, score]` | **per-mission records**: `order` = completion order (-1 = not done; 0 = Prologue at index 53, 1 = index 0 Franklin and Lamar, 2 = index 1 Repossession, 4 = index 2 Complications), `score` = medal %. Order looks like the game's alphabetical `SP_MISSION` enum |
 
 Also `0xA2A52C6E` (63 entries) tracks random-character missions and `0x866CE621/0x1A341F71` (321) is the 100% checklist.
-Changing the mission records alone would not move the story: the strands' positions drive it, and a position only works
-with its matching hash, which can't be computed without the game's flow command list. These four saves give known-good
-strand states at four points.
+The strands' positions drive story execution, and a position must match its command hash. These four saves give
+known-good strand states at four points. **Updated by section 11:** the game's command list and hash algorithm are now
+available from decompiled scripts, and the controller has a conditional shortcut for already-completed mission records.
 
 ### How the reference editor edits story progress (static IL reading, 2026-10-14)
 
@@ -269,5 +269,215 @@ strand states at four points.
   gives its own names to the flow-struct parts: `Mission_IsGameFlowActive`, `Mission_FlowCompleted`, `Mission_SyncIDs`,
   `Mission_FlagIDs`, `Mission_IntIDs`, `Mission_BitSetIDs`, `Mission_List`, `Custom_Flow_Order_Missions_STRANDS`,
   `…_OVERRIDE`, `…_HASH_IDs`, `…_MissionsToUnComplete`, and counters (`Flow_Order_Mission_MissionsCompleted`,
-  `…_MissionGolds`, …). These match the strands (with hash), flags, ints, bitsets and mission records found above, so
-  the editor writes per-mission strand positions and hashes taken from its database. They are not computed from the save.
+  `…_MissionGolds`, …). These match the strands (with hash), flags, ints, bitsets and mission records found above.
+  No other method references these name strings, so how the mission UI uses them is still open.
+
+### What `Main.db` contains (user-downloaded copy, `GtaStuff\Main.db`, 20,628,832 bytes; 2026-10-14)
+
+* **Package format** (from `PluginSerializer` / `Config::GenerateAddin` / `Seven_Zip::Decompress`):
+  * Header: `"FD"`, a big-endian int32 table length (×2), then `"XB36Hazard"`.
+  * The entry table starts at offset 16, then the file data.
+  * Encryption is AES-256-CBC. The key comes from the editor's string table; like the Rockstar key, it is not
+    reproduced here.
+  * Compression is 7-Zip LZMA: 5 property bytes, an 8-byte little-endian size, then the stream.
+  * The table is a big-endian folder tree:
+    * file count, then each file as (name length, name, int64 offset, int64 size);
+    * subfolder count, then each subfolder as (name length, name, folder).
+  * 2,341 entries in total. Main folders: Checklist, Checklist_Icons, Missions, MissionsIcons, MissionsInfo,
+    SFMissions, Heist, Stats, Weapons.
+* `Main\Missions\0..100` are 32 bytes each, with the same field shape as one save mission record.
+  * Layout: `[done=1, 0, 0, order, time-like int, score as float (100.0), int, int]`.
+  * In other words, they are "completed" record templates (all `done = 1`, with the completion order of one full
+    playthrough).
+  * **They contain no strand positions or hashes.** `Main\MissionsInfo\MissionNames.txt` is `HASH=Name~`.
+    `MissionsInfo.txt` is a list of 706 internal bug-tracker categories ("AMB - …", "CnC - …", "RC - …"), not
+    flow data.
+* Conclusion: nothing in the editor's database lets it compute a strand position and hash for an arbitrary mission. Its
+  story editing most likely changes mission records (completed / medal / time / order: `FunctionDictionary` has a
+  medal combo, an int, a bool and a time input; `SelectionTree` has "Mission_ChangeOrder") and flags. That has not been
+  confirmed in-game.
+
+### The mission screen (`DeploymentQueue` form), static reading 2026-10-14
+
+* `ToolboxSite` (constructor `0x0600169E`) models the flow struct as 61 named parts. It loads `Main\MT` from `Main.db`.
+  * `MT` layout: count 100, then per mission `n` followed by `n` pairs of `[stat hash, target value]`.
+  * These are the gold-medal targets (`MissionTargetEdit`). `SFMT` holds the same for Strangers & Freaks.
+* Story choice handlers write a stat plus a flow flag by index:
+  * `0x0600038B`: `SP_KILLED_AL` / `SP_KILLED_DR_FRIEDLANDER` / `SP_KILLED_ORTEGA` with flags 101/80/132.
+  * `0x0600038D`: final choice, flags 134–136.
+  * `0x0600038E`: heist approach `SP_HEIST_CHOSE_*`.
+* Other screen features:
+  * a per-mission value editor (`FunctionDictionary`: completed switch, medal, int, time);
+  * "Reorder Missions" ("Change the order of completed missions", `SelectionTree`).
+* No method found here writes strand positions or hashes. A search of the exe, its unpacked resources, the decoded
+  constant table and every `Main.db` file for all 67 strand hash values seen in the four saves found only
+  coincidental hits. The editor carries no table of strand states.
+
+### Field names are JOAAT hashes of the game's own script names
+
+* All 146 flag bools in `0xA277E18D/0x29036862` match `joaat(name)` for the editor's flag list.
+  * Examples: `FLAG_H_BOARD_UNDO`, `FLAG_M_T_EXILE_FINISHED`, `FLAG_FINAL_CHOICE_MADE`, `FLAG_GAME_100_PERC_COMP`.
+  * The editor stores the list as a base64 `~` list in its string table.
+  * Across the four saves the values make sense, e.g. `FLAG_GAME_100_PERC_COMP` is set only in the 100% save.
+* 19 of the 32 strands match `joaat("STRAND_" + name)`:
+  * ARMENIAN, ASSASSINATIONS, CAR_STEAL, CHINESE, EXILE, FAMILY, FBI_OFFICERS, FINALE, FINALE_HEIST, FRANKLIN;
+  * LAMAR, LESTER, MARTIN, MICHAEL, MICHAEL_EVENTS, PROLOGUE, SHRINK, SOLOMON, TREVOR.
+  * The other 13 are probably the other heists and their variants (not yet guessed).
+* The strand `hash` values are not JOAAT of any mission or script name tried. **Updated by section 11:** they hash
+  command data, including its owning strand, and can be derived without a real save at every checkpoint.
+
+## 10. 100% checklist (2026-10-14)
+
+* Location: struct field `0x1A341F71` under `0x866CE621`. It holds 321 entries of struct type `0x77714EA5` (56 bytes each).
+  Entries with an empty label are unused.
+* Entry fields:
+
+  | Field | Offset | Type | Meaning |
+  |---|---|---|---|
+  | `0x2D4B9B3A` | 0 | Float4 (16 bytes) | label, zero-padded ASCII, e.g. `M_ARM1`, `SC_RC_OME1`, `RE8A` |
+  | `0x8EF72701` | 32 | Float | weight: the share of the 100% the entry is worth |
+  | `0x11782F19` | 40 | SInt | completed (0/1) |
+  | `0xEB5686E6` | 48 | SInt | category |
+  | `0xF9050E9A`, `0xB6A063B0`, `0xEFC7B9B3`, `0x166F30BC`, `0x202DC439` | 56–88 | | not needed; `0xB6A063B0` looks like an id |
+
+* Categories:
+
+  | Category | Pause-menu section | Counts toward 100% |
+  |---|---|---|
+  | 1 | Missions | yes, 55% |
+  | 3 | Hobbies & Pastimes | yes, 10% |
+  | 7 | Strangers & Freaks | yes, 10% |
+  | 9 | Random Events | yes, 5%, any 14 |
+  | 11, 13 | Miscellaneous | yes, 20% |
+  | 4, 8, 12, 14 | optional entries in the same sections | no |
+  | 0, 6 | unused / odd jobs (weight 0) | no |
+
+* Formula: completion = sum of completed weights in categories 1, 3, 7, 11 and 13, plus `5 * min(cat 9 done, 14) / 14`.
+* The game keeps the pause-menu figures in stats derived from the same entries:
+
+  | Stat | Value |
+  |---|---|
+  | `TOTAL_PROGRESS_MADE` | the completion % above |
+  | `NUM_MISSIONS_COMPLETED` | cat 1 done |
+  | `NUM_MINIGAMES_COMPLETED` | cat 3 done |
+  | `NUM_RNDPEOPLE_COMPLETED` | cat 7 done |
+  | `NUM_RNDEVENTS_COMPLETED` | `min(cat 9 done, 14)` |
+  | `NUM_MISC_COMPLETED` | cat 11 + cat 13 done |
+  | `PERCENT_STORY_MISSIONS` | `floor(100 × missions / total cat 1)` |
+  | `PERCENT_ODDJOBS` | `floor(100 × minigames / total cat 3)` |
+  | `PERCENT_AMBIENT_MISSIONS` | `floor(100 × (people + events) / (total cat 7 + 14))` |
+
+* Verified exactly against the stored stats in 11 saves: the four story saves, the sample 100% save, the embedded
+  template `SGTA50009`, and the user's profile saves (read only).
+* Display names come from `Main.db`'s `Main\Checklist_Icons\*.txt` lists. They were cross-checked and cleaned into
+  `src/SaveEditor.Games.GtaV/ChecklistNames.txt`. Check X3T's terms before shipping this list.
+* Our editor (`Checklist.cs`) flips the completed flag and rewrites the stats above. This changes the checklist and
+  the completion figures only. It does not play a mission, unlock what it unlocks, or advance the story strands
+  (see section 9).
+
+## 11. Deriving story transitions without manual gameplay (2026-10-14)
+
+Constraint: mission skipping must not depend on the user playing through missions and capturing save pairs.
+
+### Sources and evidence boundary
+
+Public build-2628 decompilations:
+
+* [initial.c](https://github.com/YimMenu/GTA-V-Decompiled-Scripts/blob/master/decompiled_scripts/initial.c),
+  SHA-256 `c151d005fa9cdbb3789d82d645f86bf19c2b29fb6e0a97dabf6cdad74b6aea8f`.
+* [flow_controller.c](https://github.com/YimMenu/GTA-V-Decompiled-Scripts/blob/master/decompiled_scripts/flow_controller.c),
+  SHA-256 `1a76faa65a3d3e19832dccadd7c723d53d4ffce69fe28226354634f597ef723b`.
+* [flow_autoplay.c](https://github.com/YimMenu/GTA-V-Decompiled-Scripts/blob/master/decompiled_scripts/flow_autoplay.c)
+  only terminates its thread in this build; it is not a usable automatic playthrough facility.
+
+These are third-party decompilations of shipped scripts, not original source or a decompilation of this PC's current
+installation. Function numbers and global indices are build-specific. REA session inspection found no active analysis
+target and no configured native decompiler; this pass used static source reads and the project's own save parser.
+No game process, reference editor, or downloaded game script was executed. The source digests above and the repeatable
+verifier identify this evidence; there is no new REA binary-analysis Evidence ID for these source-derived conclusions.
+
+### Command hashes are reproducible
+
+`initial::func_85` dispatches 32 strand builders. Together they emit 1,882 commands into
+`Global_78127.f_6825`, with ranges in `f_12526`. `func_128` suppresses duplicate labels across the command list.
+`flow_controller::func_10` and helpers 11–19 hash decimal concatenations of opcode, owning strand number, and command
+arguments. Complex argument groups are separately hashed, then appended as signed decimal integers.
+
+The read-only `tools/StoryResearch` utility reconstructs those ranges and supports hashes for 730 commands, leaving
+other command types explicitly unsupported. **All 224 stored position/hash pairs across seven existing save files
+match exactly**: the four story saves in section 9 and `100%/SGTA50000`, `SGTA50003`, `SGTA50015`. These files include
+related saves, not seven independent playthroughs. Every input passed checksum verification. No save was modified.
+The actual strand 1 range is **133–237**, correcting the earlier lower-bound observation of 183.
+
+`initial::func_55` checks the position/hash pair; `func_44` searches the owning strand for the saved hash if the position
+does not match. This explains why hashes, rather than bare command indices, matter across script revisions.
+
+This verifies the hash algorithm for the observed commands; it does not validate every one of the 1,882 commands,
+all current game versions, or a synthesized story transition.
+
+### The controller has an already-completed mission path
+
+`flow_controller::func_314` handles opcode `889972124`. When waiting for a mission trigger, `func_722` consumes a
+runtime trigger latch. If no trigger occurred but saved mission record `Global_112922.f_9085.f_330[mission /*6*/]`
+is true, the handler sets runtime started/success bits. On a following evaluation, with no mission script running,
+it enters common success handler `func_363`. That handler returns the command's success label; `func_3`/`func_4`
+resolve the label in the owning strand and move the story position. This is distinct from the weighted checklist
+edited by the app today.
+
+Another handler, `func_1018` (opcode `-2093459088`), has a similar path with an additional runtime bit 6 that suppresses
+some checkpoint/last-mission processing. `func_1015` (opcode `-868169264`) also checks completed records, but its control
+flow can still reach script startup in that invocation; do not assume all mission types behave identically.
+
+**Inference:** selected missions could be skipped by updating their real mission records and letting the game run its
+own following story commands, without manually playing them. This is a candidate implementation, not yet verified
+in-game. It is not equivalent to setting the overall completion percentage.
+
+### Remaining implementation questions
+
+* Premarking a mission done bypasses first-time bookkeeping in `func_418`: checklist mapping (`func_243`), completion
+  order/counter/stat writes (`func_419`), and certain profile hooks. A skip implementation must account for those.
+* Preceding conditions, dialogs, timers, character-state gates, heist choices, and branch dependencies still apply.
+  Arbitrary jumps need a transition planner, not just a bit toggle or a new strand position.
+* Common success handling does not establish that all persistent effects normally written by each mission script
+  occurred. Rewards, unlocks, and branch-specific state need separate coverage.
+* The current installed game script version has not been compared with the public build-2628 source. Existing-save
+  hash matches are useful compatibility evidence, not proof that all present-day transitions are identical.
+* Runtime validation can use generated copies of the existing saves. Manual mission playthroughs are not required
+  to derive the command table; loading a generated save and observing the next available mission remains necessary
+  to establish actual skip behavior.
+
+Status: command-list recovery and sample hash verification completed; mission success shortcut statically traced;
+complete skip/unlock behavior and game acceptance remain unresolved. The production app is unchanged by this research.
+
+## 12. Mission records and the Missions screen (2026-10-14)
+
+Implemented in `src/SaveEditor.Games.GtaV/StoryMissions.cs`, using the shortcut from section 11.
+
+* **Mission records.** `0x739B7568` under the flow struct (`Global_112922.f_9085.f_330`): 100 records of
+  `[done, ?, ?, order, time, score(float)]`, indexed by the game's mission enum (`mission-metadata.json`; 0 = `armenian1`,
+  53 = `prologue1`, 94–99 unused). An unplayed record is `[0, 0, 0, -1, 0, 0]`.
+* **What a normal completion writes** (`flow_controller` `func_418` → `func_419`, `func_243`), when the record was not
+  already done:
+  * the record's `done` = 1 and `order` = the running completion order;
+  * the missions-completed counter `Global_112922.f_10016.f_21` is incremented. In the save it is
+    `0x412DDFE6/0x83B9CA30/0xFAA57378` (2, 35, 86 in the 1.6/66.3/98.8% saves);
+  * stat `FL_CO_<code>` = the new counter value (not for missions with flag bit 7: `FIB4I`, `FINI`, `FINC1`, `FINC`).
+    `JH2` uses `FL_CO_JH2A` or `FL_CO_JH2B` by approach;
+  * the mission's 100% checklist entry (raw table index from `func_423`) is ticked and the percentage recomputed;
+  * `func_421` also stores a "last mission" id for the UI; the editor does not write it.
+* **Check against real data.** On the 1.6% save, completing Repossession with the editor gives order 2,
+  `FL_CO_ARM2 = 3`, `NUM_MISSIONS_COMPLETED = 3`. These are the exact values the game wrote for Repossession in the
+  66.3% and 98.8% saves of the same playthrough (`tests/StoryMissionsTests.cs`).
+* **Order.** The editor's story order follows the user's two 100% playthroughs (`100%/SGTA50000` and `%98.8`).
+  They took different approaches, so between them they cover every heist option except Merryweather B (`DHP2B`,
+  `DH2B`), which neither save played.
+* **Approach mapping.**
+  * Observed in the saves: Jewel Store A = `JHP1A` + `JHP2A`, B = `JHP1B`; Bureau Raid A = `AHP1` + `AH3a`,
+    B = `AH3b`; Big Score A = `FHPRA` + `FHPC1..3` + `FH2A`, B = `FHPRB` + `FHPD` + `FH2B`; Ending C = `FINC1` + `FINC2`.
+  * Assumed: the option names shown in the UI (Smart/Loud, Offshore/Freighter, Fire Crew/Roof Entry, Subtle/Obvious)
+    for the A/B letters.
+* **Background events.** Michael's family events (`MEA1`, `MEJ1`, `MET1`) are never "the next mission": the 98.8%
+  playthrough never got `MEA1`.
+* **Unused.** `FB4P3` is not listed; neither playthrough has it.
+* **Not verified in-game yet.** A test file is in `GtaStuff/skip-test/SGTA50001`: the 1.6% save with Repossession
+  completed. Expected in game: Repossession is skipped and the story moves to the next mission(s).

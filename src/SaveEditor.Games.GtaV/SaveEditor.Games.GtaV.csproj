@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="PsoNames.txt" LogicalName="SaveEditor.Games.GtaV.PsoNames.txt" />
+    <EmbeddedResource Include="ChecklistNames.txt" LogicalName="SaveEditor.Games.GtaV.ChecklistNames.txt" />
   </ItemGroup>
 
   <PropertyGroup>

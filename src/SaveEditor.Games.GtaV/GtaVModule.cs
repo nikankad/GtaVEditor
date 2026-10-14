@@ -57,6 +57,22 @@ public sealed class GtaVSaveDocument : ISaveDocument
     /// <summary>Every catalogued weapon for every character, owned or not.</summary>
     public WeaponInventory Weapons => _weapons ??= WeaponStore.Load(Pso);
 
+    private Checklist? _checklist;
+
+    /// <summary>The 100% checklist; ticking entries also updates the completion stats.</summary>
+    public Checklist Checklist => _checklist ??= Checklist.Load(Pso, Stats);
+
+    private StoryMissions? _missions;
+
+    /// <summary>The story missions; completing one also updates its stat and checklist entry (when the save has one).</summary>
+    public StoryMissions Missions => _missions ??= StoryMissions.Load(Pso, Stats, ChecklistOrNull());
+
+    private Checklist? ChecklistOrNull()
+    {
+        try { return Checklist; }
+        catch (SaveFormatException) { return null; }
+    }
+
     public long GetStat(StatDefinition d) => d.Kind switch
     {
         StatKind.Int32 => Stats.GetInt(d.Name),
