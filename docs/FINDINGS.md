@@ -228,15 +228,15 @@ firework / railgun 20, throwables 25, proximity mine 5, homing launcher 10, jerr
 cannot be diffed to find mission flow data.
 
 **App.** `PsoDocument`/`PsoNode` parse this generically; edits write into PSIN in place (sizes never change) and the
-checksum is recomputed on save. The app flow is game picker → save picker → editor with friendly sections (Characters:
+checksum is recomputed on save. The app flow is save picker → editor with friendly sections (Characters:
 cash + skills; Weapons: give/remove/ammo per character; Story: read-only progress). The raw **Save data**, **Compare**
 and **File** views live in an *Advanced* window. None of the edits are verified in-game yet.
 
 ## 8. Architecture decision
 
-Saves are not interchangeable between games, so the app is **one module per game** (`IGameModule` in `SaveEditor.Core`).
-The flow is identical for every game — read → decrypt → parse → edit → recompute checksums → encrypt → back up → write —
-only the module internals differ.
+The app was first planned as a multi-game editor (one module per game). On 2026-10-14 it became a **GTA V-only** editor:
+the module layer was removed and everything lives in `SaveEditor.GtaV`. The flow is read → decrypt → parse → edit →
+recompute checksums → encrypt → back up → write.
 
 ## 9. Story progress lives in the flow struct (2026-10-14)
 
@@ -370,7 +370,7 @@ available from decompiled scripts, and the controller has a conditional shortcut
 * Verified exactly against the stored stats in 11 saves: the four story saves, the sample 100% save, the embedded
   template `SGTA50009`, and the user's profile saves (read only).
 * Display names come from `Main.db`'s `Main\Checklist_Icons\*.txt` lists. They were cross-checked and cleaned into
-  `src/SaveEditor.Games.GtaV/ChecklistNames.txt`. Check X3T's terms before shipping this list.
+  `src/SaveEditor.GtaV/Data/ChecklistNames.txt`. Check X3T's terms before shipping this list.
 * Our editor (`Checklist.cs`) flips the completed flag and rewrites the stats above. This changes the checklist and
   the completion figures only. It does not play a mission, unlock what it unlocks, or advance the story strands
   (see section 9).
@@ -451,7 +451,7 @@ complete skip/unlock behavior and game acceptance remain unresolved. The product
 
 ## 12. Mission records and the Missions screen (2026-10-14)
 
-Implemented in `src/SaveEditor.Games.GtaV/StoryMissions.cs`, using the shortcut from section 11.
+Implemented in `src/SaveEditor.GtaV/Features/StoryMissions.cs`, using the shortcut from section 11.
 
 * **Mission records.** `0x739B7568` under the flow struct (`Global_112922.f_9085.f_330`): 100 records of
   `[done, ?, ?, order, time, score(float)]`, indexed by the game's mission enum (`mission-metadata.json`; 0 = `armenian1`,
@@ -481,3 +481,130 @@ Implemented in `src/SaveEditor.Games.GtaV/StoryMissions.cs`, using the shortcut 
 * **Unused.** `FB4P3` is not listed; neither playthrough has it.
 * **Not verified in-game yet.** A test file is in `GtaStuff/skip-test/SGTA50001`: the 1.6% save with Repossession
   completed. Expected in game: Repossession is skipped and the story moves to the next mission(s).
+
+## 13. Strangers and Freaks (2026-10-14)
+
+* **Records.** Script data `0x412DDFE6/0xA2A52C6E`: 63 records of 6 ints `[stateBits, done, ?, order, ?, score]`.
+  Passed looks like `stateBits = 63, done = 1`; unplayed keeps only bits `0b010010`, with `done = 0, order = -1`.
+* **Damaged Goods (index 36)** is passed with `stateBits = 56` and `done = 0`. Completed is therefore
+  `done != 0 || (stateBits & 32) != 0`. The editor writes Damaged Goods the same way.
+* **Counter.** `0x91D94BB8` (`Global_112922.f_18574.f_380`); also the stat `NUM_RNDPEOPLE_COMPLETED`.
+* **Shared order.** Story missions and Strangers & Freaks share one completion order. The next order is
+  max(order over completed records in both tables) + 1 (`CompletionOrder.Next`).
+* **Checklist.** Each S&F mission ticks its `SC_RC_*` checklist entry by label. Abigail2, Barry3A/3C and
+  Paparazzo3A/3B have none. The mapping agrees across all 5 saves (scratch tool `rcmap`).
+
+## 14. Player status and game clock (2026-10-14)
+
+* **Player ped struct** `0x412DDFE6/0x622852C8`. Every field holds three values (Michael, Franklin, Trevor):
+  * Health `0xCC13AAD0` (float, 100 = full);
+  * Armor `0x9CDB82CB` (int);
+  * `SPECIAL_ABILITY` (int 0/1 = unlocked);
+  * `SPEC_AB_UNLOCK` (int, bar %);
+  * `LAST_KNOWN_WANTED` (stars);
+  * `LAST_KNOWN_XCOORD` (9 floats = xyz × 3);
+  * `LAST_KNOWN_HEADING` (3 floats).
+* **Current character.** `PP_CURRENT_PED` is the character played when the save loads.
+* **Clock.** The root struct `SimpleVariables` (`0x765FB4E3`) holds the in-game clock as uint fields:
+  * hour `0xC8893D05`, minute `0xFB8C5018`, second `0xAE65D6CB`;
+  * day `0xDBCB068B`, month `0xBB64A995` (0 = January), year `0x9EBBBABF`.
+  * Their names are unknown. They were identified by their values across saves, and the 0-based month is an
+    assumption.
+* **Not verified in-game yet.**
+
+## 15. Stats page (2026-10-14)
+
+* **Name source.** `src/SaveEditor.GtaV/Data/StatNames.txt` lists 1,761 single-player stat names. They are the
+  game's own names.
+  * Names and min/max ranges were taken from the reference editor's stat lists (`Main.db` → `Main\Stats\*.txt`).
+  * The categories are ours; the reference editor's descriptions are not used.
+  * Check X3T's terms before shipping (same caveat as `ChecklistNames.txt`).
+* **Per-character names** are stored as `SP0_` (Michael), `SP1_` (Franklin) and `SP2_` (Trevor) + name.
+* **Coverage.** 2,691 of the expanded names exist in the 100% sample save. The table holding each one fixes its type:
+  * the Int32 table holds int, bool and label values;
+  * the Float table holds floats;
+  * the UInt64 table holds u64 and also u32 values.
+* **Not shown:**
+  * packed stats (`*_PSTAT_*`), labels and profile settings;
+  * names the save doesn't have.
+* **Read-only on the Stats page**, because other tabs keep them consistent:
+  * `FL_CO_*`, `NUM_MISSIONS_COMPLETED` and `NUM_RNDPEOPLE_COMPLETED` (Missions and Strangers & Freaks tabs);
+  * `PERCENT_*` and `TOTAL_PROGRESS_MADE` (Checklist tab).
+* **Heist crew stats.** `HCS_<heist>_CREW<n>_CHOICE` hold the crew picked for each heist. The 66.3% save has
+  Jewel crew 1 = 8 and crew 2 = 10, which matches the hacker and driver of a Jewel Store run in the usual crew order
+  (unverified).
+
+## 16. Heist crew (2026-10-14)
+
+* **Location.** Script data struct `0x412DDFE6/0xA3382ECE` holds `Crew_Unlocked_Bitset`, `Crew_Used_Bitset`,
+  `Crew_Dead_Bitset` and `Crew_Dialogue_Bitset` (names from the reference editor's layout map). Each is one bit per
+  crew member, using bits 1–13.
+* **Values across the saves:**
+
+  | Save | Unlocked | Used | Dead |
+  |---|---|---|---|
+  | 1.6% | 978 | 0 | 0 |
+  | 66.3% | 14290 | 50 | 0 |
+  | 98.8% | 16382 | 6450 | 32 |
+  | 100% (2020) | 16382 | 6450 | 32 |
+  | 100% sample | 16382 | 1212746 | 0 |
+
+  16382 = bits 1–13, which every finished save has. 1212746 sets bits above 13 too (unknown meaning).
+* **Editor actions** (Missions tab, Heist crew card):
+  * "Unlock every crew member" sets bits 1–13 of Unlocked;
+  * "Bring dead crew back" clears bits 1–13 of Dead.
+* **Unresolved:** which bit is which crew member. The `HCS_*_CREW<n>_CHOICE` stat values (0–13) don't match the Used
+  bits one-to-one, so the editor shows counts, not names.
+* **Not verified in-game yet.**
+
+## 17. Safehouse garages and giving vehicles (2026-10-14)
+
+* **Location.** The game's own garage save is root struct `0x72194FCC`. Inside it, `0x58DAF7C3` is 15 garages, each
+  a struct of (id `0x0F4710A0`, array `0x26533C8A` of 2 parked vehicles). Six garages are used:
+
+  | Garage id | Safehouse |
+  |---|---|
+  | 360562957 | Michael's house |
+  | 2175093583 | Trevor's trailer |
+  | 3774828611 | Trevor's Vespucci flat |
+  | 1066626361 | Vanilla Unicorn |
+  | 4019785634 | Franklin's aunt's house |
+  | 2393745202 | Franklin's Vinewood Hills house |
+
+  The parking positions come from the user's saves. The second space of the Vespucci flat is unknown, so it can't be
+  filled yet.
+* **A parked vehicle** has these fields:
+  * position (`0xDC34682B`, `0x5D62EA92`, `0x48A1C110`);
+  * direction as two signed bytes ×100 (`0x084DB6A8`, `0xE86E76CE`);
+  * model hash (`0x55F7497A`);
+  * two health values of 1000 (`0x4C2AA15F`, `0xA8F45122`);
+  * in-use flags (`0x6531DDC5`, `0x23D3A43F`, count `0x168E3FEC` = 1);
+  * the look struct `0xCFF74A31`: primary `0x143A8221`, secondary `0x88466A37`, pearl `0x7EEF5789`, wheel colour
+    `0x6BE0316B`, a `mods` map, and other values copied from a stock Z-Type entry.
+* **Empty space:** all zero / false, except `0xFB0454C0` = -1, look `0x8EA846D0` = 255 and `0x87A334CC` = 65535.
+* **Hangars, helipads and marinas** (script data `0x943A0A56/0xC3630453`, 23 vehicle-generator slots) aren't
+  edited yet.
+* **In-game test file.** `GtaStuff/garage-test/SGTA50003` is the 98.8% save with a red Adder in Michael's garage.
+  Not verified in-game.
+
+## 18. Hangars, helipads, boat docks and businesses (2026-10-14)
+
+* **Vehicle generators.** Script data `0x943A0A56/0xC3630453` has 23 vehicle-setup slots (the reference editor calls
+  them "VehicleList1").
+  * Slots 0–8 are hangar, boat dock and helipad for Michael, Franklin and Trevor, in that order.
+  * Evidence: slot 2 holds the Cuban 800 and slot 8 the TPI Frogger in the story saves. In the 100% save the slots
+    hold a Luxor Deluxe, Lazer, Rhino, Toro, Dinghy, Kraken, Swift Deluxe, Annihilator and Buzzard.
+  * Slot fields: model `0x102CF7E5` (int), primary `0xC47A9511`, secondary `0xF2CB71B2`, pearl `0x5C531690`, wheel
+    `0x8EBD7B64`, tyre smoke RGB (`0x5953387A`, `0x419A88F1`, `0xB04B6651`), livery `0x2D1E0949` (-1), flags
+    `0x58DC0971`.
+  * A new vehicle copies the game-made Cuban 800 entry: wheel 156, smoke 255, livery -1, flags 4194304.
+  * Slots 9–22 are not edited yet. They look like 4-car garages plus two "last vehicle" slots.
+* **Businesses.** Script data `0x38301D26/0xD6B3AB33` holds 16 structs, named `PROPERTY_<NAME>` (JOAAT, verified for
+  15 of them; the 16th is the Vanilla Unicorn, which the story gives Trevor). Each struct has:
+  * owner `0xBE27B286`: 0 Michael, 1 Franklin, 2 Trevor, 145 not owned;
+  * state `0xAD21F043`: 5 or 7 when owned, 0 when not;
+  * purchase time `0x9EECB4A5`, which the editor sets to the struct's top-level `0x9EECB4A5`;
+  * `0xFA8EFCF2`, which looks like uncollected income.
+* **"Usual owner"** comes from the user's 100% save, where every business was bought in game.
+* **In-game test file.** `GtaStuff/property-test/SGTA50003` is the 98.8% save with a Hydra in Trevor's hangar, a
+  Buzzard on his helipad, and all 15 businesses owned. Not verified in-game.

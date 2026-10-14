@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <EmbeddedResource Include="Data\PsoNames.txt" LogicalName="SaveEditor.GtaV.PsoNames.txt" />
+    <EmbeddedResource Include="Data\ChecklistNames.txt" LogicalName="SaveEditor.GtaV.ChecklistNames.txt" />
+    <EmbeddedResource Include="Data\StatNames.txt" LogicalName="SaveEditor.GtaV.StatNames.txt" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

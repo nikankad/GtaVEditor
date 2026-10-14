@@ -1,12 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\SaveEditor.Core\SaveEditor.Core.csproj" />
-    <ProjectReference Include="..\SaveEditor.Games.GtaV\SaveEditor.Games.GtaV.csproj" />
+    <ProjectReference Include="..\SaveEditor.GtaV\SaveEditor.GtaV.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="..\..\assets\icons\gta5.png" Link="Assets\gta5.png" />
   </ItemGroup>
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>GtaVSaveEditor</AssemblyName>
+    <RootNamespace>SaveEditor.App</RootNamespace>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

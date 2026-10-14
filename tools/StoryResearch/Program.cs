@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using SaveEditor.Games.GtaV;
+using SaveEditor.GtaV;
 
 // Read-only research, pinned to the inspected build-2628 decompiler layout.
 // Never executes the downloaded source, modifies a save, or guesses unsupported hashes.

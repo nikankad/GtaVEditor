@@ -11,13 +11,13 @@ public interface IGuardedPage
     bool ConfirmLeave();
 }
 
-/// <summary>The app shell: shows one page at a time (game picker → save picker → editor).</summary>
+/// <summary>The app shell: shows one page at a time (save picker → editor).</summary>
 public partial class MainWindow : Window
 {
     public MainWindow()
     {
         InitializeComponent();
-        Navigate(new GamePickerPage(this));
+        Navigate(new SavePickerPage(this));
     }
 
     /// <summary>Shows <paramref name="page"/> unless the current page wants to stay (unsaved changes).</summary>

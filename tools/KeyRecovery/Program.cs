@@ -4,8 +4,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
 using System.Resources;
 using System.Security.Cryptography;
-using SaveEditor.Core;
-using SaveEditor.Games.GtaV;
+using SaveEditor.GtaV;
 
 // Parse file bytes only: never load or execute the reference editor or resource objects.
 try

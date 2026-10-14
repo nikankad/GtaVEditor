@@ -120,29 +120,6 @@
             </Setter>
         </Style>
 
-        <!-- A whole card that is clickable (game picker). -->
-        <Style x:Key="CardButton" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource LineBrush}"
-                                BorderThickness="1" CornerRadius="8" Padding="20,18">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                                <Setter TargetName="Bg" Property="Padding" Value="19,17"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- Left-hand section navigation in the editor. -->
         <Style x:Key="NavTab" TargetType="TabItem">
             <Setter Property="Cursor" Value="Hand"/>

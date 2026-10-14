@@ -1,4 +1,4 @@
-using SaveEditor.Games.GtaV;
+using SaveEditor.GtaV;
 
 namespace SaveEditor.Tests;
 
@@ -17,7 +17,7 @@ public class StoryMissionsTests
     [Fact]
     public void CatalogCoversEachRecordOnceAndEveryChoiceHasMissions()
     {
-        var all = typeof(StoryMissions).Assembly.GetType("SaveEditor.Games.GtaV.MissionInfo")!
+        var all = typeof(StoryMissions).Assembly.GetType("SaveEditor.GtaV.MissionInfo")!
             .GetProperty("All")!.GetValue(null) as System.Collections.IEnumerable;
         var indices = all!.Cast<object>().Select(o => (int)o.GetType().GetProperty("Index")!.GetValue(o)!).ToList();
         Assert.Equal(indices.Count, indices.Distinct().Count());
@@ -76,6 +76,40 @@ public class StoryMissionsTests
         Assert.Equal(0, reloaded.Stats.GetInt("FL_CO_ARM2"));
         Assert.False(reloaded.Checklist.Single(i => i.Label == "M_ARM2").Completed);
         Assert.Equal(2, reloaded.Stats.GetInt("NUM_MISSIONS_COMPLETED"));
+    }
+
+    [Fact]
+    public void StrangersAndFreaks_CompletingAMissionWritesRecordCounterAndChecklist()
+    {
+        var key = Key();
+        var path = Save("GTAV_STORY_SAVE");
+        if (key == null || path == null) return;
+
+        var doc = GtaVSaveDocument.Load(path, key);
+        var strangers = doc.Strangers;
+        Assert.Equal(63, strangers.Count);
+        Assert.All(strangers, m => Assert.False(m.Completed));
+
+        var farOut = strangers.Single(m => m.Script == "Omega1");
+        strangers.SetCompleted(farOut, true);
+        Assert.True(farOut.Completed);
+        // Shared order: Prologue 0, Franklin and Lamar 1, so this is 2; a story mission after it gets 3.
+        Assert.Equal(2, farOut.Order);
+        Assert.True(doc.Checklist.Single(i => i.Label == "SC_RC_OME1").Completed);
+        Assert.Equal(1, doc.Stats.GetInt("NUM_RNDPEOPLE_COMPLETED"));
+        doc.Missions.SetCompleted(doc.Missions.Next!, true);
+        Assert.Equal(3, doc.Missions.Single(m => m.Code == "ARM2").Order);
+
+        var copy = Path.Combine(Directory.CreateTempSubdirectory().FullName, Path.GetFileName(path));
+        doc.Save(copy);
+        var reloaded = GtaVSaveDocument.Load(copy, key);
+        Assert.True(reloaded.Integrity.IsValid);
+        var again = reloaded.Strangers.Single(m => m.Script == "Omega1");
+        Assert.True(again.Completed);
+        reloaded.Strangers.SetCompleted(again, false);
+        Assert.False(again.Completed);
+        Assert.Equal(-1, again.Order);
+        Assert.False(reloaded.Checklist.Single(i => i.Label == "SC_RC_OME1").Completed);
     }
 
     [Fact]

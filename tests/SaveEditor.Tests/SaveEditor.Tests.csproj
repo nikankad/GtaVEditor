@@ -21,8 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SaveEditor.Core\SaveEditor.Core.csproj" />
-    <ProjectReference Include="..\..\src\SaveEditor.Games.GtaV\SaveEditor.Games.GtaV.csproj" />
+    <ProjectReference Include="..\..\src\SaveEditor.GtaV\SaveEditor.GtaV.csproj" />
   </ItemGroup>
 
 </Project>

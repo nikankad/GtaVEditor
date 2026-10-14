@@ -1,8 +1,7 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using SaveEditor.Core;
-using SaveEditor.Games.GtaV;
+using SaveEditor.GtaV;
 
 namespace SaveEditor.Tests;
 
@@ -175,10 +174,10 @@ public class BackupServiceTests
         File.WriteAllText(save, "data");
         var svc = new BackupService(Path.Combine(dir.FullName, "backups"));
 
-        var backup = svc.Backup("gtav-pc", save);
+        var backup = svc.Backup(save);
 
         Assert.NotNull(backup);
         Assert.Equal("data", File.ReadAllText(backup));
-        Assert.Single(svc.ListBackups("gtav-pc"));
+        Assert.Single(svc.ListBackups());
     }
 }
