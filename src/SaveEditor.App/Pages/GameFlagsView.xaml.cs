@@ -28,7 +28,7 @@ public partial class GameFlagsView : UserControl
     {
         var search = Search.Text.Trim();
         var shown = _flags.Where(f => search.Length == 0 || f.Matches(search)).ToList();
-        Flags.ItemsSource = shown;
+        Groups.ItemsSource = shown.GroupBy(f => f.Group).ToList();
         CountText.Text = $"{shown.Count} of {_flags.Count} flags · {_flags.Count(f => f.On)} on";
     }
 

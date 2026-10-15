@@ -256,8 +256,10 @@ internal static class CollectibleLocations
             int index = int.Parse(p[1], inv);
             // Packed-stat kinds are keyed by stat index; their file indexes are 0-based item numbers.
             int key = Collectibles.PackedFirst.GetValueOrDefault(kind) + index;
+            var at = (X: float.Parse(p[2], inv), Y: float.Parse(p[3], inv), Z: float.Parse(p[4], inv));
+            if (at is { X: 0, Y: 0, Z: 0 }) continue; // the script's placeholder: position not known
             if (!result.TryGetValue(kind, out var d)) result[kind] = d = [];
-            d[key] = (float.Parse(p[2], inv), float.Parse(p[3], inv), float.Parse(p[4], inv));
+            d[key] = at;
         }
         return result;
     }

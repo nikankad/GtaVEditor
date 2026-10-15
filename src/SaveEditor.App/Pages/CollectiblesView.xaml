@@ -4,7 +4,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/GtaTheme.xaml"/>
+                <ResourceDictionary Source="/Themes/GtaMap.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -39,6 +39,7 @@
                     VerticalAlignment="Top" Margin="0,0,16,0" ToolTip="Positions only; north is up">
                 <Viewbox x:Name="MapBox" Stretch="Uniform" StretchDirection="DownOnly">
                     <Grid x:Name="MapArea">
+                        <Image Source="{StaticResource GtaMapImage}" Stretch="Fill" IsHitTestVisible="False"/>
                         <ItemsControl x:Name="MapLabels" IsHitTestVisible="False">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><Canvas/></ItemsPanelTemplate>
@@ -95,7 +96,9 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource Card}" Width="96" Padding="10,7" Margin="0,0,8,8" ToolTip="{Binding Tip}">
-                                    <CheckBox IsChecked="{Binding Collected}" Content="{Binding Label}"/>
+                                    <CheckBox IsChecked="{Binding Collected}">
+                                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+                                    </CheckBox>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

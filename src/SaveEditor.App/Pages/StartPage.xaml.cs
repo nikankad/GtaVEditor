@@ -2,54 +2,33 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Microsoft.Win32;
 using SaveEditor.GtaV;
 
 namespace SaveEditor.App;
 
-/// <summary>First page: the GTA V saves on this PC; opening one goes to the editor.</summary>
-public partial class SavePickerPage : UserControl
+/// <summary>First page: pick a save file with a button, then go to the editor.</summary>
+public partial class StartPage : UserControl
 {
     private readonly MainWindow _shell;
 
-    public SavePickerPage(MainWindow shell)
+    public StartPage(MainWindow shell)
     {
         InitializeComponent();
         _shell = shell;
-        Refresh();
+        ShowKeyState();
     }
 
-    private void Refresh()
+    private void ShowKeyState()
     {
         bool needsKey = !App.Game.Keys.HasKey;
         KeyBanner.Visibility = needsKey ? Visibility.Visible : Visibility.Collapsed;
-        KeyButton.Visibility = !needsKey ? Visibility.Visible : Visibility.Collapsed;
-
-        var items = SaveLibrary.Find(App.Game);
-        SaveList.ItemsSource = items;
-        EmptyText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        CountText.Text = items.Count switch { 0 => "", 1 => "1 save", _ => $"{items.Count} saves, newest first" };
-        EditButton.IsEnabled = false;
+        SelectButton.IsEnabled = !needsKey;
     }
 
-    private string? SelectedPath => (SaveList.SelectedItem as SaveListItem)?.Path;
-
-    private void SaveList_SelectionChanged(object sender, SelectionChangedEventArgs e) => EditButton.IsEnabled = SelectedPath != null;
-
-    private void SaveList_DoubleClick(object sender, MouseButtonEventArgs e)
+    private void Select_Click(object sender, RoutedEventArgs e)
     {
-        if (SelectedPath is { } path) Open(path);
-    }
-
-    private void Edit_Click(object sender, RoutedEventArgs e)
-    {
-        if (SelectedPath is { } path) Open(path);
-    }
-
-    private void Browse_Click(object sender, RoutedEventArgs e)
-    {
-        var dlg = new OpenFileDialog { Title = "Open a GTA V save", Filter = "All files|*.*" };
+        var dlg = new OpenFileDialog { Title = "Select a GTA V save", Filter = "GTA V saves|SGTA*|All files|*.*" };
         var folder = App.Game.DefaultSaveFolders().FirstOrDefault();
         if (folder != null) dlg.InitialDirectory = folder;
         if (dlg.ShowDialog(_shell) == true) Open(dlg.FileName);
@@ -70,14 +49,6 @@ public partial class SavePickerPage : UserControl
         _shell.Navigate(new EditorPage(_shell, doc));
     }
 
-    private void AddFolder_Click(object sender, RoutedEventArgs e)
-    {
-        var dlg = new OpenFolderDialog { Title = "Add a folder that contains saves" };
-        if (dlg.ShowDialog(_shell) != true) return;
-        SaveLibrary.AddFolder(dlg.FolderName);
-        Refresh();
-    }
-
     private void Backups_Click(object sender, RoutedEventArgs e)
     {
         var dir = BackupService.Default.BackupRoot;
@@ -85,10 +56,7 @@ public partial class SavePickerPage : UserControl
         Process.Start(new ProcessStartInfo("explorer.exe", dir) { UseShellExecute = true });
     }
 
-    private void ShowInFolder_Click(object sender, RoutedEventArgs e)
-    {
-        if (SelectedPath is { } path) Process.Start("explorer.exe", $"/select,\"{path}\"");
-    }
+    private void About_Click(object sender, RoutedEventArgs e) => new AboutWindow { Owner = _shell }.ShowDialog();
 
     private void ImportKey_Click(object sender, RoutedEventArgs e)
     {
@@ -108,6 +76,6 @@ public partial class SavePickerPage : UserControl
         var result = gta.Keys.Import(File.ReadAllBytes(keyDlg.FileName), saveDlg.FileName);
         MessageBox.Show(_shell, result.Summary, "Import key", MessageBoxButton.OK,
             result.IsValid ? MessageBoxImage.Information : MessageBoxImage.Warning);
-        Refresh();
+        ShowKeyState();
     }
 }

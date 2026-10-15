@@ -111,6 +111,7 @@ public sealed class FlightLessonModel(FlightLesson lesson, Action onChanged) : O
 public sealed class GameFlagModel(GameFlag flag, Action onChanged) : Observable
 {
     public string Name => flag.Name;
+    public string Group => flag.Group;
     public string Id => flag.Id;
 
     public bool On

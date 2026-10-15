@@ -94,7 +94,7 @@ public static class StatBrowser
 {
     public const string Everyone = "Everyone";
 
-    private static readonly Lazy<List<(string Category, string Name, string Type, bool PerCharacter, long? Min, long? Max)>> Names =
+    private static readonly Lazy<List<(string Category, string Name, string Type, bool PerCharacter, long? Min, long? Max, string Label)>> Names =
         new(LoadNames);
 
     public static IReadOnlyList<StatEntry> Load(StatStore stats)
@@ -115,7 +115,7 @@ public static class StatBrowser
                     : stats.Has(StatKind.UInt64, full) ? StatValueType.UInt64
                     : null;
                 if (type == null) continue;
-                list.Add(new StatEntry(stats, full, n.Category, who, Humanize(n.Name), type.Value, n.Min, n.Max, ReadOnlyNote(n.Name)));
+                list.Add(new StatEntry(stats, full, n.Category, who, n.Label, type.Value, n.Min, n.Max, ReadOnlyNote(n.Name)));
             }
         }
         return list;
@@ -127,46 +127,27 @@ public static class StatBrowser
             ? "Set by the Missions and Strangers & Freaks tabs."
             : name.StartsWith("PERCENT_") || name is "TOTAL_PROGRESS_MADE"
                 ? "Recomputed by the Checklist tab."
-                : null;
+                : name.StartsWith("NUM_HIDDEN_PACKAGES_") && name != "NUM_HIDDEN_PACKAGES_7"
+                  || name is "SP_UNDER_THE_BRIDGE_COUNT" or "SP_KNIFE_FLIGHTS_COUNT"
+                    ? "Kept in step by the Collectibles tab."
+                    : null;
 
-    // Abbreviations in the game's stat names, spelled out for labels.
-    private static readonly Dictionary<string, string> Words = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["MG"] = "", ["HISCORE"] = "high score", ["PIST"] = "pistol", ["SMG"] = "SMG", ["LMG"] = "LMG", ["AR"] = "assault rifle",
-        ["SG"] = "shotgun", ["HVY"] = "heavy", ["RG"] = "railgun", ["NUM"] = "number of", ["DIST"] = "distance",
-        ["MS"] = "mission", ["HCS"] = "heist", ["FL"] = "flow", ["CO"] = "completed", ["SM"] = "stock", ["PROP"] = "property",
-        ["VEH"] = "vehicle", ["WEAP"] = "weapon", ["DB"] = "drive-by", ["MISS"] = "mission", ["AMMO"] = "ammo",
-    };
+    /// <summary>Every stat name the Stats page knows, for tests.</summary>
+    public static IEnumerable<(string Name, string Label)> AllNames => Names.Value.Select(n => (n.Name, n.Label));
 
-    /// <summary>MONEY_SPENT_ON_TATTOOS → "Money spent on tattoos"; MG_RANGE_PIST1_HISCORE → "Range pistol 1 high score".</summary>
-    public static string Humanize(string name)
-    {
-        var words = new List<string>();
-        foreach (var token in name.Split('_', StringSplitOptions.RemoveEmptyEntries))
-        {
-            int cut = token.Length;
-            while (cut > 0 && char.IsDigit(token[cut - 1])) cut--;
-            var (stem, number) = cut > 0 ? (token[..cut], token[cut..]) : (token, "");
-            var word = Words.TryGetValue(stem, out var w) ? w : stem.ToLowerInvariant();
-            if (word.Length > 0) words.Add(word);
-            if (number.Length > 0 && cut > 0) words.Add(number);
-        }
-        var s = string.Join(' ', words);
-        return s.Length == 0 ? name : char.ToUpperInvariant(s[0]) + s[1..];
-    }
-
-    private static List<(string, string, string, bool, long?, long?)> LoadNames()
+    private static List<(string, string, string, bool, long?, long?, string)> LoadNames()
     {
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SaveEditor.GtaV.StatNames.txt")
             ?? throw new InvalidOperationException("StatNames.txt resource missing.");
         using var reader = new StreamReader(stream);
-        var list = new List<(string, string, string, bool, long?, long?)>();
+        var list = new List<(string, string, string, bool, long?, long?, string)>();
         for (string? line; (line = reader.ReadLine()) != null;)
         {
             if (line.Length == 0 || line[0] == '#') continue;
             var p = line.Split('|');
-            if (p.Length < 6) continue;
-            list.Add((p[0], p[1], p[2], p[3] == "1", long.TryParse(p[4], out var lo) ? lo : null, long.TryParse(p[5], out var hi) ? hi : null));
+            if (p.Length < 7 || p[6].Length == 0) continue;
+            list.Add((p[0], p[1], p[2], p[3] == "1", long.TryParse(p[4], out var lo) ? lo : null,
+                long.TryParse(p[5], out var hi) ? hi : null, p[6]));
         }
         return list;
     }

@@ -1,124 +1,121 @@
 <UserControl x:Class="SaveEditor.App.UnlocksView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/GtaTheme.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="28,22">
+    <DockPanel Margin="28,22,28,12">
+        <StackPanel DockPanel.Dock="Top">
             <TextBlock Text="Unlocks" Style="{StaticResource PageTitle}" FontSize="20"/>
-            <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,16" TextWrapping="Wrap"
+            <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,14" TextWrapping="Wrap"
                        Text="Shop stock, clothes, Director Mode actors and Flight School medals."/>
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,12,0">
 
-            <!-- Weapon unlocks -->
-            <TextBlock Text="Ammu-Nation weapons" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-            <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
-                       Text="Ticked weapons are for sale at Ammu-Nation for that character. To carry a weapon right away, use the Weapons tab."/>
-            <TextBlock x:Name="WeaponError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
-            <StackPanel x:Name="WeaponPanel">
-                <WrapPanel>
-                    <StackPanel x:Name="WeaponCharacters" Orientation="Horizontal" Margin="0,0,12,6"/>
-                    <Button Content="Unlock all for this character" Click="UnlockWeapons_Click" Margin="0,0,6,6"/>
-                    <Button Content="Unlock all for everyone" Click="UnlockWeaponsEveryone_Click" Margin="0,0,6,6"/>
-                </WrapPanel>
-                <ItemsControl x:Name="WeaponGroups" Margin="0,6,0,0">
+                <!-- Weapon unlocks -->
+                <TextBlock Text="Ammu-Nation weapons" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
+                           Text="Ticked weapons are for sale at Ammu-Nation for that character. To carry a weapon right away, use the Weapons tab."/>
+                <TextBlock x:Name="WeaponError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+                <StackPanel x:Name="WeaponPanel">
+                    <WrapPanel>
+                        <StackPanel x:Name="WeaponCharacters" Orientation="Horizontal" Margin="0,0,12,6"/>
+                        <Button Content="Unlock all for this character" Click="UnlockWeapons_Click" Margin="0,0,6,6"/>
+                        <Button Content="Unlock all for everyone" Click="UnlockWeaponsEveryone_Click" Margin="0,0,6,6"/>
+                    </WrapPanel>
+                    <ItemsControl x:Name="WeaponGroups" Margin="0,6,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,6">
+                                    <TextBlock Text="{Binding Category}" Style="{StaticResource SectionTitle}" FontSize="15" Margin="0,4,0,8"/>
+                                    <ItemsControl ItemsSource="{Binding Weapons}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource Card}" Width="200" Padding="10,7" Margin="0,0,8,8">
+                                                    <CheckBox IsChecked="{Binding Unlocked}">
+                                                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                    </CheckBox>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Clothing -->
+                <TextBlock Text="Clothing" Style="{StaticResource SectionTitle}" Margin="0,14,0,4"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
+                           Text="Owned clothes are in the character's wardrobe at their safehouse, free to wear."/>
+                <TextBlock x:Name="ClothingError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+                <ItemsControl x:Name="Wardrobes">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Margin="0,0,0,6">
-                                <TextBlock Text="{Binding Category}" Style="{StaticResource Muted}" Margin="0,0,0,4"/>
-                                <ItemsControl ItemsSource="{Binding Weapons}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource Card}" Width="200" Padding="10,7" Margin="0,0,8,8">
-                                                <CheckBox IsChecked="{Binding Unlocked}">
-                                                    <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/>
-                                                </CheckBox>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
+                            <Border Style="{StaticResource Card}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding OwnedText}" Style="{StaticResource Muted}" Margin="0,2,0,10"/>
+                                    <Button Content="Own every item the shops sell" HorizontalAlignment="Left" Click="OwnClothes_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Director Mode -->
+                <TextBlock Text="Director Mode actors" Style="{StaticResource SectionTitle}" Margin="0,14,0,8"/>
+                <TextBlock x:Name="DirectorError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+                <Border x:Name="DirectorCard" Style="{StaticResource Card}" HorizontalAlignment="Left" Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal">
+                        <ItemsControl x:Name="DirectorRows" Margin="0,0,28,0" VerticalAlignment="Center">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="70"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Title}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Count}" TextAlignment="Right"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button x:Name="DirectorButton" Content="Unlock every actor" VerticalAlignment="Center" Click="UnlockDirector_Click"
+                                ToolTip="Every story character, heist crew member, special character and animal, as in a 100% save"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Flight School -->
+                <DockPanel Margin="0,14,0,4">
+                    <Button x:Name="GoldButton" DockPanel.Dock="Right" Content="Gold in every lesson" Click="GoldAll_Click"/>
+                    <TextBlock Text="Flight School" Style="{StaticResource SectionTitle}"/>
+                </DockPanel>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
+                           Text="Franklin's medals. Any medal ticks the lesson's checklist entry."/>
+                <TextBlock x:Name="FlightError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+                <ItemsControl x:Name="Lessons">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Padding="12,8" Margin="0,0,10,10">
+                                <DockPanel>
+                                    <ComboBox DockPanel.Dock="Right" Width="90" ItemsSource="{Binding Medals}" SelectedItem="{Binding Medal}"/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
-
-            <!-- Clothing -->
-            <TextBlock Text="Clothing" Style="{StaticResource SectionTitle}" Margin="0,14,0,4"/>
-            <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
-                       Text="Owned clothes are in the character's wardrobe at their safehouse, free to wear."/>
-            <TextBlock x:Name="ClothingError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
-            <ItemsControl x:Name="Wardrobes">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource Card}" Margin="0,0,12,12">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding OwnedText}" Style="{StaticResource Muted}" Margin="0,2,0,10"/>
-                                <Button Content="Own every item the shops sell" HorizontalAlignment="Left" Click="OwnClothes_Click"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <!-- Director Mode -->
-            <TextBlock Text="Director Mode actors" Style="{StaticResource SectionTitle}" Margin="0,14,0,8"/>
-            <TextBlock x:Name="DirectorError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
-            <Border x:Name="DirectorCard" Style="{StaticResource Card}" HorizontalAlignment="Left" Margin="0,0,0,12">
-                <StackPanel Orientation="Horizontal">
-                    <ItemsControl x:Name="DirectorRows" Margin="0,0,28,0" VerticalAlignment="Center">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="70"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Title}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Count}" TextAlignment="Right"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Button x:Name="DirectorButton" Content="Unlock every actor" VerticalAlignment="Center" Click="UnlockDirector_Click"
-                            ToolTip="Every story character, heist crew member, special character and animal, as in a 100% save"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Flight School -->
-            <DockPanel Margin="0,14,0,4">
-                <Button x:Name="GoldButton" DockPanel.Dock="Right" Content="Gold in every lesson" Click="GoldAll_Click"/>
-                <TextBlock Text="Flight School" Style="{StaticResource SectionTitle}"/>
-            </DockPanel>
-            <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
-                       Text="Franklin's medals. Any medal ticks the lesson's checklist entry."/>
-            <TextBlock x:Name="FlightError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
-            <ItemsControl x:Name="Lessons">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource Card}" Padding="12,8" Margin="0,0,10,10">
-                            <DockPanel>
-                                <ComboBox DockPanel.Dock="Right" Width="90" ItemsSource="{Binding Medals}" SelectedItem="{Binding Medal}"/>
-                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                            </DockPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

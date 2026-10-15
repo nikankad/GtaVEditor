@@ -38,10 +38,15 @@ public class CollectibleTests
             [CollectibleKind.KnifeFlights] = 15, [CollectibleKind.MonkeyMosaics] = 50, [CollectibleKind.Peyote] = 27,
         };
         foreach (var (kind, total) in expected) Assert.Equal(total, doc.Collectibles.Single(s => s.Kind == kind).Total);
-        Assert.All(doc.Collectibles.Where(s => s.Kind <= CollectibleKind.KnifeFlights), s => Assert.All(s.Items, i => Assert.NotNull(i.Location)));
+        // Each mapped kind has positions for every item but at most one (the scripts give the last item as 0,0,0).
+        Assert.All(doc.Collectibles.Where(s => s.Kind <= CollectibleKind.KnifeFlights),
+            s => Assert.True(s.Items.Count(i => i.Location == null) <= 1, $"{s.Kind} has too many unknown positions"));
         Assert.True(doc.DirectorMode.AllUnlocked);
         Assert.All(doc.FlightSchool, l => Assert.Equal(3, l.Medal));
-        Assert.Contains(doc.Flags, f => f.Id == "FLAG_LETTER_SCRAPS_DONE" && f.On);
+        Assert.Contains(doc.Flags, f => f.Id == "FLAG_LETTER_SCRAPS_DONE" && f.On && f.Name == "All letter scraps found");
+        // Every labelled flag is a real flag in the save, and only labelled flags are shown.
+        Assert.Empty(GameFlags.AllLabels.Keys.Except(doc.Flags.Select(f => f.Id)));
+        Assert.All(doc.Flags, f => Assert.Contains(f.Group, GameFlags.Groups));
     }
 
     [Fact]

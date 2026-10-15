@@ -1,18 +1,11 @@
 <UserControl x:Class="SaveEditor.App.GameFlagsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/GtaTheme.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <DockPanel Margin="28,22,28,12">
         <StackPanel DockPanel.Dock="Top">
             <TextBlock Text="Game flags" Style="{StaticResource PageTitle}" FontSize="20"/>
             <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,12" TextWrapping="Wrap"
-                       Text="Switches the story sets as it moves on: vehicles and places unlocked, collectibles finished, help already shown. Hover a flag for the game's own name."/>
+                       Text="Switches the story sets as it moves on: things unlocked, collectibles finished, texts already sent. Hover a flag for the game's own name."/>
             <TextBlock x:Name="Error" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Search" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
@@ -23,17 +16,26 @@
         <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"
                    Text="The missions read and set these flags themselves. Turning one on early can skip or confuse part of the story; keep the backup."/>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <ItemsControl x:Name="Flags">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <ItemsControl x:Name="Groups">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource Card}" Width="300" Padding="12,8" Margin="0,0,10,10" ToolTip="{Binding Id}">
-                            <CheckBox IsChecked="{Binding On}">
-                                <TextBlock Text="{Binding Name}" TextWrapping="Wrap"/>
-                            </CheckBox>
-                        </Border>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="{Binding Key}" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Card}" Width="300" Padding="12,9" Margin="0,0,10,10" ToolTip="{Binding Id}">
+                                            <CheckBox IsChecked="{Binding On}">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            </CheckBox>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
