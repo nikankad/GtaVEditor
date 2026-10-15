@@ -12,10 +12,16 @@ A backup is made before every write.
 | Checklist | Tick or untick 100% checklist items; the completion figures update to match |
 | Missions | Complete the next mission, up to a chosen mission, or the whole story (with heist approach choices); unlock and revive heist crew |
 | Strangers & Freaks | Complete Strangers and Freaks missions |
+| Collectibles | Mark letter scraps, spaceship parts, epsilon tracts, nuclear waste, submarine pieces, bridges, knife flights, for-sale signs, monkey mosaics, peyote, parachute jumps found one by one (with a map where positions are known); set the stunt jump count |
 | Player | Cash and skills, health, armor, special ability, wanted level, location, game clock |
 | Vehicles | Park cars and bikes in safehouse garages; planes, helicopters and boats at hangars, helipads and docks; business ownership |
 | Stats | Clearly labelled stats by category, with search and per-character filter |
 | Weapons | Give or remove weapons and set ammo per character |
+| Unlocks | Ammu-Nation weapon stock per character, own all shop clothing, unlock every Director Mode actor, Flight School medals |
+| Game flags | Turn the story flow's named flags on or off |
+
+Not done yet: heist take breakdowns, stocks, phone, tattoos, booty calls and other activity records (golf, darts, races…),
+vehicle upgrade unlocks, and the wildlife photography list. These can still be changed by hand under **Advanced…**.
 
 Raw tools (every stored value, save comparison, file details) are under **Advanced…**.
 
@@ -37,7 +43,8 @@ src/
   SaveEditor.GtaV/           Save format and editing library
     Format/                  SGTA file, AES, block container + checksums, PSO tree, stat tables, hashes
     Saves/                   GtaVGame, GtaVSaveDocument, key store, slots, backups, comparer
-    Features/                Checklist, missions, strangers & freaks, player, garages, properties, crew, weapons, stats
+    Features/                Checklist, missions, strangers & freaks, collectibles, player, garages, properties, crew,
+                             weapons, unlocks, game flags, stats
     Catalogs/                Vehicle catalogue
     Data/                    Embedded name lists (PSO names, checklist, stats)
 tests/SaveEditor.Tests/      xUnit tests
@@ -63,4 +70,5 @@ Tests that need a real save pass without checking anything unless these are set:
 
 - None of the edits has been verified in-game across every case; keep the backups.
 - Name lists in `src/SaveEditor.GtaV/Data` partly come from a third-party editor's data; check its terms before
-  publishing a release.
+  publishing a release. Most PSO field names and the collectible positions come from publicly available decompiled
+  game scripts (docs/FINDINGS.md section 19).

@@ -4,6 +4,7 @@
     <EmbeddedResource Include="Data\PsoNames.txt" LogicalName="SaveEditor.GtaV.PsoNames.txt" />
     <EmbeddedResource Include="Data\ChecklistNames.txt" LogicalName="SaveEditor.GtaV.ChecklistNames.txt" />
     <EmbeddedResource Include="Data\StatNames.txt" LogicalName="SaveEditor.GtaV.StatNames.txt" />
+    <EmbeddedResource Include="Data\CollectibleLocations.txt" LogicalName="SaveEditor.GtaV.CollectibleLocations.txt" />
   </ItemGroup>
 
   <PropertyGroup>

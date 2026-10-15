@@ -608,3 +608,52 @@ Implemented in `src/SaveEditor.GtaV/Features/StoryMissions.cs`, using the shortc
 * **"Usual owner"** comes from the user's 100% save, where every business was bought in game.
 * **In-game test file.** `GtaStuff/property-test/SGTA50003` is the 98.8% save with a Hydra in Trevor's hangar, a
   Buzzard on his helipad, and all 15 businesses owned. Not verified in-game.
+
+## 19. Field names from decompiled scripts; collectibles, unlocks and flags (2026-10-14)
+
+* **Names.** About 6,200 save field names were recovered from publicly available decompiled game scripts
+  (YimMenu/GTA-V-Decompiled-Scripts, build 2628). Most come from the name literals of `REGISTER_*_TO_SAVE`,
+  `START_SAVE_STRUCT_WITH_SIZE` and `START_SAVE_ARRAY_WITH_SIZE`, plus indexed names built with `StringIntConCat`.
+  Only names whose exact-case JOAAT matched a field in a real save were kept. Script save data (`g_savedGlobals`)
+  now reads by name; about two thirds of its fields are named.
+* **Packed stat bools.** `_GET_PACKED_STAT_BOOL(i)` for story mode reads bit `(i - 705) % 64` of `SP_PSTAT_BOOL<(i - 705) / 64>`,
+  lowest bit first. This was the only layout that matched the collectible counters in all five sample saves.
+* **Collectibles.** Item indexes come from the collectible scripts; every count was checked against the game's own
+  counter stat and checklist entry in the 1.6%, 66.3%, 98.8% and 100% saves.
+
+  | Kind | Stored as | Counter stat | Checklist |
+  | --- | --- | --- | --- |
+  | Letter scraps | packed bools 705–754 | `NUM_HIDDEN_PACKAGES_0` | `SC_CO_DLS1` (50) |
+  | Spaceship parts | packed bools 755–804 | `NUM_HIDDEN_PACKAGES_1` | `SC_CO_UFOP1` (50) |
+  | Epsilon tracts | packed bools 805–814 | `NUM_HIDDEN_PACKAGES_2` | – |
+  | Nuclear waste | packed bools 815–844 | `NUM_HIDDEN_PACKAGES_3` | `SC_MSC_SON` (30) |
+  | Submarine pieces | packed bools 845–874 | `NUM_HIDDEN_PACKAGES_4` | `SC_MSC_DIV` (30) |
+  | Bridges / knife flights | bits 0–69 of `0xF144B45F`, `BRIDGES_FLOWN_UNDER_FLAGS_2`, `_3` | `SP_UNDER_THE_BRIDGE_COUNT` / `SP_KNIFE_FLIGHTS_COUNT` | `SC_MSC_BRG` (25) / `SC_MSC_KFT` (8) |
+  | For-sale signs | bits 0–14 of `FOR_SALE_SIGN_DESTROYED_FLAGS` | – | – |
+  | Monkey mosaics | 50 bits of `PHOTOGRAPHY_MONKEY_FLAGS_1`, `_2` | `NUM_HIDDEN_PACKAGES_6` | – |
+  | Peyote | `PEYOTE_PICKUP_OF_TYPE_FOUND` (15 + 6 + 6 bits) | `NUM_HIDDEN_PACKAGES_5` | – |
+  | Parachute jumps | bits 0–12 of `BASEJUMP_SAVED_STRUCT/0x6EC087BF` | – | `SC_MG_BJUM` (13) |
+  | Stunt jumps | count only, `STUNT_JUMPS_iStuntJumpsCompleted` | – | `SC_MSC_STJ` (25) |
+
+  * Knife flights are bits 33–36 and 50–60 (`flyunderbridges`); bits 2, 8, 37, 65 and 66 are unused, which leaves
+    50 bridges. The game recounts both counters from these bits when a save loads (`standard_global_reg`).
+  * The letter-scrap and spaceship script bitsets (`GLOBAL_SCRAP_DATA_*`) are -1 already in a 66% save, so they are
+    not the found state and are left alone.
+  * Positions (`Data/CollectibleLocations.txt`) are the pickup coordinates in `letterscraps`, `spaceshipparts`,
+    `epsilontract`, `ambient_sonar`, `ambient_diving` and `flyunderbridges`.
+* **Weapon unlocks.** The gun shop checks bit `n % 32` of `SP<c>_WEAP_UNLOCK_<n / 32>`, where `n` is the weapon's number
+  in `gunclub_shop`'s weapon table (`func_57`). A 100% save still has a few weapons locked (hammer, bat, crowbar, golf club,
+  Pistol .50, Assault SMG, Bullpup Shotgun, firework and homing launchers).
+* **Clothing.** `COMPONENTS_ARRAY/SP<c>/<group>` has `AVAILABLE` (what the shops offer, nearly all set from the start),
+  `ACQUIRED` (owned) and `NEW`. "Own everything" sets `ACQUIRED |= AVAILABLE`.
+* **Tattoos.** `TATTOOS_ARRAY/.../UNLOCKED` is the same in the 1.6% and 100% saves, so it is not a progress unlock;
+  not edited.
+* **Director Mode.** The four `BitsetCharacter*Unlock` values in a 100% save are 268402687, 8191, 268402687 and
+  2097151 (27, 13, 27 and 21 actors).
+* **Flight School.** `0x93E8FC1E/structPilotSchool_p1` is Franklin's (the other two are zero in every save). Each
+  `PSC_*` lesson has `eMedal` (0 none, 1 bronze, 2 silver, 3 gold) and `HasPassedLesson`. The lessons map onto
+  checklist `SC_MGPS1`–`SC_MGPS12`.
+* **Game flags.** `FLOW_STRUCT/MF_CONTROLS_STRUCT/MF_CONTROL_FLAGIDS` holds 137 named `FLAG_*` ints.
+* **Not done.** Wildlife photography (`WILDLIFE_PHOTOGRAPHY_FLAGS` has more bits than the 20 animals; the mapping is unknown),
+  vehicle upgrade unlocks, heist breakdowns, stocks, phone, booty calls and activity records.
+* None of these edits has been verified in-game.

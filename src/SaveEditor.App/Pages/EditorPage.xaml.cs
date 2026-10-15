@@ -34,6 +34,9 @@ public partial class EditorPage : UserControl, IGuardedPage
         LoadGarages();
         LoadPropertyVehiclesAndProperties();
         LoadWeapons();
+        CollectiblesTab.Content = _collectibles = new CollectiblesView(doc, ProgressChanged);
+        UnlocksTab.Content = _unlocks = new UnlocksView(doc, ProgressChanged);
+        FlagsTab.Content = _flags = new GameFlagsView(doc, Changed);
         if (!doc.Integrity.IsValid)
             shell.SetStatus("Warning: this save's checksum was already wrong before editing. " + doc.Integrity.Summary);
     }
@@ -50,6 +53,21 @@ public partial class EditorPage : UserControl, IGuardedPage
         _dirty = true;
         SaveButton.IsEnabled = true;
         ShowHeader();
+    }
+
+    // ---- Collectibles, unlocks and flags ----
+
+    private readonly CollectiblesView _collectibles;
+    private readonly UnlocksView _unlocks;
+    private readonly GameFlagsView _flags;
+
+    /// <summary>Collectibles and Flight School also tick checklist entries and change counter stats.</summary>
+    private void ProgressChanged()
+    {
+        Changed();
+        foreach (var i in _checklistItems) i.Refresh();
+        if (_checklistItems.Count > 0) ShowChecklistSummary();
+        _statRows.ForEach(r => r.Refresh());
     }
 
     // ---- Characters ----
@@ -631,6 +649,9 @@ public partial class EditorPage : UserControl, IGuardedPage
         _propertyVehicles.ForEach(s => s.Refresh());
         _properties.ForEach(p => p.Refresh());
         ShowCrew();
+        _collectibles.Refresh();
+        _unlocks.Refresh();
+        _flags.Refresh();
         ShowHeader();
     }
 }

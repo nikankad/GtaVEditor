@@ -79,6 +79,36 @@ public sealed class GtaVSaveDocument
     /// <summary>Every named stat this save has, by category, for the Stats page.</summary>
     public IReadOnlyList<StatEntry> StatList => _statList ??= StatBrowser.Load(Stats);
 
+    private Collectibles? _collectibles;
+
+    /// <summary>Letter scraps, spaceship parts, bridges and the other collectibles, item by item.</summary>
+    public Collectibles Collectibles => _collectibles ??= GtaV.Collectibles.Load(Pso, Stats, ChecklistOrNull());
+
+    private IReadOnlyList<GameFlag>? _flags;
+
+    /// <summary>The story flow flags whose names are known.</summary>
+    public IReadOnlyList<GameFlag> Flags => _flags ??= GameFlags.Load(Pso);
+
+    private IReadOnlyList<WeaponUnlock>? _weaponUnlocks;
+
+    /// <summary>Which weapons Ammu-Nation sells to each character.</summary>
+    public IReadOnlyList<WeaponUnlock> WeaponUnlocks => _weaponUnlocks ??= GtaV.WeaponUnlocks.Load(Stats);
+
+    private IReadOnlyList<Wardrobe>? _wardrobes;
+
+    /// <summary>Each character's owned clothes.</summary>
+    public IReadOnlyList<Wardrobe> Wardrobes => _wardrobes ??= Wardrobe.Load(Pso);
+
+    private DirectorModeUnlocks? _director;
+
+    /// <summary>The Director Mode actors that are unlocked.</summary>
+    public DirectorModeUnlocks DirectorMode => _director ??= DirectorModeUnlocks.Load(Pso);
+
+    private IReadOnlyList<FlightLesson>? _flightSchool;
+
+    /// <summary>Franklin's Flight School medals.</summary>
+    public IReadOnlyList<FlightLesson> FlightSchool => _flightSchool ??= GtaV.FlightSchool.Load(Pso, ChecklistOrNull());
+
     private Checklist? ChecklistOrNull()
     {
         try { return Checklist; }

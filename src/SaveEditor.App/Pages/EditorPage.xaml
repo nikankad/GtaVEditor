@@ -257,6 +257,8 @@
                 </DockPanel>
             </TabItem>
 
+            <TabItem x:Name="CollectiblesTab" Header="Collectibles"/>
+
             <!-- Player -->
             <TabItem Header="Player">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -666,6 +668,9 @@
                     </ScrollViewer>
                 </DockPanel>
             </TabItem>
+
+            <TabItem x:Name="UnlocksTab" Header="Unlocks"/>
+            <TabItem x:Name="FlagsTab" Header="Game flags"/>
         </TabControl>
     </DockPanel>
 </UserControl>
