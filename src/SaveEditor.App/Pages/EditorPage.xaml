@@ -202,7 +202,29 @@
                         </WrapPanel>
                         <TextBlock Text="Heist approaches and ending" Style="{StaticResource SectionTitle}" Margin="0,0,0,6"/>
                         <WrapPanel x:Name="ChoicePickers" Margin="0,0,0,10"/>
-                        <CheckBox x:Name="MissionsIncomplete" Content="Show incomplete only" Checked="CompletionFilter_Changed" Unchecked="CompletionFilter_Changed" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <!-- Filters the list below by mission name. -->
+                            <Grid Width="260" Margin="0,0,18,0" VerticalAlignment="Center">
+                                <TextBox x:Name="MissionSearch" Padding="6,5" TextChanged="MissionSearch_Changed" PreviewKeyDown="MissionSearch_KeyDown"
+                                         ToolTip="Show only missions whose name contains what you type"/>
+                                <TextBlock Text="Search missions…" Foreground="{StaticResource MutedBrush}" Margin="9,0,0,0"
+                                           VerticalAlignment="Center" IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MissionSearch}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                            <CheckBox x:Name="MissionsIncomplete" Content="Show incomplete only" Checked="CompletionFilter_Changed" Unchecked="CompletionFilter_Changed" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="MissionSearchEmpty" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="18,0,0,0"
+                                       Visibility="Collapsed"/>
+                        </StackPanel>
                     </StackPanel>
                     <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"
                                Text="Skipped missions don't pay out what the mission itself would (heist takes, for example). The game still asks for heist plans on the planning board; pick the approach you chose here. Unticking a mission the story has already passed doesn't make you replay it."/>

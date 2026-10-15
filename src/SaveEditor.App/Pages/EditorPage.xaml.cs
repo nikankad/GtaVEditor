@@ -584,7 +584,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         if (!IsInitialized) return;
         if (force || ChecklistIncomplete.IsChecked == true) ShowChecklistGroup(_checklistGroup);
         if (force || MissionsIncomplete.IsChecked == true)
-            MissionItems.ItemsSource = _missionItems.Where(m => MissionsIncomplete.IsChecked != true || !m.Done).ToList();
+            ShowMissionList();
         if (force || StrangersIncomplete.IsChecked == true)
             StrangerGroups.ItemsSource = _strangerItems.Where(m => StrangersIncomplete.IsChecked != true || !m.Done)
                 .GroupBy(m => m.Mission.Character).Select(g => new StrangerGroup(g.Key, g.ToList())).ToList();
@@ -722,12 +722,36 @@ public partial class EditorPage : UserControl, IGuardedPage
         }
     }
 
+    /// <summary>The mission rows that pass the "incomplete only" tick and the search words (every word must be in the name).</summary>
+    private void ShowMissionList()
+    {
+        var words = MissionSearch.Text.Split(' ',StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var shown = _missionItems
+            .Where(m => MissionsIncomplete.IsChecked != true || !m.Done)
+            .Where(m => words.All(w => m.Name.Contains(w, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        MissionItems.ItemsSource = shown;
+        var none = shown.Count == 0 && _missionItems.Count > 0;
+        MissionSearchEmpty.Text = none ? "No mission matches." : "";
+        MissionSearchEmpty.Visibility = none ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void MissionSearch_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (IsInitialized) ShowMissionList();
+    }
+
+    private void MissionSearch_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape) MissionSearch.Clear();
+    }
+
     /// <summary>Lists the missions of the chosen approaches and refreshes the summary.</summary>
     private void ShowMissions()
     {
         if (_missions == null) return;
         _missionItems = _missions.Path.Select(m => new MissionModel(_missions, m, MissionsChanged)).ToList();
-        MissionItems.ItemsSource = _missionItems.Where(m => MissionsIncomplete.IsChecked != true || !m.Done).ToList();
+        ShowMissionList();
         ShowMissionSummary();
     }
 
