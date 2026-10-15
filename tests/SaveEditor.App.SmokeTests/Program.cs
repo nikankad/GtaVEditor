@@ -18,9 +18,10 @@ internal static class Program
     [STAThread]
     private static int Main()
     {
-        Application.ResourceAssembly = typeof(App).Assembly;
         var app = new App();
         app.InitializeComponent();
+        app.StartupUri = null;
+        app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         MainWindow? shell = null;
         try
         {

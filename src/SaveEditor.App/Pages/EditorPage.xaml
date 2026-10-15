@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:SaveEditor.App">
     <UserControl.Resources>
-        <ResourceDictionary Source="/Themes/GtaMap.xaml"/>
+        <ResourceDictionary Source="/GtaVSaveEditor;component/Themes/GtaMap.xaml"/>
     </UserControl.Resources>
     <DockPanel Background="{StaticResource PageBrush}">
         <!-- Header: which save, and the file actions. -->

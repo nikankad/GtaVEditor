@@ -5,7 +5,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/GtaMap.xaml"/>
+                <ResourceDictionary Source="/GtaVSaveEditor;component/Themes/GtaMap.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="MapButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                 <Setter Property="Width" Value="30"/>

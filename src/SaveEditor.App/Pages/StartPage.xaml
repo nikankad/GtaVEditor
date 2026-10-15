@@ -17,7 +17,7 @@
             <StackPanel Margin="48,28" MaxWidth="720" HorizontalAlignment="Center">
                 <Image Height="170" HorizontalAlignment="Center" Margin="0,0,0,20" RenderOptions.BitmapScalingMode="HighQuality">
                     <Image.Source>
-                        <BitmapImage UriSource="/Assets/logo.png" DecodePixelHeight="340"/>
+                        <BitmapImage UriSource="/GtaVSaveEditor;component/Assets/logo.png" DecodePixelHeight="340"/>
                     </Image.Source>
                 </Image>
                 <TextBlock Text="Edit a story mode save" Style="{StaticResource PageTitle}" HorizontalAlignment="Center"/>
