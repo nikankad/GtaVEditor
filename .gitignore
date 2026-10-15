@@ -502,7 +502,10 @@ $RECYCLE.BIN/
 /build/
 
 # Development-only files stay local; the repository shows only the client.
-.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/release.yml
 tests/
 tools/
 scripts/
