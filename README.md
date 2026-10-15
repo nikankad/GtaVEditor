@@ -35,6 +35,24 @@ writing it. Use **Browse backups…** on the start page to inspect or restore a 
 Saves are in `Documents\Rockstar Games\GTA V\Profiles\<id>\SGTA500xx`. If cloud saves are on, the game may replace
 an edited save with the cloud copy.
 
+## Disclaimer
+
+**For educational and personal use only.** This is an independent, non-commercial hobby project that shows how GTA V
+single-player save files are laid out. It is meant for learning and for editing your own saves offline.
+
+- **Not affiliated with or endorsed by** Rockstar Games, Take-Two Interactive or any of their subsidiaries.
+  *Grand Theft Auto*, *GTA V* and related names, logos, characters and artwork are trademarks or copyrights of their
+  respective owners and are used here only to identify the game the tool works with. All rights remain with them.
+- **Story mode only.** It does not touch GTA Online, and it is not meant to be used to cheat, gain an unfair advantage
+  or harm other players. Don't use it with online services; doing so can get an account banned.
+- **You need your own copy of the game.** It does not include, distribute or help you obtain the game.
+- **No warranty.** The software is provided "as is", without warranty of any kind. The author is not liable for
+  corrupted or lost saves, broken progress, account actions, or any other damage or loss from using it. Back up your
+  saves and use it at your own risk.
+- **You are responsible** for making sure your use complies with the game's terms of service and the laws where you live.
+
+If you are a rights holder and have a concern about this project, please open an issue and it will be addressed promptly.
+
 ## Build it yourself
 
 Needs Windows and the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).

@@ -445,7 +445,7 @@
                                                                 <Image Source="{StaticResource GtaMapImage}" Stretch="Fill"/>
                                                                 <Canvas>
                                                                     <Ellipse Canvas.Left="{Binding MapLeft}" Canvas.Top="{Binding MapTop}" Width="40" Height="40"
-                                                                             Stroke="{StaticResource AccentBrush}" StrokeThickness="7" Fill="#88FCAF17"/>
+                                                                             Stroke="{StaticResource AccentBrush}" StrokeThickness="7" Fill="#8852BE3B"/>
                                                                 </Canvas>
                                                             </Grid>
                                                         </Viewbox>

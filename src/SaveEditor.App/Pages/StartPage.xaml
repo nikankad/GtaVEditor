@@ -79,7 +79,7 @@
                         <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="20"
                                    Text="Editing a save can corrupt it, stop it loading, or break story progress, and you could lose the save for good. The editor copies the old file to the backups folder before every write, but keep your own copy of any save you care about as well."/>
                         <TextBlock Style="{StaticResource Muted}" Margin="0,8,0,0" LineHeight="20"
-                                   Text="Story mode only. Not made by or affiliated with Rockstar Games. Edits haven't been tested in-game for every case; use at your own risk. With cloud saves on, the game may replace an edited save with the cloud copy."/>
+                                   Text="For educational purposes only. Story mode only. Not made by or affiliated with Rockstar Games. Edits haven't been tested in-game for every case; use at your own risk. With cloud saves on, the game may replace an edited save with the cloud copy."/>
                     </StackPanel>
                 </Border>
             </StackPanel>
