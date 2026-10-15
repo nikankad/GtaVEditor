@@ -1,0 +1,69 @@
+# On every push to main: build and test, publish a single-file GtaVSaveEditor.exe with the save key built in,
+# and attach it to a new GitHub release.
+#
+# The key is never in the repo. It comes from the repository secret GTAV_SAVE_KEY (the key file, base64-encoded),
+# is written to the gitignored Data/gtav-pc.key only for the publish step, and the runner is discarded afterwards.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      VERSION: 1.0.${{ github.run_number }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test tests/SaveEditor.Tests -c Release
+
+      - name: Add the save key
+        shell: pwsh
+        env:
+          GTAV_SAVE_KEY: ${{ secrets.GTAV_SAVE_KEY }}
+        run: |
+          if (-not $env:GTAV_SAVE_KEY) { Write-Error "The GTAV_SAVE_KEY secret is not set."; exit 1 }
+          $key = [Convert]::FromBase64String($env:GTAV_SAVE_KEY.Trim())
+          if ($key.Length -ne 32) { Write-Error "GTAV_SAVE_KEY must decode to 32 bytes (got $($key.Length))."; exit 1 }
+          [IO.File]::WriteAllBytes("src/SaveEditor.GtaV/Data/gtav-pc.key", $key)
+
+      - name: Publish
+        run: >
+          dotnet publish src/SaveEditor.App/SaveEditor.App.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+          -p:Version=${{ env.VERSION }} -o publish
+
+      - name: Remove the key file
+        if: always()
+        shell: pwsh
+        run: Remove-Item src/SaveEditor.GtaV/Data/gtav-pc.key -ErrorAction SilentlyContinue
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: GTA V Save Editor ${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          files: publish/GtaVSaveEditor.exe
+          body: |
+            Download **GtaVSaveEditor.exe** below and run it; nothing to install (Windows 10/11, 64-bit).
+
+            Back up your saves before editing. The editor also copies each save before writing it.
+
+            Built from ${{ github.sha }}.

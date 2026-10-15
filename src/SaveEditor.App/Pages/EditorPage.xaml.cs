@@ -34,6 +34,9 @@ public partial class EditorPage : UserControl, IGuardedPage
         LoadGarages();
         LoadPropertyVehiclesAndProperties();
         LoadWeapons();
+        CollectiblesTab.Content = _collectibles = new CollectiblesView(doc, ProgressChanged);
+        UnlocksTab.Content = _unlocks = new UnlocksView(doc, ProgressChanged);
+        FlagsTab.Content = _flags = new GameFlagsView(doc, Changed);
         if (!doc.Integrity.IsValid)
             shell.SetStatus("Warning: this save's checksum was already wrong before editing. " + doc.Integrity.Summary);
     }
@@ -50,6 +53,21 @@ public partial class EditorPage : UserControl, IGuardedPage
         _dirty = true;
         SaveButton.IsEnabled = true;
         ShowHeader();
+    }
+
+    // ---- Collectibles, unlocks and flags ----
+
+    private readonly CollectiblesView _collectibles;
+    private readonly UnlocksView _unlocks;
+    private readonly GameFlagsView _flags;
+
+    /// <summary>Collectibles and Flight School also tick checklist entries and change counter stats.</summary>
+    private void ProgressChanged()
+    {
+        Changed();
+        foreach (var i in _checklistItems) i.Refresh();
+        if (_checklistItems.Count > 0) ShowChecklistSummary();
+        _statRows.ForEach(r => r.Refresh());
     }
 
     // ---- Characters ----
@@ -574,8 +592,25 @@ public partial class EditorPage : UserControl, IGuardedPage
         if (picker.ShowDialog() == true && picker.ChosenPath != null) WriteTo(picker.ChosenPath);
     }
 
+    private static bool _saveWarningAccepted;
+
+    /// <summary>Once per run, before the first write: edited saves can break, so say where the backup goes.</summary>
+    private bool AcceptSaveWarning()
+    {
+        if (_saveWarningAccepted) return true;
+        _saveWarningAccepted = MessageBox.Show(_shell,
+            "Edited saves are not checked by Rockstar and can be corrupted, refuse to load, or break story progress. " +
+            "Use this editor at your own risk.\n\n" +
+            $"Before writing, the editor copies the old file to:\n{BackupService.Default.BackupRoot}\n\n" +
+            "Keep your own copy of important saves too, and turn off cloud saves if you don't want the game to overwrite " +
+            "your edits.\n\nContinue and save?",
+            "Before you save", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
+        return _saveWarningAccepted;
+    }
+
     private bool WriteTo(string path)
     {
+        if (!AcceptSaveWarning()) return false;
         try
         {
             var backup = BackupService.Default.Backup(path);
@@ -606,31 +641,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         };
     }
 
-    private void Back_Click(object sender, RoutedEventArgs e) => _shell.Navigate(new SavePickerPage(_shell));
+    private void Back_Click(object sender, RoutedEventArgs e) => _shell.Navigate(new StartPage(_shell));
 
-    private void Advanced_Click(object sender, RoutedEventArgs e)
-    {
-        new AdvancedToolsWindow(_doc, Changed) { Owner = _shell }.ShowDialog();
-        // The raw editor may have changed the same bytes the friendly views show.
-        _characters.ForEach(c =>
-        {
-            c.Refresh();
-            foreach (var s in c.Skills) s.Refresh();
-        });
-        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
-        foreach (var i in _checklistItems) i.Refresh();
-        if (_checklistItems.Count > 0) ShowChecklistSummary();
-        foreach (var m in _missionItems) m.Refresh();
-        ShowMissionSummary();
-        foreach (var m in _strangerItems) m.Refresh();
-        ShowStrangersCount();
-        _status.ForEach(s => s.Refresh());
-        _clock?.Refresh();
-        _statRows.ForEach(r => r.Refresh());
-        _garageSlots.ForEach(s => s.Refresh());
-        _propertyVehicles.ForEach(s => s.Refresh());
-        _properties.ForEach(p => p.Refresh());
-        ShowCrew();
-        ShowHeader();
-    }
+    private void About_Click(object sender, RoutedEventArgs e) => new AboutWindow { Owner = _shell }.ShowDialog();
 }

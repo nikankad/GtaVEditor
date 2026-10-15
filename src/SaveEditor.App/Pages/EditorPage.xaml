@@ -1,52 +1,16 @@
 <UserControl x:Class="SaveEditor.App.EditorPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Themes/GtaTheme.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            <!-- Dark lists for the Stats page. -->
-            <Style x:Key="DarkList" TargetType="ListBox">
-                <Setter Property="Background" Value="{StaticResource CardBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
-            </Style>
-            <Style x:Key="DarkListItem" TargetType="ListBoxItem">
-                <Setter Property="Padding" Value="8,4"/>
-                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}"
-                                    BorderBrush="Transparent" BorderThickness="3,0,0,0">
-                                <ContentPresenter/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource CardHoverBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource CardHoverBrush}"/>
-                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <DockPanel Background="{StaticResource PageBrush}">
         <!-- Header: which save, and the file actions. -->
         <Border DockPanel.Dock="Top" Background="{StaticResource HeaderBrush}" Padding="20,12"
                 BorderBrush="{StaticResource AccentBrush}" BorderThickness="0,0,0,3">
             <DockPanel>
-                <Button DockPanel.Dock="Left" Content="← Saves" Style="{StaticResource HeaderButton}" Click="Back_Click"
+                <Button DockPanel.Dock="Left" Content="← Back" Style="{StaticResource HeaderButton}" Click="Back_Click"
                         VerticalAlignment="Center" Margin="0,0,18,0"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Advanced…" Style="{StaticResource HeaderButton}" Click="Advanced_Click"
-                            ToolTip="Raw save data, compare two saves, file details and save title"/>
+                    <Button Content="About" Style="{StaticResource HeaderButton}" Click="About_Click"
+                            ToolTip="What this app is and who made it"/>
                     <Button Content="Save to game slot…" Style="{StaticResource HeaderButton}" Margin="8,0,0,0" Click="SaveToSlot_Click"
                             ToolTip="Write this save into one of the game's Load Game slots"/>
                     <Button Content="Save as…" Style="{StaticResource HeaderButton}" Margin="8,0,0,0" Click="SaveAs_Click"/>
@@ -256,6 +220,8 @@
                     </ScrollViewer>
                 </DockPanel>
             </TabItem>
+
+            <TabItem x:Name="CollectiblesTab" Header="Collectibles"/>
 
             <!-- Player -->
             <TabItem Header="Player">
@@ -666,6 +632,9 @@
                     </ScrollViewer>
                 </DockPanel>
             </TabItem>
+
+            <TabItem x:Name="UnlocksTab" Header="Unlocks"/>
+            <TabItem x:Name="FlagsTab" Header="Game flags"/>
         </TabControl>
     </DockPanel>
 </UserControl>

@@ -1,0 +1,40 @@
+<Window x:Class="SaveEditor.App.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About" Width="520" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource PageBrush}" Icon="/Assets/gta5.png">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource HeaderBrush}" Padding="24,16"
+                BorderBrush="{StaticResource AccentBrush}" BorderThickness="0,0,0,3">
+            <StackPanel>
+                <TextBlock Text="GTA V Save Editor" Foreground="White" FontFamily="{StaticResource HeadingFont}" FontSize="26" FontWeight="Bold"/>
+                <TextBlock x:Name="VersionText" Style="{StaticResource Muted}"/>
+            </StackPanel>
+        </Border>
+        <StackPanel Margin="24,18,24,20">
+            <TextBlock TextWrapping="Wrap" LineHeight="20"
+                       Text="A free, open-source save editor for Grand Theft Auto V story mode on PC. It opens your save and lets you change it through plain pages: finish missions, tick off the 100% checklist and collectibles, give yourself money, cars and weapons, unlock shop items and more."/>
+            <TextBlock TextWrapping="Wrap" LineHeight="20" Margin="0,10,0,0"
+                       Text="Made by Nikan. Not made by or affiliated with Rockstar Games or Take-Two Interactive; Grand Theft Auto is their trademark."/>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock>
+                        <Run Text="GitHub: " Foreground="{StaticResource MutedBrush}"/>
+                        <Hyperlink NavigateUri="https://github.com/nikankad" RequestNavigate="Link_Navigate"
+                                   Foreground="{StaticResource AccentBrush}">github.com/nikankad</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Margin="0,6,0,0">
+                        <Run Text="Source and downloads: " Foreground="{StaticResource MutedBrush}"/>
+                        <Hyperlink NavigateUri="https://github.com/nikankad/GtaVEditor" RequestNavigate="Link_Navigate"
+                                   Foreground="{StaticResource AccentBrush}">github.com/nikankad/GtaVEditor</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Style="{StaticResource Muted}" Margin="0,16,0,0" LineHeight="18"
+                       Text="Edited saves can be lost or corrupted. The editor backs up every save before writing it, but keep your own copies too. Use at your own risk."/>
+            <Button Content="Close" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" Margin="0,16,0,0" Click="Close_Click"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

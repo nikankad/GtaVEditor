@@ -5,11 +5,16 @@ namespace SaveEditor.Tests;
 public class StatBrowserTests
 {
     [Fact]
-    public void Humanizes()
+    public void EveryStatHasItsOwnLabel()
     {
-        Assert.Equal("Money spent on tattoos", StatBrowser.Humanize("MONEY_SPENT_ON_TATTOOS"));
-        Assert.Equal("Range pistol 1 high score", StatBrowser.Humanize("MG_RANGE_PIST1_HISCORE"));
-        Assert.Equal("Number of hidden packages 0", StatBrowser.Humanize("NUM_HIDDEN_PACKAGES_0"));
+        var names = StatBrowser.AllNames.ToList();
+        Assert.True(names.Count > 600, $"only {names.Count} labelled stats");
+        Assert.All(names, n => Assert.DoesNotContain('_', n.Label));
+        Assert.Equal(names.Count, names.Select(n => n.Label).Distinct().Count());
+        var labels = names.ToDictionary(n => n.Name, n => n.Label);
+        Assert.Equal("Shooting range high score: pistols, challenge 1", labels["MG_RANGE_PIST1_HISCORE"]);
+        Assert.Equal("Letter scraps found", labels["NUM_HIDDEN_PACKAGES_0"]);
+        Assert.Equal("Pistol .50 headshot kills", labels["PISTOL50_HEADSHOTS"]);
     }
 
     /// <summary>Real-save check (GTAV_KEY_FILE + GTAV_SAMPLE_SAVE); passes trivially without them.</summary>
