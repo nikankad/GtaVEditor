@@ -1,0 +1,138 @@
+<UserControl x:Class="SaveEditor.App.CollectiblesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:SaveEditor.App">
+    <UserControl.Resources>
+        <!-- The game's map blip: red until found. A yellow ring marks the one picked. -->
+        <DataTemplate x:Key="DotTemplate">
+            <Grid Width="14" Height="14" Cursor="Hand" Background="Transparent" ToolTip="{Binding Title}"
+                  MouseLeftButtonUp="Dot_Click" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <ScaleTransform ScaleX="{Binding MarkerScale, RelativeSource={RelativeSource AncestorType=local:MapView}}"
+                                    ScaleY="{Binding MarkerScale, RelativeSource={RelativeSource AncestorType=local:MapView}}"/>
+                </Grid.RenderTransform>
+                <Ellipse x:Name="Ring" Margin="-5" Stroke="{StaticResource AccentBrush}" StrokeThickness="2.5"
+                         Fill="#55000000" Visibility="Collapsed"/>
+                <Image x:Name="Blip" Source="{Binding Blip}" RenderOptions.BitmapScalingMode="HighQuality"/>
+                <Ellipse x:Name="Dot" Stroke="Black" StrokeThickness="1" Fill="{StaticResource AccentBrush}"
+                         Visibility="Collapsed"/>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Blip}" Value="{x:Null}">
+                    <Setter TargetName="Dot" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Collected}" Value="True">
+                    <Setter TargetName="Dot" Property="Fill" Value="{StaticResource MoneyBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+    <DockPanel Margin="28,22,28,12">
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Collectibles" Style="{StaticResource PageTitle}" FontSize="20"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,14" TextWrapping="Wrap"
+                       Text="Tick an item to mark it found. Click a dot on the map, or a card in the list, to see which one it is and where; scroll on the map to zoom and drag to move around."/>
+            <TextBlock x:Name="Error" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+            <WrapPanel x:Name="KindPicker" Margin="0,0,0,12"/>
+            <WrapPanel x:Name="Actions">
+                <TextBlock x:Name="CountText" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,16,6"/>
+                <Button Content="Mark all found" Click="All_Click" Margin="0,0,6,6"/>
+                <Button Content="Mark all not found" Click="None_Click" Margin="0,0,6,6"/>
+                <Button Content="Every kind: all found" Click="Everything_Click" Margin="0,0,6,6"
+                        ToolTip="Marks every item of every kind found"/>
+                <CheckBox x:Name="MissingOnly" Content="Show not found only" Checked="Filter_Changed" Unchecked="Filter_Changed" Margin="0,0,12,6" VerticalAlignment="Center"/>
+                <Button x:Name="NextMissingButton" Content="Show next not found" Click="NextMissing_Click" Margin="0,0,6,6"
+                        ToolTip="Picks the next item you haven't found and zooms the map to it"/>
+                <StackPanel x:Name="CountPanel" Orientation="Horizontal" Margin="12,0,0,6">
+                    <TextBlock Text="Completed" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBox x:Name="CountBox" Width="50" VerticalContentAlignment="Center"/>
+                    <Button Content="Set" Click="SetCount_Click" Margin="6,0,0,0"/>
+                    <TextBlock x:Name="CountError" Style="{StaticResource ErrorText}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </StackPanel>
+            </WrapPanel>
+        </StackPanel>
+        <TextBlock x:Name="Note" DockPanel.Dock="Bottom" Style="{StaticResource Muted}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="MapColumn" Width="3*" MinWidth="320"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Map: scroll to zoom at the pointer, drag to pan, click a dot for its details. -->
+            <Border x:Name="MapBorder" Background="#14181C" BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                    Margin="0,0,16,0" MinHeight="420">
+                <Grid>
+                    <local:MapView x:Name="Map" MapClick="Map_Click" MarkerTemplate="{StaticResource DotTemplate}"/>
+
+                    <!-- Legend -->
+                    <StackPanel x:Name="Legend" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                Margin="10,10,0,0" IsHitTestVisible="False">
+                        <Image x:Name="LegendFound" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="Found" Style="{StaticResource Muted}" Margin="5,0,14,0" VerticalAlignment="Center"/>
+                        <Image x:Name="LegendMissing" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="Not found" Style="{StaticResource Muted}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Details of the picked item -->
+                    <Border x:Name="Details" Style="{StaticResource Card}" Background="#E6181A1D" BorderBrush="{StaticResource AccentBrush}"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10" Width="290" Visibility="Collapsed">
+                        <StackPanel>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="✕" Style="{StaticResource LinkButton}" VerticalAlignment="Top"
+                                        Click="CloseDetails_Click" ToolTip="Close"/>
+                                <Image DockPanel.Dock="Left" Source="{Binding Blip}" Style="{StaticResource GamePicture}" Width="22" Height="22"
+                                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <TextBlock Text="{Binding Area}" Margin="0,8,0,0"/>
+                            <TextBlock Text="{Binding Coordinates}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0"/>
+                            <CheckBox IsChecked="{Binding Collected}" Margin="0,10,0,0">
+                                <TextBlock Text="{Binding Status}" FontWeight="SemiBold"/>
+                            </CheckBox>
+                            <DockPanel Margin="0,12,0,0">
+                                <Button DockPanel.Dock="Right" Content="Next ›" Click="NextItem_Click" Margin="6,0,0,0"/>
+                                <Button DockPanel.Dock="Right" Content="‹ Previous" Click="PreviousItem_Click"/>
+                                <Button Content="Zoom to it" Style="{StaticResource LinkButton}" VerticalAlignment="Center"
+                                        HorizontalAlignment="Left" Click="ZoomToSelected_Click"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="ItemList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><local:MasonryPanel ColumnWidth="104" Spacing="8"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Clicking the card picks the item (and shows it on the map); the box marks it found. -->
+                            <Border x:Name="Card" Style="{StaticResource Card}" Padding="10,7" ToolTip="{Binding Tip}" Cursor="Hand"
+                                    MouseLeftButtonUp="Card_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <CheckBox IsChecked="{Binding Collected}" ToolTip="Found"/>
+                                    <Image Source="{Binding Blip}" Style="{StaticResource GamePicture}" Width="16" Height="16" Margin="0,0,5,0"
+                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Card" Property="Background" Value="{StaticResource CardHoverBrush}"/>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    <Setter TargetName="Card" Property="Background" Value="{StaticResource CardHoverBrush}"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</UserControl>

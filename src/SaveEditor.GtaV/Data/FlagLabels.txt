@@ -1,0 +1,95 @@
+# Plain-English labels for the story flow's FLAG_* values (Game flags tab).
+# Format: NAME|Group|Label. Flags not listed here (heist-board bookkeeping, unnamed FLAG_n) are not shown.
+FLAG_AIR_VEH_PARA_UNLOCKED|Unlocks|Parachute in aircraft available
+FLAG_ALLOW_CINEMA|Unlocks|Cinemas open
+FLAG_ALLOW_COMEDYCLUB|Unlocks|Comedy club open
+FLAG_ALLOW_LIVEMUSIC|Unlocks|Live music venue open
+FLAG_ALLOW_RANDOM_EVENTS|Unlocks|Random events can happen
+FLAG_ALLOW_SHOP_ROBBERIES|Unlocks|Shops can be robbed
+FLAG_ALL_RAMPAGES_UNLOCKED|Unlocks|All rampages unlocked
+FLAG_ASS_1_UNLOCKED|Unlocks|Lester's assassinations unlocked
+FLAG_CHOP_DOG_UNLOCKED|Unlocks|Chop can be walked
+FLAG_DARTS_YELLOW_JACK_AV|Unlocks|Darts at the Yellow Jack available
+FLAG_EXILE1_PICKUPS_UNLOCKED|Unlocks|Countryside weapon pickups unlocked
+FLAG_FBI_4_UNLOCKED_FROM_P|Unlocks|Blitz Play unlocked after its preps
+FLAG_H_AGENCY_2_UNLOCKED|Unlocks|Bureau Raid planning unlocked
+FLAG_MOVIE_STUDIO_OPEN|Unlocks|Movie studio open to Michael
+FLAG_MOVIE_STUDIO_OPEN_FRAN|Unlocks|Movie studio open to Franklin
+FLAG_OFFR_RACE_UNLOCK_ALL|Unlocks|All off-road races unlocked
+FLAG_PLAYER_VEH_F_UNLOCK_BIKE|Unlocks|Franklin's Bagger bike unlocked
+FLAG_PLAYER_VEH_T_UNLOCK_RJAM|Unlocks|Trevor's Canis Bodhi unlocked after Mr. Philips
+FLAG_RES_AND_RCS_UNLOCKED|Unlocks|Random events and strangers unlocked
+FLAG_WATER_VEH_SCUBA_UNLOCKED|Unlocks|Scuba gear in boats available
+FLAG_WILD_PHOTO_UNLOCKED|Unlocks|Wildlife photography unlocked
+FLAG_UNLOCK_LAMAR_1|Unlocks|Lamar's first mission unlocked
+FLAG_GUNRANGE_TUTORIAL_DONE|Unlocks|Shooting range tutorial done
+FLAG_LETTER_SCRAPS_DONE|Collectibles|All letter scraps found
+FLAG_SPACESHIP_PARTS_DONE|Collectibles|All spaceship parts found
+FLAG_DIVING_SCRAPS_DONE|Collectibles|All submarine pieces found
+FLAG_FOR_SALE_SIGNS_DESTROYED|Collectibles|All for-sale signs destroyed
+FLAG_EXTREME4_BJUMPS_FINISHED|Collectibles|All parachute jumps done (for Dom)
+FLAG_EPSILON_UNLOCKED_TRACT|Epsilon Program|Epsilon tracts unlocked
+FLAG_EPSILON_QUESTIONNAIRE_DONE|Epsilon Program|Epsilon questionnaire done
+FLAG_EPSILON_DONATED_500|Epsilon Program|Donated $500
+FLAG_EPSILON_DONATED_5000|Epsilon Program|Donated $5,000
+FLAG_EPSILON_DONATED_10000|Epsilon Program|Donated $10,000
+FLAG_EPSILON_ROBES_BOUGHT|Epsilon Program|Epsilon robes bought
+FLAG_EPSILON_ROBES_DONE|Epsilon Program|Wore the robes for 10 days
+FLAG_EPSILON_CARS_DONE|Epsilon Program|Epsilon cars delivered
+FLAG_EPSILON_DESERT_DONE|Epsilon Program|Desert walk done
+FLAG_MIKE_CON_BOUGHT|Story|Michael bought a car from the internet
+FLAG_FRANK_CON_BOUGHT|Story|Franklin bought a car from the internet
+FLAG_TREV_CON_BOUGHT|Story|Trevor bought a car from the internet
+FLAG_PURCHASED_MARINA_PROPERTY|Story|Bought the marina berth
+FLAG_F_MOVED_TO_HILLS_APART|Story|Franklin moved to the Vinewood Hills house
+FLAG_M_T_EXILE_STARTED|Story|Michael and Trevor's exile started
+FLAG_M_T_EXILE_FINISHED|Story|Michael and Trevor's exile finished
+FLAG_M_A_HAVE_FALLEN_OUT|Story|Michael and Amanda have fallen out
+FLAG_M_A_HAVE_SPLIT|Story|Michael's family has moved out
+FLAG_M_F_ARE_FRIENDS|Story|Michael and Franklin are friends
+FLAG_T_RESTRICT_CITY|Story|Trevor kept out of the city
+FLAG_T_RESTRICT_COUNTRY|Story|Trevor kept out of the countryside
+FLAG_FINAL_CHOICE_MADE|Story|Final mission choice made
+FLAG_RESPAWNED_AFTER_FIN|Story|Free roam after the final mission
+FLAG_MICHAEL_KILLED|Story|Michael killed (ending A)
+FLAG_TREVOR_KILLED|Story|Trevor killed (ending B)
+FLAG_GAME_100_PERC_COMP|Story|Game 100% completed
+FLAG_ORTEGA_KILLED|Story|Ortega killed
+FLAG_CAR2_KILLED_MULLIGAN|Story|Mulligan killed in Repossession
+FLAG_NIGEL3_NAPOLI_KILLED|Story|Al Di Napoli killed
+FLAG_FRANK1_MC_CLIPPED|Story|Biker shot in Franklin's first mission
+FLAG_MIC_HAS_HAGGARD_SUIT|Story|Michael has the scruffy suit
+FLAG_FRAN_DONE_ACT_WITH_LAM|Story|Franklin hung out with Lamar
+FLAG_TREV_DONE_ACT_WITH_LAM|Story|Trevor hung out with Lamar
+FLAG_PLAYER_PED_INTRODUCED_M|Story|Michael introduced
+FLAG_PLAYER_PED_INTRODUCED_F|Story|Franklin introduced
+FLAG_PLAYER_PED_INTRODUCED_T|Story|Trevor introduced
+FLAG_H_FIN_JEWEL|Heists|The Jewel Store Job done
+FLAG_H_FIN_DOCKS|Heists|The Merryweather Heist done
+FLAG_H_FIN_RURALBANK|Heists|The Paleto Score done
+FLAG_H_FIN_AGENCY|Heists|The Bureau Raid done
+FLAG_H_FIN_FINALE|Heists|The Big Score done
+FLAG_H_FINALE_PC_1_STOLEN|Heists|Big Score: first getaway car stolen
+FLAG_H_FINALE_PC_2_STOLEN|Heists|Big Score: second getaway car stolen
+FLAG_H_FINALE_PC_3_STOLEN|Heists|Big Score: third getaway car stolen
+FLAG_FBI_4_PREP_3_COMPLETED|Heists|Blitz Play: getaway car prep done
+FLAG_BARRY3_TEXT_RECEIVED|Messages|Text from Barry (third mission)
+FLAG_BARRY4_TEXT_RECEIVED|Messages|Text from Barry (fourth mission)
+FLAG_BEV_SENT_WILD_TXT|Messages|Text from Beverly about wild photos
+FLAG_DOCKS_PRE_H_TEXTS_DONE|Messages|Texts before the Merryweather Heist
+FLAG_EPSILON_6_TEXT_RECEIVED|Messages|Text from the Epsilon Program
+FLAG_EXTREME2_TEXT_RECEIVED|Messages|Text from Dom (second mission)
+FLAG_EXTREME3_TEXT_RECEIVED|Messages|Text from Dom (third mission)
+FLAG_FBI_3_CALLS_DONE|Messages|Calls after By the Book
+FLAG_FBI_4_CALLS_DONE|Messages|Calls after Blitz Play
+FLAG_HUNTINTG1_TEXT_RECEIVED|Messages|Text from Cletus about hunting
+FLAG_MARTIN_1_CALLS_DONE|Messages|Calls after Martin's first mission
+FLAG_MICHAEL_4_TEXTS_DONE|Messages|Texts after Meltdown
+FLAG_NIGEL1_EMAIL_RECEIVED|Messages|Email from Nigel and Mrs. Thornhill
+FLAG_PAPARAZZO3_TEXT_RECEIVED|Messages|Text from Beverly (third mission)
+FLAG_STRETCH_TEXT_SENT|Messages|Text from Stretch
+FLAG_TONYA3_TEXT_RECEIVED|Messages|Text from Tonya (third tow job)
+FLAG_TONYA4_TEXT_RECEIVED|Messages|Text from Tonya (fourth tow job)
+FLAG_SENT_MISSILE_EMAIL|Messages|Homing launcher email sent
+FLAG_SENT_PROX_MINE_EMAIL|Messages|Proximity mine email sent
+FLAG_PLAYER_HAS_USED_FP_VIEW|Messages|First-person view tip shown
