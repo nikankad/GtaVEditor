@@ -1,0 +1,27 @@
+name: Bug report
+description: Report a reproducible problem in the editor.
+body:
+  - type: markdown
+    attributes:
+      value: 'For security issues, follow SECURITY.md. Do not attach saves, encryption keys, or personal paths.'
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Copy the version shown in About; say if this is a source build.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows version and GTA V edition/build
+      placeholder: Windows 11 x64, GTA V Legacy build ...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include what you expected, what happened, and any error text. Remove private paths.
+    validations:
+      required: true

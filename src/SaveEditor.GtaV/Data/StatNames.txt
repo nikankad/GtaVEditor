@@ -1,0 +1,611 @@
+# Single-player stat names (the game's own names), grouped for the Stats page.
+# Format: Category|NAME|type|perCharacter|min|max|label. perCharacter names are stored as SP0_/SP1_/SP2_NAME.
+# Names and min/max ranges for the stats shown on the Stats page.
+Money|TOTAL_CASH_EARNED|int|1|||Total cash earned
+Money|MONEY_TOTAL_SPENT|int|1|0|1073741823|Total cash spent
+Money|MONEY_SPENT_CAR_MODS|int|1|0|1073741823|Spent on car mods
+Money|MONEY_SPENT_ON_TATTOOS|int|1|0|1073741823|Spent on tattoos
+Money|MONEY_SPENT_ON_HAIRDOS|int|1|0|1073741823|Spent on haircuts
+Money|MONEY_SPENT_PROPERTY|int|1|0|1073741823|Spent on businesses
+Money|TOTAL_CASH|int|1|||Cash
+Money|MONEY_SPENT_IN_CLOTHES|int|1|||Spent at clothes shops
+Money|MONEY_SPENT_IN_STRIP_CLUBS|int|1|||Spent at strip clubs
+Money|MONEY_SPENT_ON_TAXIS|int|1|||Spent on taxis
+Money|MONEY_SPENT_IN_COP_BRIBES|int|1|||Spent on police bribes
+Money|MONEY_SPENT_ON_HEALTHCARE|int|1|||Spent on hospital bills
+Money|MONEY_SPENT_IN_BUYING_GUNS|int|1|||Spent at Ammu-Nation
+Money|MONEY_MADE_FROM_MISSIONS|int|1|||Earned from missions
+Money|MONEY_MADE_FROM_RANDOM_PEDS|int|1|||Taken from people on the street
+Money|MONEY_PICKED_UP_ON_STREET|int|1|||Cash picked up off the street
+Money|PROP_BOUGHT_TRAF|bool|0|||Bought: McKenzie Field Hangar
+Money|PROP_BOUGHT_CSCR|bool|0|||Bought: Car Scrapyard
+Money|PROP_BOUGHT_WEED|bool|0|||Bought: Smoke on the Water
+Money|PROP_BOUGHT_TAXI|bool|0|||Bought: Downtown Cab Co.
+Money|PROP_BOUGHT_CMSH|bool|0|||Bought: car mod shop
+Money|PROP_BOUGHT_SOCO|bool|0|||Bought: Sonar Collections Dock
+Money|PROP_BOUGHT_TOWI|bool|0|||Bought: Towing Impound
+Money|PROP_BOUGHT_GOLF|bool|0|||Bought: Los Santos Golf Club
+Money|PROP_BOUGHT_CINV|bool|0|||Bought: cinema, Vinewood
+Money|PROP_BOUGHT_CIND|bool|0|||Bought: cinema, Downtown
+Money|PROP_BOUGHT_CINM|bool|0|||Bought: cinema, Morningwood
+Money|PROP_BOUGHT_BARTE|bool|0|||Bought: Tequi-la-la
+Money|PROP_BOUGHT_BARPI|bool|0|||Bought: Pitchers
+Money|PROP_BOUGHT_BARHE|bool|0|||Bought: The Hen House
+Money|PROP_BOUGHT_BARHO|bool|0|||Bought: Hookies
+Money|PROP_BOUGHT_STRIP|bool|0|||Bought: Vanilla Unicorn
+Money|PROP_EARNED_TRAF|int|0|||Earned by McKenzie Field Hangar
+Money|PROP_EARNED_CSCR|int|0|||Earned by Car Scrapyard
+Money|PROP_EARNED_WEED|int|0|||Earned by Smoke on the Water
+Money|PROP_EARNED_TAXI|int|0|||Earned by Downtown Cab Co.
+Money|PROP_EARNED_CMSH|int|0|||Earned by car mod shop
+Money|PROP_EARNED_SOCO|int|0|||Earned by Sonar Collections Dock
+Money|PROP_EARNED_TOWI|int|0|||Earned by Towing Impound
+Money|PROP_EARNED_GOLF|int|0|||Earned by Los Santos Golf Club
+Money|PROP_EARNED_CINV|int|0|||Earned by cinema, Vinewood
+Money|PROP_EARNED_CIND|int|0|||Earned by cinema, Downtown
+Money|PROP_EARNED_CINM|int|0|||Earned by cinema, Morningwood
+Money|PROP_EARNED_BARTE|int|0|||Earned by Tequi-la-la
+Money|PROP_EARNED_BARPI|int|0|||Earned by Pitchers
+Money|PROP_EARNED_BARHE|int|0|||Earned by The Hen House
+Money|PROP_EARNED_BARHO|int|0|||Earned by Hookies
+Money|PROP_EARNED_STRIP|int|0|||Earned by Vanilla Unicorn
+Money|NUM_CASH_SPENT|int|0|||Total cash spent (all characters)
+Money|SP_MONEY_SPENT_ON_WEAPONS|int|1|||Spent on weapons, mods and ammo
+Money|SP_MONEY_SPENT_ON_CLOTHES|int|1|||Spent on clothes
+Combat|SHOTS|int|1|||Shots fired
+Combat|HITS|int|1|||Shots that hit
+Combat|WEAPON_ACCURACY|float|1|||Shooting accuracy (%)
+Combat|KILLS|int|1|||Kills
+Combat|HEADSHOTS|int|1|||Headshot kills
+Combat|KILLS_ARMED|int|1|||Armed enemies killed
+Combat|KILLS_IN_FREE_AIM|float|1|||Kills while free-aiming
+Combat|KILLS_STEALTH|int|1|||Stealth kills
+Combat|SUCCESSFUL_COUNTERS|int|1|||Melee counter-attacks
+Crimes|BUSTED|int|1|||Times arrested
+Crimes|COPS_KILLS_ON_SPREE|int|1|||Most cops killed in one rampage
+Crimes|PEDS_KILLS_ON_SPREE|int|1|||Most people killed in one rampage
+Crimes|LONGEST_KILLING_SPREE|u32|1|||Longest killing spree (kills)
+Crimes|LONGEST_KILLING_SPREE_TIME|u32|1|||Longest killing spree (milliseconds)
+Crimes|KILLS_INNOCENTS|int|1|||Innocent people killed
+Crimes|KILLS_COP|int|1|||Police killed
+Crimes|KILLS_SWAT|int|1|||SWAT killed
+Crimes|KILLS_SINCE_LAST_CHECKPOINT|int|1|||Kills since the last checkpoint
+Crimes|KILLS_SINCE_SAFEHOUSE_VISIT|int|1|||Kills since the last safehouse visit
+Crimes|TOTAL_LEGITIMATE_KILLS|int|1|||Kills of mission targets
+Crimes|KILLS_BY_OTHERS|int|1|||Kills by other people
+Crimes|LONGEST_CHASE_TIME|float|1|||Longest police chase (milliseconds)
+Crimes|TOTAL_CHASE_TIME|u32|1|||Total time in police chases (milliseconds)
+Crimes|LAST_CHASE_TIME|float|1|||Last police chase (milliseconds)
+Crimes|TOTAL_TIME_MAX_STARS|u32|1|||Time spent at five stars (milliseconds)
+Crimes|STARS_ATTAINED|int|1|||Wanted stars gained
+Crimes|STARS_EVADED|int|1|||Wanted stars lost
+Crimes|NO_TIMES_WANTED_LEVEL|int|1|||Times wanted by the police
+General|DEATHS|int|1|||Times wasted
+General|NUM_SH_BEER_DRUNK|int|0|||Beers drunk at safehouses
+General|NUM_SH_BONG_SMOKED|int|0|||Bong hits at safehouses
+General|NUM_SH_SOFA_USED|int|0|||Times sat on a safehouse sofa
+General|NUM_SH_TV_WATCHED|int|0|||Times watched TV at a safehouse
+General|NUM_SH_SOFA_SMOKED|int|0|||Times smoked on a safehouse sofa
+General|NUM_SH_WINE_DRANK|int|0|||Glasses of wine at Michael's house
+General|NUM_SH_WHEATGRASS|int|0|||Wheatgrass shots at Michael's house
+General|NUM_SH_WHISKEY|int|0|||Whiskeys at Michael's house
+General|NUM_SH_GAS_HUFFED|int|0|||Times huffed gas at Trevor's trailer
+General|NUM_SH_MR_JAM_USED|int|0|||Times used Mr. Raspberry Jam
+General|NO_PHOTOS_TAKEN|int|1|0|1073741823|Photos taken
+General|LAP_DANCED_BOUGHT|int|1|0|1073741823|Lap dances bought
+General|DIED_IN_DROWNING|int|1|||Deaths by drowning
+General|DIED_IN_DROWNINGINVEHICLE|int|1|||Deaths by drowning in a vehicle
+General|DIED_IN_EXPLOSION|int|1|||Deaths in explosions
+General|DIED_IN_FALL|int|1|||Deaths from falling
+General|DIED_IN_FIRE|int|1|||Deaths in fires
+General|DIED_IN_ROAD|int|1|||Deaths on the road
+General|DIED_IN_MISSION|int|1|||Deaths during missions
+General|MISSIONS_PASSED|int|1|||Missions passed
+General|MISSIONS_FAILED|int|1|||Missions failed
+General|SP_LEAST_FAVORITE_STATION|int|0|||Least listened radio station (station number)
+General|SP_MOST_FAVORITE_STATION|int|0|||Most listened radio station (station number)
+General|FIRES_EXTINGUISHED|int|1|||Fires put out
+General|FIRES_STARTED|int|1|||Fires started
+General|TIMES_CHEATED|int|1|||Cheats used
+General|TOTAL_PLAYING_TIME|u64|1|||Time played as this character (milliseconds)
+General|LONGEST_PLAYING_TIME|u32|1|||Longest session as this character (milliseconds)
+General|LONGEST_CAM_TIME_DRIVING|u32|1|||Longest drive in cinematic camera (milliseconds)
+General|MANUAL_SAVED|int|1|||Times saved by hand
+General|AUTO_SAVED|int|1|||Autosaves
+General|DIST_SWIMMING|float|1|||Distance swum (metres)
+General|TIME_SWIMMING|u64|1|||Time spent swimming (milliseconds)
+General|DIST_WALKING|float|1|||Distance walked (metres)
+General|TIME_WALKING|u64|1|||Time spent walking (milliseconds)
+General|DIST_WALK_ST|float|1|||Distance walked in stealth mode (metres)
+General|DIST_RUNNING|float|1|||Distance run (metres)
+General|TIME_UNDERWATER|u64|1|||Time spent underwater (milliseconds)
+General|TIME_IN_WATER|u64|1|||Time spent in water (milliseconds)
+General|TIME_IN_COVER|u64|1|||Time spent in cover (milliseconds)
+General|ENTERED_COVER|int|1|||Times taken cover
+General|ENTERED_COVER_AND_SHOT|int|1|||Times shot from cover
+General|CROUCHED|int|1|||Times crouched
+General|CROUCHED_AND_SHOT|int|1|||Times shot while crouched
+General|TIMES_M_INIT_F_BBUDDY|int|0|||Times Michael asked Franklin to hang out
+General|TIMES_M_INIT_T_BBUDDY|int|0|||Times Michael asked Trevor to hang out
+General|TIMES_F_INIT_M_BBUDDY|int|0|||Times Franklin asked Michael to hang out
+General|TIMES_F_INIT_T_BBUDDY|int|0|||Times Franklin asked Trevor to hang out
+General|TIMES_T_INIT_M_BBUDDY|int|0|||Times Trevor asked Michael to hang out
+General|TIMES_T_INIT_F_BBUDDY|int|0|||Times Trevor asked Franklin to hang out
+General|NUM_WEAPON_PICKUPS|int|1|||Weapons picked up
+General|NUM_HEALTH_PICKUPS|int|1|||Health packs picked up
+General|NUM_ARMOUR_PICKUPS|int|1|||Body armor picked up
+General|NUM_AMMO_PICKUPS|int|1|||Ammo picked up
+General|TIME_NOTDROWNINWATER|u64|1|||Time in water without drowning (milliseconds)
+General|TOTAL_TIME_UNDERWATER|u64|1|||Total time underwater (milliseconds)
+General|SP_KNIFE_FLIGHTS_COUNT|int|0|||Knife flights done
+General|SP_NUMBER_OF_TAXIS_USED|int|0|||Taxi rides taken
+General|SP_UNDER_THE_BRIDGE_COUNT|int|0|||Bridges flown under
+General|SP_NUM_TIMES_DRUNK|int|1|||Times drunk
+General|SP_MONEY_SPENT_ON_VEHICLES|int|1|||Spent on vehicles
+General|NUM_HIDDEN_PACKAGES_0|int|0|||Letter scraps found
+General|NUM_HIDDEN_PACKAGES_1|int|0|||Spaceship parts found
+General|NUM_HIDDEN_PACKAGES_2|int|0|||Epsilon tracts found
+General|NUM_HIDDEN_PACKAGES_3|int|0|||Nuclear waste found
+General|NUM_HIDDEN_PACKAGES_4|int|0|||Submarine pieces found
+General|NUM_DESTROYED_SIGNS_0|int|0|||For-sale signs destroyed
+General|NUM_HIDDEN_PACKAGES_5|int|0|||Peyote plants eaten
+General|NUM_HIDDEN_PACKAGES_6|int|0|||Monkey mosaics photographed
+General|NUM_HIDDEN_PACKAGES_7|int|0|||Wildlife photographs taken
+General|MP_SESSIONS_STARTED|int|0|||GTA Online sessions started
+General|MP_SESSIONS_ENDED|int|0|||GTA Online sessions finished
+General|MP_MOST_FRIENDS_IN_ONE_MATCH|int|0|||Most friends in one GTA Online match
+General|MP_VEHICLE_MODELS_DRIVEN|int|0|||Vehicle models driven in GTA Online
+General|MP_PLAYING_TIME|u64|0|||Time played in GTA Online (milliseconds)
+General|FIRST_PERSON_CAM_TIME|u64|0|||Time in first-person view (milliseconds)
+General|MP_FIRST_PERSON_CAM_TIME|u64|0|||Time in first-person view in GTA Online (milliseconds)
+General|THIRD_PERSON_CAM_TIME|u64|0|||Time in third-person view (milliseconds)
+General|MP_THIRD_PERSON_CAM_TIME|u64|0|||Time in third-person view in GTA Online (milliseconds)
+General|LONGEST_SKYDIVE|float|1|||Longest skydive survived (metres)
+General|NUM_TRAFFICKING_COMPLETED|int|0|||Arms trafficking runs done
+General|NUM_RAMPAGES_COMPLETED|int|0|||Rampages done
+General|NUM_STOCK_RACES_COMPLETED|int|0|||Stock car races done
+General|NUM_GOLD_MEDALS_OBTAINED|int|0|||Gold medals in story missions
+General|NUM_DISCIPLINE_GOLD_EARNED|int|0|||Activities with a gold medal
+General|NUM_EPSILON_STEP|int|0|||Epsilon Program steps done
+Overall|TOTAL_PROGRESS_MADE|float|0|||Game completion (%)
+Overall|MOCAP_CUTSCENE_SKIPPED|int|0|||Story cutscenes skipped
+Overall|MOCAP_CUTSCENE_WATCHED|int|0|||Story cutscenes watched
+Overall|CUTSCENES_SKIPPED|int|0|||Cutscenes skipped
+Overall|CUTSCENES_WATCHED|int|0|||Cutscenes watched
+Overall|TIMES_MISSION_SKIPPED|int|0|||Times a mission was skipped
+Overall|PLAYING_TIME|u32|0|||Time played, all characters (milliseconds)
+Overall|STEALTH_TIME|u32|0|||Time in stealth mode (milliseconds)
+Overall|LAST_PLAYING_TIME|u32|0|||Length of the last session (milliseconds)
+Overall|SP_VEHICLE_MODELS_DRIVEN|int|0|||Vehicle models driven
+Overall|SP_TOTAL_SWITCHES|int|0|||Character switches
+Overall|TOTAL_SWITCHES|int|1|||Times switched to this character
+Overall|TIME_SPENT_ON_STOCKMARKET|u32|0|||Time on the stock market (milliseconds)
+Overall|RE_WALLETS_RECOVERED|int|0|||Wallets recovered at random events
+Overall|RE_WALLETS_RETURNED|int|0|||Wallets returned at random events
+Overall|RC_WALLETS_RECOVERED|int|0|0|1073741823|Wallets recovered from strangers
+Overall|RC_WALLETS_RETURNED|int|0|0|1073741823|Wallets returned to strangers
+Overall|SP_CHOP_WALK_DONE|int|0|||Walks with Chop
+Overall|SP_AMBIENT_SWITCH_COUNT|int|0|||Character switches outside missions
+Overall|SP_CAR_APP_ORDER_COUNT|int|0|||Cars ordered with the iFruit app
+Overall|SP_CELLPHONE_SLEEP_TIME|int|0|||Time the phone was on sleep mode (milliseconds)
+Shooting range|MG_RANGE_PIST1_HISCORE|int|1|||Shooting range high score: pistols, challenge 1
+Shooting range|MG_RANGE_PIST2_HISCORE|int|1|||Shooting range high score: pistols, challenge 2
+Shooting range|MG_RANGE_PIST3_HISCORE|int|1|||Shooting range high score: pistols, challenge 3
+Shooting range|MG_RANGE_SMG1_HISCORE|int|1|||Shooting range high score: SMGs, challenge 1
+Shooting range|MG_RANGE_SMG2_HISCORE|int|1|||Shooting range high score: SMGs, challenge 2
+Shooting range|MG_RANGE_SMG3_HISCORE|int|1|||Shooting range high score: SMGs, challenge 3
+Shooting range|MG_RANGE_AR1_HISCORE|int|1|||Shooting range high score: assault rifles, challenge 1
+Shooting range|MG_RANGE_AR2_HISCORE|int|1|||Shooting range high score: assault rifles, challenge 2
+Shooting range|MG_RANGE_AR3_HISCORE|int|1|||Shooting range high score: assault rifles, challenge 3
+Shooting range|MG_RANGE_SG1_HISCORE|int|1|||Shooting range high score: shotguns, challenge 1
+Shooting range|MG_RANGE_SG2_HISCORE|int|1|||Shooting range high score: shotguns, challenge 2
+Shooting range|MG_RANGE_SG3_HISCORE|int|1|||Shooting range high score: shotguns, challenge 3
+Shooting range|MG_RANGE_LMG1_HISCORE|int|1|||Shooting range high score: light machine guns, challenge 1
+Shooting range|MG_RANGE_LMG2_HISCORE|int|1|||Shooting range high score: light machine guns, challenge 2
+Shooting range|MG_RANGE_LMG3_HISCORE|int|1|||Shooting range high score: light machine guns, challenge 3
+Shooting range|MG_RANGE_HVY1_HISCORE|int|1|||Shooting range high score: heavy weapons, challenge 1
+Shooting range|MG_RANGE_HVY2_HISCORE|int|1|||Shooting range high score: heavy weapons, challenge 2
+Shooting range|MG_RANGE_HVY3_HISCORE|int|1|||Shooting range high score: heavy weapons, challenge 3
+Shooting range|MG_RANGE_RG1_HISCORE|int|1|||Shooting range high score: railgun, challenge 1
+Shooting range|MG_RANGE_RG2_HISCORE|int|1|||Shooting range high score: railgun, challenge 2
+Shooting range|MG_RANGE_RG3_HISCORE|int|1|||Shooting range high score: railgun, challenge 3
+Shooting range|MG_RANGE_RG4_HISCORE|int|1|||Shooting range high score: railgun, challenge 4
+Skills|SPECIAL_ABILITY|int|1|||Special ability meter
+Skills|SPECIAL_ABILITY_UNLOCKED|int|1|||Special ability skill
+Skills|SPECIAL_ABILITY_ACTIVE_NUM|int|1|||Times special ability used
+Skills|SPECIAL_ABILITY_ACTIVE_TIME|u32|1|||Time special ability was on (milliseconds)
+Skills|STAMINA|int|1|0|100|Stamina skill
+Skills|STRENGTH|int|1|0|100|Strength skill
+Skills|LUNG_CAPACITY|int|1|0|100|Lung capacity skill
+Skills|WHEELIE_ABILITY|int|1|0|100|Driving skill
+Skills|FLYING_ABILITY|int|1|0|100|Flying skill
+Skills|SHOOTING_ABILITY|int|1|0|100|Shooting skill
+Skills|STEALTH_ABILITY|int|1|0|100|Stealth skill
+Skills|STAMINA_MAXED|int|1|||Stamina maxed
+Skills|STRENGTH_MAXED|int|1|||Strength maxed
+Skills|LUNG_CAPACITY_MAXED|int|1|||Lung capacity maxed
+Skills|WHEELIE_ABILITY_MAXED|int|1|||Driving maxed
+Skills|FLYING_ABILITY_MAXED|int|1|||Flying maxed
+Skills|SHOOTING_ABILITY_MAXED|int|1|||Shooting maxed
+Skills|STEALTH_ABILITY_MAXED|int|1|||Stealth maxed
+Skills|SPECIAL_ABILITY_MAXED|int|1|||Special ability maxed
+Collectibles and properties|PROP_MISSIONS_CSCR|int|0|||Business missions done: Car Scrapyard
+Collectibles and properties|PROP_MISSIONS_WEED|int|0|||Business missions done: Smoke on the Water
+Collectibles and properties|PROP_MISSIONS_TAXI|int|0|||Business missions done: Downtown Cab Co.
+Collectibles and properties|PROP_MISSIONS_CINV|int|0|||Business missions done: cinema, Vinewood
+Collectibles and properties|PROP_MISSIONS_CIND|int|0|||Business missions done: cinema, Downtown
+Collectibles and properties|PROP_MISSIONS_CINM|int|0|||Business missions done: cinema, Morningwood
+Collectibles and properties|PROP_MISSIONS_BARTE|int|0|||Business missions done: Tequi-la-la
+Collectibles and properties|PROP_MISSIONS_BARPI|int|0|||Business missions done: Pitchers
+Collectibles and properties|PROP_MISSIONS_BARHE|int|0|||Business missions done: The Hen House
+Collectibles and properties|PROP_MISSIONS_BARHO|int|0|||Business missions done: Hookies
+Vehicles|NUMBER_NEAR_MISS|int|1|||Near misses in traffic
+Vehicles|BAILED_FROM_VEHICLE|int|1|||Times bailed out of a moving vehicle
+Vehicles|THROWNTHROUGH_WINDSCREEN|int|1|||Times thrown through the windscreen
+Vehicles|TOTAL_DAMAGE_CARS|float|1|||Damage done to cars
+Vehicles|TOTAL_DAMAGE_BIKES|float|1|||Damage done to motorcycles
+Vehicles|TOTAL_DAMAGE_QUADBIKES|float|1|||Damage done to quad bikes
+Vehicles|NUMBER_CRASHES_CARS|int|1|||Car crashes
+Vehicles|NUMBER_CRASHES_BIKES|int|1|||Motorcycle crashes
+Vehicles|NUMBER_CRASHES_QUADBIKES|int|1|||Quad bike crashes
+Vehicles|NUMBER_STOLEN_COP_VEHICLE|int|1|||Police vehicles stolen
+Vehicles|NUMBER_STOLEN_CARS|int|1|||Cars stolen
+Vehicles|NUMBER_STOLEN_BIKES|int|1|||Motorcycles stolen
+Vehicles|NUMBER_STOLEN_BOATS|int|1|||Boats stolen
+Vehicles|NUMBER_STOLEN_HELIS|int|1|||Helicopters stolen
+Vehicles|NUMBER_STOLEN_PLANES|int|1|||Planes stolen
+Vehicles|NUMBER_STOLEN_QUADBIKES|int|1|||Quad bikes stolen
+Vehicles|NUMBER_STOLEN_BICYCLES|int|1|||Bicycles stolen
+Vehicles|TIRES_POPPED_BY_GUNSHOT|int|1|||Tires shot out
+Vehicles|VEHICLES_DESTROYED_ON_SPREE|int|1|||Most vehicles destroyed in one rampage
+Vehicles|COP_VEHI_DESTROYED_ON_SPREE|int|1|||Most police vehicles destroyed in one rampage
+Vehicles|TANKS_DESTROYED_ON_SPREE|int|1|||Most tanks destroyed in one rampage
+Vehicles|CARS_WRECKED|int|1|||Cars wrecked
+Vehicles|CARS_COPS_WRECKED|int|1|||Police cars wrecked
+Vehicles|CARS_EXPLODED|int|1|||Cars blown up
+Vehicles|CARS_COPS_EXPLODED|int|1|||Police cars blown up
+Vehicles|BIKES_EXPLODED|int|1|||Motorcycles blown up
+Vehicles|BOATS_EXPLODED|int|1|||Boats blown up
+Vehicles|HELIS_EXPLODED|int|1|||Helicopters blown up
+Vehicles|PLANES_EXPLODED|int|1|||Planes blown up
+Vehicles|QUADBIKE_EXPLODED|int|1|||Quad bikes blown up
+Vehicles|BICYCLE_EXPLODED|int|1|||Bicycles blown up
+Vehicles|SUBMARINE_EXPLODED|int|1|||Submarines blown up
+Vehicles|TRAIN_EXPLODED|int|1|||Trains blown up
+Vehicles|FASTEST_SPEED|float|1|||Fastest speed (metres per second)
+Vehicles|TOP_SPEED_CAR|u32|1|||Fastest car (vehicle model code)
+Vehicles|LONGEST_2WHEEL_DIST|float|1|||Longest drive on two wheels (metres)
+Vehicles|LONGEST_2WHEEL_TIME|u32|1|||Longest drive on two wheels (milliseconds)
+Vehicles|LONGEST_STOPPIE_DIST|float|1|||Longest stoppie (metres)
+Vehicles|LONGEST_STOPPIE_TIME|u32|1|||Longest stoppie (milliseconds)
+Vehicles|LONGEST_WHEELIE_DIST|float|1|||Longest wheelie (metres)
+Vehicles|LONGEST_WHEELIE_TIME|u32|1|||Longest wheelie (milliseconds)
+Vehicles|TOTAL_WHEELIE_TIME|u64|1|||Total time doing wheelies (milliseconds)
+Vehicles|LONGEST_SURVIVED_FREEFALL|float|1|||Longest fall survived (metres)
+Vehicles|HIGHEST_SKITTLES|int|1|||Most people knocked down at once
+Vehicles|MOST_FLIPS_IN_ONE_JUMP|int|1|||Most flips in one jump
+Vehicles|MOST_SPINS_IN_ONE_JUMP|int|1|||Most spins in one jump
+Vehicles|FARTHEST_JUMP_DIST|float|1|||Farthest vehicle jump (metres)
+Vehicles|HIGHEST_JUMP_REACHED|float|1|||Highest vehicle jump (metres)
+Vehicles|AIR_LAUNCHES_OVER_5S|int|1|||Vehicle jumps over 5 seconds
+Vehicles|AIR_LAUNCHES_OVER_5M|int|1|||Vehicle jumps over 5 metres
+Vehicles|AIR_LAUNCHES_OVER_40M|int|1|||Vehicle jumps over 40 metres
+Vehicles|NUMBER_OF_AIR_LAUNCHES|int|1|||Vehicle jumps
+Vehicles|NO_CARS_REPAIR|int|1|0|1073741823|Cars repaired
+Vehicles|VEHICLES_SPRAYED|int|1|0|1073741823|Vehicles resprayed
+Vehicles|LARGE_ACCIDENTS|int|1|||Big crashes
+Vehicles|LONGEST_DRIVE_NOCRASH|float|1|||Longest drive without crashing (metres)
+Vehicles|DIST_CAR|float|1|||Distance travelled by car (metres)
+Vehicles|DIST_DRIVING_CAR|float|1|||Distance driven in cars (metres)
+Vehicles|TIME_DRIVING_CAR|u64|1|||Time driving cars (milliseconds)
+Vehicles|DIST_PLANE|float|1|||Distance travelled by plane (metres)
+Vehicles|DIST_DRIVING_PLANE|float|1|||Distance flown in planes (metres)
+Vehicles|TIME_DRIVING_PLANE|u64|1|||Time flying planes (milliseconds)
+Vehicles|DIST_QUADBIKE|float|1|||Distance travelled by quad bike (metres)
+Vehicles|DIST_DRIVING_QUADBIKE|float|1|||Distance driven on quad bikes (metres)
+Vehicles|TIME_DRIVING_QUADBIKE|u64|1|||Time riding quad bikes (milliseconds)
+Vehicles|DIST_HELI|float|1|||Distance travelled by helicopter (metres)
+Vehicles|DIST_DRIVING_HELI|float|1|||Distance flown in helicopters (metres)
+Vehicles|TIME_DRIVING_HELI|u64|1|||Time flying helicopters (milliseconds)
+Vehicles|DIST_BIKE|float|1|||Distance travelled by motorcycle (metres)
+Vehicles|DIST_DRIVING_BIKE|float|1|||Distance ridden on motorcycles (metres)
+Vehicles|TIME_DRIVING_BIKE|u64|1|||Time riding motorcycles (milliseconds)
+Vehicles|DIST_BICYCLE|float|1|||Distance travelled by bicycle (metres)
+Vehicles|DIST_DRIVING_BICYCLE|float|1|||Distance cycled (metres)
+Vehicles|TIME_DRIVING_BICYCLE|u64|1|||Time cycling (milliseconds)
+Vehicles|DIST_BOAT|float|1|||Distance travelled by boat (metres)
+Vehicles|DIST_DRIVING_BOAT|float|1|||Distance sailed in boats (metres)
+Vehicles|TIME_DRIVING_BOAT|u64|1|||Time driving boats (milliseconds)
+Vehicles|DIST_SUBMARINE|float|1|||Distance travelled by submarine (metres)
+Vehicles|DIST_DRIVING_SUBMARINE|float|1|||Distance piloted in submarines (metres)
+Vehicles|TIME_DRIVING_SUBMARINE|u64|1|||Time piloting submarines (milliseconds)
+Vehicles|DIST_AS_PASSENGER_TAXI|float|1|||Distance ridden in taxis (metres)
+Vehicles|SKIPDIST_AS_PASSENGER_TAXI|float|1|||Taxi distance skipped (metres)
+Vehicles|DIST_AS_PASSENGER_TRAIN|float|1|||Distance ridden on trains (metres)
+Vehicles|AVERAGE_SPEED|float|1|||Average speed (metres per second)
+Vehicles|FLIGHT_TIME|float|1|||Time in the air (milliseconds)
+Vehicles|PLANE_LANDINGS|int|1|||Plane landings
+Weapons|HITS_MISSION|int|1|||Shots that hit during missions
+Weapons|HITS_PEDS_VEHICLES|int|1|||Shots that hit people or vehicles
+Weapons|DB_KILLS|int|1|||Drive-by kills
+Weapons|DB_SHOTTIME|u32|1|||Time spent in drive-bys (milliseconds)
+Weapons|DB_SHOTS|int|1|||Drive-by shots fired
+Weapons|DB_HITS|int|1|||Drive-by shots that hit
+Weapons|DB_HEADSHOTS|int|1|||Drive-by headshot kills
+Weapons|PASS_DB_SHOTTIME|u32|1|||Time in drive-bys as a passenger (milliseconds)
+Weapons|PASS_DB_KILLS|int|1|||Drive-by kills as a passenger
+Weapons|PASS_DB_SHOTS|int|1|||Drive-by shots fired as a passenger
+Weapons|PASS_DB_HITS|int|1|||Drive-by shots that hit as a passenger
+Weapons|PASS_DB_HEADSHOTS|int|1|||Drive-by headshot kills as a passenger
+Weapons|EXPLOSIVES_USED|int|1|||Explosives used
+Weapons|EXPLOSIVE_DAMAGE_HITS|int|1|||Explosions that hit
+Weapons|EXPLOSIVE_DAMAGE_SHOTS|int|1|||Explosives set off
+Weapons|FAVORITE_WEAPON|u32|1|||Favourite weapon (weapon code)
+Weapons|FAVORITE_WEAPON_HELDTIME|u32|1|||Time holding the favourite weapon (milliseconds)
+Weapons|UNARMED_KILLS|int|1|||Kills with fists
+Weapons|UNARMED_DEATHS|int|1|||Deaths in fist fights
+Weapons|UNARMED_HITS|int|1|||Punches that hit
+Weapons|KNIFE_KILLS|int|1|||Knife kills
+Weapons|KNIFE_DEATHS|int|1|||Times killed by the Knife
+Weapons|KNIFE_HITS|int|1|||Knife hits
+Weapons|KNIFE_HELDTIME|u32|1|||Time holding the Knife (milliseconds)
+Weapons|NIGHTSTICK_KILLS|int|1|||Nightstick kills
+Weapons|NIGHTSTICK_DEATHS|int|1|||Times killed by the Nightstick
+Weapons|NIGHTSTICK_HITS|int|1|||Nightstick hits
+Weapons|NIGHTSTICK_HELDTIME|u32|1|||Time holding the Nightstick (milliseconds)
+Weapons|CROWBAR_KILLS|int|1|||Crowbar kills
+Weapons|CROWBAR_DEATHS|int|1|||Times killed by the Crowbar
+Weapons|CROWBAR_HITS|int|1|||Crowbar hits
+Weapons|CROWBAR_HELDTIME|u32|1|||Time holding the Crowbar (milliseconds)
+Weapons|SHOVEL_KILLS|int|1|||Shovel kills
+Weapons|SHOVEL_DEATHS|int|1|||Times killed by the Shovel
+Weapons|SHOVEL_HITS|int|1|||Shovel hits
+Weapons|SHOVEL_HELDTIME|u32|1|||Time holding the Shovel (milliseconds)
+Weapons|WRENCH_KILLS|int|1|||Wrench kills
+Weapons|WRENCH_DEATHS|int|1|||Times killed by the Wrench
+Weapons|WRENCH_HITS|int|1|||Wrench hits
+Weapons|WRENCH_HELDTIME|u32|1|||Time holding the Wrench (milliseconds)
+Weapons|HAMMER_KILLS|int|1|||Hammer kills
+Weapons|HAMMER_DEATHS|int|1|||Times killed by the Hammer
+Weapons|HAMMER_HITS|int|1|||Hammer hits
+Weapons|HAMMER_HELDTIME|u32|1|||Time holding the Hammer (milliseconds)
+Weapons|BAT_KILLS|int|1|||Baseball Bat kills
+Weapons|BAT_DEATHS|int|1|||Times killed by the Baseball Bat
+Weapons|BAT_HITS|int|1|||Baseball Bat hits
+Weapons|BAT_HELDTIME|u32|1|||Time holding the Baseball Bat (milliseconds)
+Weapons|GCLUB_KILLS|int|1|||Golf Club kills
+Weapons|GCLUB_DEATHS|int|1|||Times killed by the Golf Club
+Weapons|GCLUB_HITS|int|1|||Golf Club hits
+Weapons|GCLUB_HELDTIME|u32|1|||Time holding the Golf Club (milliseconds)
+Weapons|PISTOL_KILLS|int|1|||Pistol kills
+Weapons|PISTOL_DEATHS|int|1|||Times killed by the Pistol
+Weapons|PISTOL_SHOTS|int|1|||Pistol shots fired
+Weapons|PISTOL_HITS|int|1|||Pistol hits
+Weapons|PISTOL_HEADSHOTS|int|1|||Pistol headshot kills
+Weapons|PISTOL_HELDTIME|u32|1|||Time holding the Pistol (milliseconds)
+Weapons|PISTOL_DB_HELDTIME|u32|1|||Time holding the Pistol in drive-bys (milliseconds)
+Weapons|PISTOL_AMMO_BOUGHT|int|1|||Pistol ammo bought
+Weapons|CMBTPISTOL_KILLS|int|1|||Combat Pistol kills
+Weapons|CMBTPISTOL_DEATHS|int|1|||Times killed by the Combat Pistol
+Weapons|CMBTPISTOL_SHOTS|int|1|||Combat Pistol shots fired
+Weapons|CMBTPISTOL_HITS|int|1|||Combat Pistol hits
+Weapons|CMBTPISTOL_HEADSHOTS|int|1|||Combat Pistol headshot kills
+Weapons|CMBTPISTOL_HELDTIME|u32|1|||Time holding the Combat Pistol (milliseconds)
+Weapons|CMBTPISTOL_DB_HELDTIME|u32|1|||Time holding the Combat Pistol in drive-bys (milliseconds)
+Weapons|CMBTPISTOL_AMMO_BOUGHT|int|1|||Combat Pistol ammo bought
+Weapons|PISTOL50_KILLS|int|1|||Pistol .50 kills
+Weapons|PISTOL50_DEATHS|int|1|||Times killed by the Pistol .50
+Weapons|PISTOL50_SHOTS|int|1|||Pistol .50 shots fired
+Weapons|PISTOL50_HITS|int|1|||Pistol .50 hits
+Weapons|PISTOL50_HEADSHOTS|int|1|||Pistol .50 headshot kills
+Weapons|PISTOL50_HELDTIME|u32|1|||Time holding the Pistol .50 (milliseconds)
+Weapons|PISTOL50_DB_HELDTIME|u32|1|||Time holding the Pistol .50 in drive-bys (milliseconds)
+Weapons|PISTOL50_AMMO_BOUGHT|int|1|||Pistol .50 ammo bought
+Weapons|APPISTOL_KILLS|int|1|||AP Pistol kills
+Weapons|APPISTOL_DEATHS|int|1|||Times killed by the AP Pistol
+Weapons|APPISTOL_SHOTS|int|1|||AP Pistol shots fired
+Weapons|APPISTOL_HITS|int|1|||AP Pistol hits
+Weapons|APPISTOL_HEADSHOTS|int|1|||AP Pistol headshot kills
+Weapons|APPISTOL_HELDTIME|u32|1|||Time holding the AP Pistol (milliseconds)
+Weapons|APPISTOL_DB_HELDTIME|u32|1|||Time holding the AP Pistol in drive-bys (milliseconds)
+Weapons|APPISTOL_AMMO_BOUGHT|int|1|||AP Pistol ammo bought
+Weapons|MICROSMG_KILLS|int|1|||Micro SMG kills
+Weapons|MICROSMG_DEATHS|int|1|||Times killed by the Micro SMG
+Weapons|MICROSMG_SHOTS|int|1|||Micro SMG shots fired
+Weapons|MICROSMG_HITS|int|1|||Micro SMG hits
+Weapons|MICROSMG_HEADSHOTS|int|1|||Micro SMG headshot kills
+Weapons|MICROSMG_HELDTIME|u32|1|||Time holding the Micro SMG (milliseconds)
+Weapons|MICROSMG_DB_HELDTIME|u32|1|||Time holding the Micro SMG in drive-bys (milliseconds)
+Weapons|MICROSMG_AMMO_BOUGHT|int|1|||Micro SMG ammo bought
+Weapons|SMG_KILLS|int|1|||SMG kills
+Weapons|SMG_DEATHS|int|1|||Times killed by the SMG
+Weapons|SMG_SHOTS|int|1|||SMG shots fired
+Weapons|SMG_HITS|int|1|||SMG hits
+Weapons|SMG_HEADSHOTS|int|1|||SMG headshot kills
+Weapons|SMG_HELDTIME|u32|1|||Time holding the SMG (milliseconds)
+Weapons|SMG_DB_HELDTIME|u32|1|||Time holding the SMG in drive-bys (milliseconds)
+Weapons|SMG_AMMO_BOUGHT|int|1|||SMG ammo bought
+Weapons|ASLTSMG_KILLS|int|1|||Assault SMG kills
+Weapons|ASLTSMG_DEATHS|int|1|||Times killed by the Assault SMG
+Weapons|ASLTSMG_SHOTS|int|1|||Assault SMG shots fired
+Weapons|ASLTSMG_HITS|int|1|||Assault SMG hits
+Weapons|ASLTSMG_HEADSHOTS|int|1|||Assault SMG headshot kills
+Weapons|ASLTSMG_DB_HELDTIME|u32|1|||Time holding the Assault SMG in drive-bys (milliseconds)
+Weapons|ASLTSMG_HELDTIME|u32|1|||Time holding the Assault SMG (milliseconds)
+Weapons|ASLTSMG_AMMO_BOUGHT|int|1|||Assault SMG ammo bought
+Weapons|ASLTRIFLE_KILLS|int|1|||Assault Rifle kills
+Weapons|ASLTRIFLE_DEATHS|int|1|||Times killed by the Assault Rifle
+Weapons|ASLTRIFLE_SHOTS|int|1|||Assault Rifle shots fired
+Weapons|ASLTRIFLE_HITS|int|1|||Assault Rifle hits
+Weapons|ASLTRIFLE_HEADSHOTS|int|1|||Assault Rifle headshot kills
+Weapons|ASLTRIFLE_HELDTIME|u32|1|||Time holding the Assault Rifle (milliseconds)
+Weapons|ASLTRIFLE_AMMO_BOUGHT|int|1|||Assault Rifle ammo bought
+Weapons|CRBNRIFLE_KILLS|int|1|||Carbine Rifle kills
+Weapons|CRBNRIFLE_DEATHS|int|1|||Times killed by the Carbine Rifle
+Weapons|CRBNRIFLE_SHOTS|int|1|||Carbine Rifle shots fired
+Weapons|CRBNRIFLE_HITS|int|1|||Carbine Rifle hits
+Weapons|CRBNRIFLE_HEADSHOTS|int|1|||Carbine Rifle headshot kills
+Weapons|CRBNRIFLE_HELDTIME|u32|1|||Time holding the Carbine Rifle (milliseconds)
+Weapons|CRBNRIFLE_AMMO_BOUGHT|int|1|||Carbine Rifle ammo bought
+Weapons|ADVRIFLE_KILLS|int|1|||Advanced Rifle kills
+Weapons|ADVRIFLE_DEATHS|int|1|||Times killed by the Advanced Rifle
+Weapons|ADVRIFLE_SHOTS|int|1|||Advanced Rifle shots fired
+Weapons|ADVRIFLE_HITS|int|1|||Advanced Rifle hits
+Weapons|ADVRIFLE_HEADSHOTS|int|1|||Advanced Rifle headshot kills
+Weapons|ADVRIFLE_HELDTIME|u32|1|||Time holding the Advanced Rifle (milliseconds)
+Weapons|ADVRIFLE_AMMO_BOUGHT|int|1|||Advanced Rifle ammo bought
+Weapons|MG_KILLS|int|1|||MG kills
+Weapons|MG_DEATHS|int|1|||Times killed by the MG
+Weapons|MG_SHOTS|int|1|||MG shots fired
+Weapons|MG_HITS|int|1|||MG hits
+Weapons|MG_HEADSHOTS|int|1|||MG headshot kills
+Weapons|MG_HELDTIME|u32|1|||Time holding the MG (milliseconds)
+Weapons|MG_AMMO_BOUGHT|int|1|||MG ammo bought
+Weapons|CMBTMG_KILLS|int|1|||Combat MG kills
+Weapons|CMBTMG_DEATHS|int|1|||Times killed by the Combat MG
+Weapons|CMBTMG_SHOTS|int|1|||Combat MG shots fired
+Weapons|CMBTMG_HITS|int|1|||Combat MG hits
+Weapons|CMBTMG_HEADSHOTS|int|1|||Combat MG headshot kills
+Weapons|CMBTMG_HELDTIME|u32|1|||Time holding the Combat MG (milliseconds)
+Weapons|CMBTMG_AMMO_BOUGHT|int|1|||Combat MG ammo bought
+Weapons|ASLTMG_KILLS|int|1|||Assault MG kills
+Weapons|ASLTMG_DEATHS|int|1|||Times killed by the Assault MG
+Weapons|ASLTMG_SHOTS|int|1|||Assault MG shots fired
+Weapons|ASLTMG_HITS|int|1|||Assault MG hits
+Weapons|ASLTMG_HEADSHOTS|int|1|||Assault MG headshot kills
+Weapons|ASLTMG_HELDTIME|u32|1|||Time holding the Assault MG (milliseconds)
+Weapons|ASLTMG_AMMO_BOUGHT|int|1|||Assault MG ammo bought
+Weapons|PUMP_KILLS|int|1|||Pump Shotgun kills
+Weapons|PUMP_DEATHS|int|1|||Times killed by the Pump Shotgun
+Weapons|PUMP_SHOTS|int|1|||Pump Shotgun shots fired
+Weapons|PUMP_HITS|int|1|||Pump Shotgun hits
+Weapons|PUMP_HEADSHOTS|int|1|||Pump Shotgun headshot kills
+Weapons|PUMP_HELDTIME|u32|1|||Time holding the Pump Shotgun (milliseconds)
+Weapons|PUMP_AMMO_BOUGHT|int|1|||Pump Shotgun ammo bought
+Weapons|SAWNOFF_KILLS|int|1|||Sawed-Off Shotgun kills
+Weapons|SAWNOFF_DEATHS|int|1|||Times killed by the Sawed-Off Shotgun
+Weapons|SAWNOFF_SHOTS|int|1|||Sawed-Off Shotgun shots fired
+Weapons|SAWNOFF_HITS|int|1|||Sawed-Off Shotgun hits
+Weapons|SAWNOFF_HEADSHOTS|int|1|||Sawed-Off Shotgun headshot kills
+Weapons|SAWNOFF_HELDTIME|u32|1|||Time holding the Sawed-Off Shotgun (milliseconds)
+Weapons|SAWNOFF_AMMO_BOUGHT|int|1|||Sawed-Off Shotgun ammo bought
+Weapons|BULLPUP_KILLS|int|1|||Bullpup Shotgun kills
+Weapons|BULLPUP_DEATHS|int|1|||Times killed by the Bullpup Shotgun
+Weapons|BULLPUP_SHOTS|int|1|||Bullpup Shotgun shots fired
+Weapons|BULLPUP_HITS|int|1|||Bullpup Shotgun hits
+Weapons|BULLPUP_HEADSHOTS|int|1|||Bullpup Shotgun headshot kills
+Weapons|BULLPUP_HELDTIME|u32|1|||Time holding the Bullpup Shotgun (milliseconds)
+Weapons|BULLPUP_AMMO_BOUGHT|int|1|||Bullpup Shotgun ammo bought
+Weapons|ASLTSHTGN_KILLS|int|1|||Assault Shotgun kills
+Weapons|ASLTSHTGN_DEATHS|int|1|||Times killed by the Assault Shotgun
+Weapons|ASLTSHTGN_SHOTS|int|1|||Assault Shotgun shots fired
+Weapons|ASLTSHTGN_HITS|int|1|||Assault Shotgun hits
+Weapons|ASLTSHTGN_HEADSHOTS|int|1|||Assault Shotgun headshot kills
+Weapons|ASLTSHTGN_HELDTIME|u32|1|||Time holding the Assault Shotgun (milliseconds)
+Weapons|ASLTSHTGN_AMMO_BOUGHT|int|1|||Assault Shotgun ammo bought
+Weapons|STUNGUN_KILLS|int|1|||Stun Gun kills
+Weapons|STUNGUN_DEATHS|int|1|||Times killed by the Stun Gun
+Weapons|STUNGUN_SHOTS|int|1|||Stun Gun shots fired
+Weapons|STUNGUN_HITS|int|1|||Stun Gun hits
+Weapons|STUNGUN_HEADSHOTS|int|1|||Stun Gun headshot kills
+Weapons|STUNGUN_HELDTIME|u32|1|||Time holding the Stun Gun (milliseconds)
+Weapons|STUNGUN_AMMO_BOUGHT|int|1|||Stun Gun ammo bought
+Weapons|SNIPERRFL_KILLS|int|1|||Sniper Rifle kills
+Weapons|SNIPERRFL_DEATHS|int|1|||Times killed by the Sniper Rifle
+Weapons|SNIPERRFL_SHOTS|int|1|||Sniper Rifle shots fired
+Weapons|SNIPERRFL_HITS|int|1|||Sniper Rifle hits
+Weapons|SNIPERRFL_HEADSHOTS|int|1|||Sniper Rifle headshot kills
+Weapons|SNIPERRFL_HELDTIME|u32|1|||Time holding the Sniper Rifle (milliseconds)
+Weapons|SNIPERRFL_AMMO_BOUGHT|int|1|||Sniper Rifle ammo bought
+Weapons|HVYSNIPER_KILLS|int|1|||Heavy Sniper kills
+Weapons|HVYSNIPER_DEATHS|int|1|||Times killed by the Heavy Sniper
+Weapons|HVYSNIPER_SHOTS|int|1|||Heavy Sniper shots fired
+Weapons|HVYSNIPER_HITS|int|1|||Heavy Sniper hits
+Weapons|HVYSNIPER_HEADSHOTS|int|1|||Heavy Sniper headshot kills
+Weapons|HVYSNIPER_HELDTIME|u32|1|||Time holding the Heavy Sniper (milliseconds)
+Weapons|HVYSNIPER_AMMO_BOUGHT|int|1|||Heavy Sniper ammo bought
+Weapons|GRNLAUNCH_KILLS|int|1|||Grenade Launcher kills
+Weapons|GRNLAUNCH_DEATHS|int|1|||Times killed by the Grenade Launcher
+Weapons|GRNLAUNCH_SHOTS|int|1|||Grenade Launcher shots fired
+Weapons|GRNLAUNCH_HITS|int|1|||Grenade Launcher hits
+Weapons|GRNLAUNCH_HELDTIME|u32|1|||Time holding the Grenade Launcher (milliseconds)
+Weapons|GRNLAUNCH_AMMO_BOUGHT|int|1|||Grenade Launcher ammo bought
+Weapons|RPG_KILLS|int|1|||RPG kills
+Weapons|RPG_DEATHS|int|1|||Times killed by the RPG
+Weapons|RPG_SHOTS|int|1|||RPG shots fired
+Weapons|RPG_HELDTIME|u32|1|||Time holding the RPG (milliseconds)
+Weapons|RPG_AMMO_BOUGHT|int|1|||RPG ammo bought
+Weapons|MINIGUNS_KILLS|int|1|||Minigun kills
+Weapons|MINIGUNS_DEATHS|int|1|||Times killed by the Minigun
+Weapons|MINIGUNS_SHOTS|int|1|||Minigun shots fired
+Weapons|MINIGUNS_HITS|int|1|||Minigun hits
+Weapons|MINIGUNS_HEADSHOTS|int|1|||Minigun headshot kills
+Weapons|MINIGUNS_HELDTIME|u32|1|||Time holding the Minigun (milliseconds)
+Weapons|MINIGUNS_AMMO_BOUGHT|int|1|||Minigun ammo bought
+Weapons|GRENADE_KILLS|int|1|||Grenade kills
+Weapons|GRENADE_DEATHS|int|1|||Times killed by the Grenade
+Weapons|GRENADE_SHOTS|int|1|||Grenade shots fired
+Weapons|GRENADE_HELDTIME|u32|1|||Time holding the Grenade (milliseconds)
+Weapons|GRENADE_AMMO_BOUGHT|int|1|||Grenade ammo bought
+Weapons|SMKGRENADE_KILLS|int|1|||Tear Gas kills
+Weapons|SMKGRENADE_DEATHS|int|1|||Times killed by the Tear Gas
+Weapons|SMKGRENADE_SHOTS|int|1|||Tear Gas shots fired
+Weapons|SMKGRENADE_HITS|int|1|||Tear Gas hits
+Weapons|SMKGRENADE_HELDTIME|u32|1|||Time holding the Tear Gas (milliseconds)
+Weapons|SMKGRENADE_AMMO_BOUGHT|int|1|||Tear Gas ammo bought
+Weapons|STKYBMB_KILLS|int|1|||Sticky Bomb kills
+Weapons|STKYBMB_DEATHS|int|1|||Times killed by the Sticky Bomb
+Weapons|STKYBMB_SHOTS|int|1|||Sticky Bomb shots fired
+Weapons|STKYBMB_HELDTIME|u32|1|||Time holding the Sticky Bomb (milliseconds)
+Weapons|STKYBMB_AMMO_BOUGHT|int|1|||Sticky Bomb ammo bought
+Weapons|MOLOTOV_KILLS|int|1|||Molotov kills
+Weapons|MOLOTOV_DEATHS|int|1|||Times killed by the Molotov
+Weapons|MOLOTOV_SHOTS|int|1|||Molotov shots fired
+Weapons|MOLOTOV_HELDTIME|u32|1|||Time holding the Molotov (milliseconds)
+Weapons|MOLOTOV_AMMO_BOUGHT|int|1|||Molotov ammo bought
+Weapons|EXTINGUISHER_HELDTIME|u32|1|||Time holding the Fire Extinguisher (milliseconds)
+Weapons|RHINO_ROCKET_KILLS|int|1|||Rhino tank cannon kills
+Weapons|RHINO_ROCKET_DEATHS|int|1|||Times killed by the Rhino tank cannon
+Weapons|RHINO_ROCKET_SHOTS|int|1|||Rhino tank cannon shots fired
+Weapons|RHINO_ROCKET_HITS|int|1|||Rhino tank cannon hits
+Weapons|RHINO_ROCKET_HELDTIME|u32|1|||Time holding the Rhino tank cannon (milliseconds)
+Weapons|BUZZARD_BULLET_KILLS|int|1|||Buzzard machine guns kills
+Weapons|BUZZARD_BULLET_DEATHS|int|1|||Times killed by the Buzzard machine guns
+Weapons|BUZZARD_BULLET_SHOTS|int|1|||Buzzard machine guns shots fired
+Weapons|BUZZARD_BULLET_HITS|int|1|||Buzzard machine guns hits
+Weapons|BUZZARD_BULLET_HEADSHOTS|int|1|||Buzzard machine guns headshot kills
+Weapons|BUZZARD_BULLET_HELDTIME|u32|1|||Time holding the Buzzard machine guns (milliseconds)
+Weapons|BUZZARD_ROCKET_KILLS|int|1|||Buzzard rockets kills
+Weapons|BUZZARD_ROCKET_DEATHS|int|1|||Times killed by the Buzzard rockets
+Weapons|BUZZARD_ROCKET_SHOTS|int|1|||Buzzard rockets shots fired
+Weapons|BUZZARD_ROCKET_HITS|int|1|||Buzzard rockets hits
+Weapons|BUZZARD_ROCKET_HELDTIME|u32|1|||Time holding the Buzzard rockets (milliseconds)
+Weapons|HUNTER_BULLET_KILLS|int|1|||Hunter machine guns kills
+Weapons|HUNTER_BULLET_DEATHS|int|1|||Times killed by the Hunter machine guns
+Weapons|HUNTER_BULLET_SHOTS|int|1|||Hunter machine guns shots fired
+Weapons|HUNTER_BULLET_HITS|int|1|||Hunter machine guns hits
+Weapons|HUNTER_BULLET_HEADSHOTS|int|1|||Hunter machine guns headshot kills
+Weapons|HUNTER_BULLET_HELDTIME|u32|1|||Time holding the Hunter machine guns (milliseconds)
+Weapons|HUNTER_ROCKET_KILLS|int|1|||Hunter rockets kills
+Weapons|HUNTER_ROCKET_DEATHS|int|1|||Times killed by the Hunter rockets
+Weapons|HUNTER_ROCKET_SHOTS|int|1|||Hunter rockets shots fired
+Weapons|HUNTER_ROCKET_HITS|int|1|||Hunter rockets hits
+Weapons|HUNTER_ROCKET_HELDTIME|u32|1|||Time holding the Hunter rockets (milliseconds)
+Weapons|LAZER_BULLET_KILLS|int|1|||Lazer jet cannon kills
+Weapons|LAZER_BULLET_DEATHS|int|1|||Times killed by the Lazer jet cannon
+Weapons|LAZER_BULLET_SHOTS|int|1|||Lazer jet cannon shots fired
+Weapons|LAZER_BULLET_HITS|int|1|||Lazer jet cannon hits
+Weapons|LAZER_BULLET_HEADSHOTS|int|1|||Lazer jet cannon headshot kills
+Weapons|LAZER_BULLET_HELDTIME|u32|1|||Time holding the Lazer jet cannon (milliseconds)
+Weapons|LAZER_ROCKET_KILLS|int|1|||Lazer jet missiles kills
+Weapons|LAZER_ROCKET_DEATHS|int|1|||Times killed by the Lazer jet missiles
+Weapons|LAZER_ROCKET_SHOTS|int|1|||Lazer jet missiles shots fired
+Weapons|LAZER_ROCKET_HITS|int|1|||Lazer jet missiles hits
+Weapons|LAZER_ROCKET_HELDTIME|u32|1|||Time holding the Lazer jet missiles (milliseconds)
+Weapons|SPPLAYER_LASER_KILLS|int|1|||vehicle laser kills
+Weapons|SPPLAYER_LASER_DEATHS|int|1|||Deaths by vehicle laser
+Weapons|SPPLAYER_LASER_SHOTS|int|1|||vehicle laser shots fired
+Weapons|SPPLAYER_LASER_HITS|int|1|||vehicle laser hits
+Weapons|SPPLAYER_LASER_HELDTIME|u32|1|||Time holding the vehicle laser (milliseconds)
+Weapons|WATER_CANNON_KILLS|int|1|||Water cannon kills
+Weapons|WATER_CANNON_DEATHS|int|1|||Times killed by the Water cannon
