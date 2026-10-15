@@ -25,6 +25,16 @@ public sealed class SgtaFile
     public byte[] Unknown104 { get; set; } = new byte[4];
     public byte[] EncryptedBody { get; set; } = [];
 
+    /// <summary>Real saves are well under a megabyte; refuse anything huge instead of loading it into memory.</summary>
+    public const long MaxFileBytes = 64L * 1024 * 1024;
+
+    public static byte[] ReadAllBytesLimited(string path, long maxBytes = MaxFileBytes)
+    {
+        if (new FileInfo(path).Length > maxBytes)
+            throw new SaveFormatException($"'{Path.GetFileName(path)}' is too large to read.");
+        return File.ReadAllBytes(path);
+    }
+
     public static SgtaFile Read(byte[] file)
     {
         if (file.Length < BodyOffset + 16)
