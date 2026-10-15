@@ -14,9 +14,14 @@
         </Border>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="48,36" MaxWidth="720" HorizontalAlignment="Left">
-                <TextBlock Text="Edit a story mode save" Style="{StaticResource PageTitle}"/>
-                <TextBlock Style="{StaticResource Muted}" FontSize="14" Margin="0,6,0,22"
+            <StackPanel Margin="48,28" MaxWidth="720" HorizontalAlignment="Center">
+                <Image Height="170" HorizontalAlignment="Center" Margin="0,0,0,20" RenderOptions.BitmapScalingMode="HighQuality">
+                    <Image.Source>
+                        <BitmapImage UriSource="/Assets/logo.png" DecodePixelHeight="340"/>
+                    </Image.Source>
+                </Image>
+                <TextBlock Text="Edit a story mode save" Style="{StaticResource PageTitle}" HorizontalAlignment="Center"/>
+                <TextBlock Style="{StaticResource Muted}" FontSize="14" Margin="0,6,0,22" TextAlignment="Center"
                            Text="Pick a GTA V PC save file to change missions, collectibles, money, vehicles, weapons and more. Nothing is written until you press Save in the editor."/>
 
                 <!-- Key missing -->
@@ -34,11 +39,11 @@
                 </Border>
 
                 <Button x:Name="SelectButton" Content="Select a save file…" Style="{StaticResource PrimaryButton}" FontSize="20"
-                        Padding="28,12" HorizontalAlignment="Left" Click="Select_Click"/>
-                <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0"
+                        Padding="28,12" HorizontalAlignment="Center" Click="Select_Click"/>
+                <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center"
                            Text="Saves are in Documents\Rockstar Games\GTA V\Profiles\…, named SGTA50000 to SGTA50015."/>
-                <WrapPanel Margin="0,16,0,0">
-                    <Button Content="Open backups folder" Click="Backups_Click" Margin="0,0,8,8"
+                <WrapPanel Margin="0,16,0,0" HorizontalAlignment="Center">
+                    <Button Content="Open backups folder" Click="Backups_Click" Margin="0,0,0,8"
                             ToolTip="The copies made before every save"/>
                 </WrapPanel>
 

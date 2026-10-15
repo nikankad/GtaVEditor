@@ -89,4 +89,13 @@ public class CollectibleTests
         Assert.True(reloaded.DirectorMode.AllUnlocked);
         Assert.All(reloaded.FlightSchool, l => Assert.Equal(3, l.Medal));
     }
+
+    [Fact]
+    public void GroundSpots_AreOnFootPickupsAboveSeaLevel()
+    {
+        var spots = GroundSpots.Pickups;
+        Assert.True(spots.Count > 100, $"only {spots.Count} spots");
+        Assert.All(spots, s => Assert.True(s.Z > 1));
+        Assert.DoesNotContain(spots, s => s.Kind is CollectibleKind.NuclearWaste or CollectibleKind.SubmarinePieces or CollectibleKind.UnderTheBridge);
+    }
 }

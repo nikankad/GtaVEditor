@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 using SaveEditor.GtaV;
 
@@ -27,8 +28,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         LoadChecklist();
         LoadMissions();
         LoadStrangers();
-        LoadCharacters();
-        LoadStatus();
+        LoadPlayer();
         LoadStats();
         LoadCrew();
         LoadGarages();
@@ -37,6 +37,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         CollectiblesTab.Content = _collectibles = new CollectiblesView(doc, ProgressChanged);
         UnlocksTab.Content = _unlocks = new UnlocksView(doc, ProgressChanged);
         FlagsTab.Content = _flags = new GameFlagsView(doc, Changed);
+        _tracker = ChangeTracker.For(doc);
         if (!doc.Integrity.IsValid)
             shell.SetStatus("Warning: this save's checksum was already wrong before editing. " + doc.Integrity.Summary);
     }
@@ -55,6 +56,150 @@ public partial class EditorPage : UserControl, IGuardedPage
         ShowHeader();
     }
 
+    // ---- Reviewing and undoing changes ----
+
+    private readonly ChangeTracker _tracker;
+
+    /// <summary>Re-reads every tab from the save, after values were put back from outside the tabs.</summary>
+    private void RefreshAll()
+    {
+        foreach (var i in _checklistItems) i.Refresh();
+        if (_checklistItems.Count > 0) ShowChecklistSummary();
+        BuildChoicePickers();
+        ShowMissions();
+        ShowCrew();
+        foreach (var m in _strangerItems) m.Refresh();
+        ShowStrangersCount();
+        _characters.ForEach(c =>
+        {
+            c.Refresh();
+            foreach (var s in c.Skills) s.Refresh();
+        });
+        _status.ForEach(s => s.Refresh());
+        _clock?.Refresh();
+        _garageSlots.ForEach(s => s.Refresh());
+        _propertyVehicles.ForEach(s => s.Refresh());
+        _properties.ForEach(p => p.Refresh());
+        _statRows.ForEach(r => r.Refresh());
+        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
+        _collectibles.Refresh();
+        _unlocks.Refresh();
+        _flags.Refresh();
+        // Everything put back: nothing left to save.
+        if (_tracker.Changes().Count == 0) SetDirty(false);
+    }
+
+    private void SetDirty(bool dirty)
+    {
+        _dirty = dirty;
+        SaveButton.IsEnabled = dirty;
+        ShowHeader();
+    }
+
+    /// <summary>Shows what changed; returns false if the user went back to editing.</summary>
+    private bool Review(string? confirm)
+    {
+        var review = new ReviewChangesWindow(_tracker, confirm, () =>
+        {
+            Changed();
+            RefreshAll();
+        }) { Owner = _shell };
+        return review.ShowDialog() == true;
+    }
+
+    private void ReviewChanges_Click(object sender, RoutedEventArgs e) => Review(null);
+
+    // ---- Search everything ----
+
+    private const int MaxHits = 60;
+
+    private void Search_Changed(object sender, TextChangedEventArgs e) => ShowSearch();
+
+    private void Search_Focus(object sender, RoutedEventArgs e)
+    {
+        if (SearchBox.Text.Trim().Length > 0) ShowSearch();
+    }
+
+    /// <summary>Every word must appear in the tab name or the item's name; names that start with the search come first.</summary>
+    private void ShowSearch()
+    {
+        var text = SearchBox.Text.Trim();
+        if (text.Length < 2)
+        {
+            SearchPopup.IsOpen = false;
+            return;
+        }
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var hits = _tracker.Values
+            .Where(v => words.All(w => v.Label.Contains(w, StringComparison.OrdinalIgnoreCase)
+                                       || v.Section.Contains(w, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(v => !v.Label.StartsWith(text, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(v => v.Section == "Stats")
+            .ToList();
+        SearchResults.ItemsSource = hits.Take(MaxHits).Select(v => new SearchHit(v, SearchToggled)).ToList();
+        SearchFooter.Text = hits.Count == 0 ? $"Nothing matches \"{text}\"."
+            : hits.Count > MaxHits ? $"Showing {MaxHits} of {hits.Count:N0}. Type more to narrow it down. Click a result to go to its tab."
+            : $"{hits.Count} result{(hits.Count == 1 ? "" : "s")}. Click one to go to its tab, or tick it to change it here.";
+        SearchPopup.IsOpen = true;
+    }
+
+    private void SearchToggled()
+    {
+        Changed();
+        RefreshAll();
+    }
+
+    private void Search_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape) SearchPopup.IsOpen = false;
+        else if (e.Key == Key.Down && SearchResults.Items.Count > 0)
+        {
+            SearchResults.Focus();
+            (SearchResults.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem)?.Focus();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Enter && SearchResults.Items.Count > 0) GoTo((SearchHit)SearchResults.Items[0]);
+    }
+
+    private void SearchResults_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && SearchResults.SelectedItem is SearchHit hit) GoTo(hit);
+        else if (e.Key == Key.Escape) SearchPopup.IsOpen = false;
+    }
+
+    private void SearchResult_Selected(object sender, SelectionChangedEventArgs e)
+    {
+        // Mouse picks go straight there; arrow keys only move the highlight until Enter.
+        if (SearchResults.SelectedItem is SearchHit hit && Mouse.LeftButton == MouseButtonState.Pressed) GoTo(hit);
+    }
+
+    /// <summary>Opens the tab a result lives on and, where the tab can, points at the item itself.</summary>
+    private void GoTo(SearchHit hit)
+    {
+        SearchPopup.IsOpen = false;
+        var tab = Sections.Items.OfType<TabItem>().FirstOrDefault(t => t.Header as string == hit.Section);
+        if (tab == null) return;
+        Sections.SelectedItem = tab;
+        var name = hit.Label.Contains(": ") ? hit.Label[(hit.Label.IndexOf(": ", StringComparison.Ordinal) + 2)..] : hit.Label;
+        switch (hit.Section)
+        {
+            case "Stats": StatSearch.Text = name; break;
+            case "Game flags": _flags.Search.Text = name; break;
+            case "Collectibles": _collectibles.ShowItem(hit.Label); break;
+            case "Weapons" when hit.Label.Contains(": "):
+                var who = hit.Label[..hit.Label.IndexOf(": ", StringComparison.Ordinal)];
+                foreach (var b in CharacterPicker.Children.OfType<RadioButton>())
+                    if (b.Tag as string == who) b.IsChecked = true;
+                break;
+            case "Checklist":
+                var item = _checklistItems.FirstOrDefault(i => i.Item.Name == hit.Label);
+                if (item != null)
+                    foreach (var b in ChecklistPicker.Children.OfType<RadioButton>())
+                        if (b.Tag is ChecklistGroup g && g == item.Item.Group) b.IsChecked = true;
+                break;
+        }
+    }
+
     // ---- Collectibles, unlocks and flags ----
 
     private readonly CollectiblesView _collectibles;
@@ -70,19 +215,39 @@ public partial class EditorPage : UserControl, IGuardedPage
         _statRows.ForEach(r => r.Refresh());
     }
 
-    // ---- Characters ----
+    // ---- Player: one card per character, plus the game clock ----
 
-    private void LoadCharacters()
+    private List<StatusModel> _status = [];
+    private ClockModel? _clock;
+
+    private void LoadPlayer()
     {
         try
         {
             _characters = StatCatalog.Characters.Select(c => new CharacterModel(_doc, c, Changed)).ToList();
-            CharacterList.ItemsSource = _characters;
         }
         catch (SaveFormatException ex)
         {
-            CharactersError.Text = "Character data couldn't be read from this save: " + ex.Message;
+            CharactersError.Text = "Money and skills couldn't be read from this save: " + ex.Message;
         }
+
+        PlayerStatus? player = null;
+        try
+        {
+            player = _doc.Player;
+            _status = player.Characters.Select(c => new StatusModel(c, c.Index == player.CurrentCharacter, Changed)).ToList();
+        }
+        catch (SaveFormatException ex)
+        {
+            StatusError.Text = "Health, armor and the other status values couldn't be read from this save: " + ex.Message;
+        }
+
+        var names = _characters.Select(c => c.Name).Concat(_status.Select(s => s.Name)).Distinct();
+        PlayerCards.ItemsSource = names.Select(n => new PlayerCardModel(n, _characters.FirstOrDefault(c => c.Name == n),
+            _status.FirstOrDefault(s => s.Name == n))).ToList();
+
+        if (player?.Clock == null) ClockCard.Visibility = Visibility.Collapsed;
+        else ClockCard.DataContext = _clock = new ClockModel(player.Clock, Changed);
     }
 
     private void MaxSkills_Click(object sender, RoutedEventArgs e)
@@ -92,31 +257,19 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     private void MaxEveryonesSkills_Click(object sender, RoutedEventArgs e) => _characters.ForEach(c => c.MaxSkills());
 
-    // ---- Status and clock ----
-
-    private List<StatusModel> _status = [];
-    private ClockModel? _clock;
-
-    private void LoadStatus()
+    private void MaxCharacterStatus_Click(object sender, RoutedEventArgs e)
     {
-        PlayerStatus player;
-        try
-        {
-            player = _doc.Player;
-        }
-        catch (SaveFormatException ex)
-        {
-            StatusError.Text = "Health, armor and the other status values couldn't be read from this save: " + ex.Message;
-            ClockCard.Visibility = Visibility.Collapsed;
-            return;
-        }
-        _status = player.Characters.Select(c => new StatusModel(c, c.Index == player.CurrentCharacter, Changed)).ToList();
-        StatusList.ItemsSource = _status;
-        if (player.Clock == null) ClockCard.Visibility = Visibility.Collapsed;
-        else ClockCard.DataContext = _clock = new ClockModel(player.Clock, Changed);
+        if ((sender as FrameworkElement)?.DataContext is StatusModel s) s.MaxAll();
     }
 
     private void MaxStatus_Click(object sender, RoutedEventArgs e) => _status.ForEach(s => s.MaxAll());
+
+    private void ChooseLocation_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not StatusModel s) return;
+        var picker = new LocationPickerWindow(s, _status) { Owner = Window.GetWindow(this) };
+        if (picker.ShowDialog() == true && picker.Chosen is { } spot) s.MoveTo(spot);
+    }
 
     // ---- Vehicles ----
 
@@ -298,8 +451,8 @@ public partial class EditorPage : UserControl, IGuardedPage
                 .ToList();
             var button = new RadioButton
             {
-                Content = character, GroupName = "WeaponCharacter", Style = (Style)FindResource("Segment"),
-                IsChecked = character == _weaponCharacter,
+                Content = GamePictures.WithLabel(GamePictures.Character(character), character), GroupName = "WeaponCharacter", Style = (Style)FindResource("Segment"),
+                IsChecked = character == _weaponCharacter, Tag = character,
             };
             button.Checked += (_, _) => ShowWeapons(character);
             CharacterPicker.Children.Add(button);
@@ -379,7 +532,7 @@ public partial class EditorPage : UserControl, IGuardedPage
             var button = new RadioButton
             {
                 Content = GroupTitles[group], GroupName = "ChecklistGroup", Style = (Style)FindResource("Segment"),
-                IsChecked = group == _checklistGroup,
+                IsChecked = group == _checklistGroup, Tag = group,
             };
             button.Checked += (_, _) => ShowChecklistGroup(group);
             ChecklistPicker.Children.Add(button);
@@ -440,6 +593,15 @@ public partial class EditorPage : UserControl, IGuardedPage
             MissionsSummary.Visibility = Visibility.Collapsed;
             return;
         }
+        BuildChoicePickers();
+        ShowMissions();
+    }
+
+    /// <summary>One row of approach buttons per heist (and the ending), showing the save's current picks.</summary>
+    private void BuildChoicePickers()
+    {
+        if (_missions == null) return;
+        ChoicePickers.Children.Clear();
         foreach (var (choice, (title, options)) in StoryMissions.Choices)
         {
             var picker = new StackPanel { Margin = new Thickness(0, 0, 22, 8) };
@@ -462,7 +624,6 @@ public partial class EditorPage : UserControl, IGuardedPage
             picker.Children.Add(buttons);
             ChoicePickers.Children.Add(picker);
         }
-        ShowMissions();
     }
 
     /// <summary>Lists the missions of the chosen approaches and refreshes the summary.</summary>
@@ -479,6 +640,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         if (_missions == null) return;
         var next = _missions.Next;
         NextMissionText.Text = next?.Name ?? "Story complete";
+        NextMissionPicture.Source = next == null ? null : GamePictures.Mission(next.Code);
         var story = _missions.Path.Where(m => !m.Optional).ToList();
         MissionCountText.Text = $"{story.Count(m => m.Completed)} of {story.Count} story missions completed";
         CompleteNextButton.IsEnabled = next != null;
@@ -567,7 +729,7 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     // ---- Saving and navigation ----
 
-    private void Save_Click(object sender, RoutedEventArgs e) => WriteTo(_doc.FilePath);
+    private void Save_Click(object sender, RoutedEventArgs e) => WriteTo(_doc.FilePath, "Save");
 
     private void SaveAs_Click(object sender, RoutedEventArgs e)
     {
@@ -576,7 +738,7 @@ public partial class EditorPage : UserControl, IGuardedPage
             FileName = Path.GetFileName(_doc.FilePath), InitialDirectory = Path.GetDirectoryName(_doc.FilePath),
             Filter = "All files|*.*",
         };
-        if (dlg.ShowDialog(_shell) == true) WriteTo(dlg.FileName);
+        if (dlg.ShowDialog(_shell) == true) WriteTo(dlg.FileName, "Save as " + Path.GetFileName(dlg.FileName));
     }
 
     private void SaveToSlot_Click(object sender, RoutedEventArgs e)
@@ -589,7 +751,7 @@ public partial class EditorPage : UserControl, IGuardedPage
             return;
         }
         var picker = new SlotPickerWindow(profiles) { Owner = _shell };
-        if (picker.ShowDialog() == true && picker.ChosenPath != null) WriteTo(picker.ChosenPath);
+        if (picker.ShowDialog() == true && picker.ChosenPath != null) WriteTo(picker.ChosenPath, "Save to slot");
     }
 
     private static bool _saveWarningAccepted;
@@ -608,16 +770,17 @@ public partial class EditorPage : UserControl, IGuardedPage
         return _saveWarningAccepted;
     }
 
-    private bool WriteTo(string path)
+    /// <summary>Shows the changes, then writes the save; <paramref name="confirm"/> is the review's save button text.</summary>
+    private bool WriteTo(string path, string confirm)
     {
+        if (_tracker.Changes().Count > 0 && !Review(confirm)) return false;
         if (!AcceptSaveWarning()) return false;
         try
         {
             var backup = BackupService.Default.Backup(path);
             _doc.Save(path);
-            _dirty = false;
-            SaveButton.IsEnabled = false;
-            ShowHeader();
+            _tracker.Rebase();
+            SetDirty(false);
             _shell.SetStatus((backup == null ? $"Saved to {path}." : $"Saved to {path}. The previous file was backed up to {backup}.")
                              + (SaveSlots.IndexOf(path) != null ? " Restart the game to see it in Load Game." : ""));
             return true;
@@ -635,7 +798,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         return MessageBox.Show(_shell, $"Save your changes to \"{_doc.Title}\" before leaving?", "Unsaved changes",
                 MessageBoxButton.YesNoCancel, MessageBoxImage.Question) switch
         {
-            MessageBoxResult.Yes => WriteTo(_doc.FilePath),
+            MessageBoxResult.Yes => WriteTo(_doc.FilePath, "Save and leave"),
             MessageBoxResult.No => true,
             _ => false,
         };
