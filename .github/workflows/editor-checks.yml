@@ -20,4 +20,5 @@ jobs:
       - name: Core regression tests
         run: dotnet test tests/SaveEditor.Tests -c Release
       - name: Windows UI smoke checks
+        if: ${{ !cancelled() }}
         run: dotnet run --project tests/SaveEditor.App.SmokeTests -c Release

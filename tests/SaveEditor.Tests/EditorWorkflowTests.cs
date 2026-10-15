@@ -10,7 +10,7 @@ public sealed class EditorWorkflowTests : IDisposable
 
     private string Save(string fileName, string title = "Original")
     {
-        var path = Path.Combine(_folder, fileName);
+        var path = Path.GetFullPath(Path.Combine(_folder, fileName));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllBytes(path, GtaVSaveTests.BuildSaveFile(_key, title, GtaVSaveTests.BuildBody(("SAVE", new byte[32]))));
         return path;
