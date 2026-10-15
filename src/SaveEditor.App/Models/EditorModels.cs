@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
 using SaveEditor.GtaV;
 
 namespace SaveEditor.App;
@@ -57,6 +58,9 @@ public sealed class CharacterModel : Observable, IDataErrorInfo
     }
 
     public string Name { get; }
+    public ImageSource? Portrait => GamePictures.Character(Name);
+    public ImageSource? Banner => GamePictures.Banner(Name);
+    public Brush Colour => GamePictures.CharacterColour(Name);
     public IReadOnlyList<SkillModel> Skills { get; }
     public bool HasCash => _cash != null;
 
@@ -98,6 +102,7 @@ public sealed class WeaponModel(CharacterWeapon weapon, Action onChanged) : Obse
 
     public CharacterWeapon Weapon => weapon;
     public string Label => weapon.Weapon.Label;
+    public ImageSource? Picture => GamePictures.Weapon(weapon.Weapon.Id);
     public bool UsesAmmo => weapon.Weapon.UsesAmmo;
     public Visibility AmmoVisibility => UsesAmmo ? Visibility.Visible : Visibility.Collapsed;
     public string MaxText => $"of {weapon.Weapon.MaxAmmo:N0}";
@@ -159,6 +164,7 @@ public sealed class ChecklistItemModel(Checklist checklist, ChecklistItem item, 
     public ChecklistItem Item => item;
     public string Name => item.Name;
     public string Label => item.Label;
+    public ImageSource? Picture => GamePictures.Checklist(item.Label);
 
     /// <summary>Shown under the name for entries that don't count toward 100%.</summary>
     public string Note => item.Required ? "" : item.Weight > 0 ? "Optional" : "Doesn't count toward 100%";
@@ -184,6 +190,7 @@ public sealed class MissionModel(StoryMissions missions, StoryMission mission, A
     public StoryMission Mission => mission;
     public string Name => mission.Name;
     public string Code => mission.Code;
+    public ImageSource? Picture => GamePictures.Mission(mission.Code);
 
     /// <summary>"Smart approach", "Background event", or nothing.</summary>
     public string Note => mission.Choice is { } c
@@ -229,13 +236,50 @@ public sealed record LocationPreset(string Name, float X, float Y, float Z)
     public override string ToString() => Name;
 }
 
-/// <summary>One character's health, armor, special ability, wanted level and position.</summary>
-public sealed class StatusModel(CharacterStatus status, bool current, Action onChanged) : Observable, IDataErrorInfo
+/// <summary>A place on the location picker's map that a character can be moved to.</summary>
+public sealed class LocationSpot(string name, float x, float y, float z, LocationSpot.Kinds kind, string? character = null) : Observable
 {
-    private readonly Dictionary<string, string> _errors = [];
-    private readonly Dictionary<string, string> _pending = [];
+    public enum Kinds { Pickup, Place, Character }
 
+    public string Name => name;
+    public float X => x;
+    public float Y => y;
+    public float Z => z;
+    public Kinds Kind => kind;
+    public string Area => "Near " + MapLabel.Nearest(x, y).Text;
+    public string Coordinates => $"X {x:0}   Y {y:0}   Z {z:0}";
+    public ImageSource? Portrait => character == null ? null : GamePictures.Character(character);
+    public Brush Colour => character == null ? Brushes.Transparent : GamePictures.CharacterColour(character);
+
+    /// <summary>Marker size on the map: characters as portraits, named places bigger than plain spots.</summary>
+    public double Size => kind switch { Kinds.Character => 22, Kinds.Place => 11, _ => 7 };
+    public Point MapCentre => MapView.ToMap(x, y);
+    public double MapLeft => MapCentre.X - Size / 2;
+    public double MapTop => MapCentre.Y - Size / 2;
+    public int MapLayer => _selected ? 30 : kind switch { Kinds.Character => 20, Kinds.Place => 10, _ => 0 };
+
+    private bool _selected;
+
+    public bool IsSelected
+    {
+        get => _selected;
+        set
+        {
+            if (value == _selected) return;
+            _selected = value;
+            Raise(nameof(IsSelected), nameof(MapLayer));
+        }
+    }
+
+    public override string ToString() => Name;
+}
+
+/// <summary>One character's health, armor, special ability, wanted level and position.</summary>
+public sealed class StatusModel(CharacterStatus status, bool current, Action onChanged) : Observable
+{
     public string Name => status.Name;
+    public ImageSource? Portrait => GamePictures.Character(status.Name);
+    public Brush Colour => GamePictures.CharacterColour(status.Name);
     public string CurrentNote => current ? "You play as this character when the save loads" : "";
     public Visibility CurrentVisibility => current ? Visibility.Visible : Visibility.Collapsed;
 
@@ -246,23 +290,19 @@ public sealed class StatusModel(CharacterStatus status, bool current, Action onC
     public double Wanted { get => status.WantedLevel; set => Set(() => status.WantedLevel = (int)Math.Round(value), nameof(Wanted)); }
     public string WantedText => status.WantedLevel == 0 ? "None" : new string('★', status.WantedLevel);
 
-    public string X { get => Coord(nameof(X), status.Position.X); set => SetCoord(nameof(X), value, (p, v) => p with { X = v }); }
-    public string Y { get => Coord(nameof(Y), status.Position.Y); set => SetCoord(nameof(Y), value, (p, v) => p with { Y = v }); }
-    public string Z { get => Coord(nameof(Z), status.Position.Z); set => SetCoord(nameof(Z), value, (p, v) => p with { Z = v }); }
+    public (float X, float Y, float Z) Position => status.Position;
+    public string Area => "Near " + MapLabel.Nearest(status.Position.X, status.Position.Y).Text;
+    public string Coordinates => $"X {status.Position.X:0}   Y {status.Position.Y:0}   Z {status.Position.Z:0}";
 
-    public IReadOnlyList<LocationPreset> Presets => LocationPreset.All;
+    // Where the character is on the small map in their card.
+    public double MapLeft => MapView.ToMap(status.Position.X, status.Position.Y).X - 20;
+    public double MapTop => MapView.ToMap(status.Position.X, status.Position.Y).Y - 20;
+    public int MapLayer => 0;
 
-    /// <summary>Picking a preset moves the character there.</summary>
-    public LocationPreset? Preset
+    /// <summary>Moves the character to a spot picked on the map.</summary>
+    public void MoveTo(LocationSpot spot)
     {
-        get => null;
-        set
-        {
-            if (value == null) return;
-            _errors.Clear();
-            _pending.Clear();
-            Set(() => status.Position = (value.X, value.Y, value.Z), "");
-        }
+        Set(() => status.Position = (spot.X, spot.Y, spot.Z), "");
     }
 
     public void MaxAll()
@@ -278,27 +318,19 @@ public sealed class StatusModel(CharacterStatus status, bool current, Action onC
         onChanged();
         if (property.Length > 0) Raise(property, nameof(WantedText)); else Refresh();
     }
+}
 
-    private string Coord(string name, float v) =>
-        _pending.TryGetValue(name, out var p) ? p : v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-
-    private void SetCoord(string name, string text, Func<(float X, float Y, float Z), float, (float X, float Y, float Z)> with)
-    {
-        _errors.Remove(name);
-        _pending.Remove(name);
-        if (!float.TryParse(text.Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-            || v is < -10000 or > 10000)
-            (_errors[name], _pending[name]) = ("Enter a number between -10,000 and 10,000.", text);
-        else if (v != (name == nameof(X) ? status.Position.X : name == nameof(Y) ? status.Position.Y : status.Position.Z))
-        {
-            status.Position = with(status.Position, v);
-            onChanged();
-        }
-        Raise(name);
-    }
-
-    public string Error => string.Join(" ", _errors.Values);
-    public string this[string column] => _errors.GetValueOrDefault(column, "");
+/// <summary>One character's card on the Player tab: money and skills, and health, armor, wanted level and position.</summary>
+public sealed class PlayerCardModel(string name, CharacterModel? character, StatusModel? status)
+{
+    public string Name => name;
+    public ImageSource? Portrait => GamePictures.Character(name);
+    public ImageSource? Banner => GamePictures.Banner(name);
+    public Brush Colour => GamePictures.CharacterColour(name);
+    public CharacterModel? Character => character;
+    public StatusModel? Status => status;
+    public Visibility CharacterVisibility => character != null ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility StatusVisibility => status != null ? Visibility.Visible : Visibility.Collapsed;
 }
 
 /// <summary>The in-game clock as text and a date.</summary>
@@ -371,7 +403,11 @@ public sealed class GarageSlotModel(GarageSlot slot, Action onChanged) : Observa
     }
 }
 
-public sealed record GarageGroup(string Name, string Owner, IReadOnlyList<GarageSlotModel> Slots);
+public sealed record GarageGroup(string Name, string Owner, IReadOnlyList<GarageSlotModel> Slots)
+{
+    public ImageSource? OwnerPortrait => GamePictures.Character(Owner);
+    public Brush OwnerColour => GamePictures.CharacterColour(Owner);
+}
 
 /// <summary>A hangar, helipad or boat dock slot on the Vehicles tab.</summary>
 public sealed class PropertyVehicleModel(PropertyVehicleSlot slot, Action onChanged) : Observable
@@ -502,6 +538,7 @@ public sealed class StrangerModel(StrangersAndFreaks all, StrangerMission missio
     public StrangerMission Mission => mission;
     public string Name => mission.Name;
     public string Script => mission.Script;
+    public ImageSource? Picture => GamePictures.Stranger(mission.Index);
 
     public bool Done
     {
@@ -515,7 +552,10 @@ public sealed class StrangerModel(StrangersAndFreaks all, StrangerMission missio
     }
 }
 
-public sealed record StrangerGroup(string Character, IReadOnlyList<StrangerModel> Missions);
+public sealed record StrangerGroup(string Character, IReadOnlyList<StrangerModel> Missions)
+{
+    public ImageSource? Picture => GamePictures.Person(Character);
+}
 
 /// <summary>A section of the checklist summary: "Missions 32 / 69", worth up to 55%.</summary>
 public sealed record ChecklistSummaryRow(string Title, string Count, double Fraction, string Percent);

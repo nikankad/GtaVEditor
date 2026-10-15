@@ -29,9 +29,6 @@ public partial class CollectiblesView : UserControl
     {
         InitializeComponent();
         _onChanged = onChanged;
-        MapArea.Width = CollectibleItemModel.MapWidth;
-        MapArea.Height = CollectibleItemModel.MapHeight;
-        MapLabels.ItemsSource = MapLabel.All;
         try
         {
             _sets = doc.Collectibles.Select(s => new CollectibleSetModel(s)).ToList();
@@ -50,7 +47,7 @@ public partial class CollectiblesView : UserControl
             label.SetBinding(TextBlock.TextProperty, new Binding(nameof(CollectibleSetModel.Header)) { Source = set });
             var button = new RadioButton
             {
-                Content = label, GroupName = "CollectibleKind", Style = (Style)FindResource("Segment"),
+                Content = GamePictures.WithLabel(set.Blip, label, 18), GroupName = "CollectibleKind", Style = (Style)FindResource("Segment"),
                 IsChecked = set == _sets[0], Margin = new Thickness(0, 0, 0, 4),
             };
             button.Checked += (_, _) => Show(set);
@@ -64,10 +61,16 @@ public partial class CollectiblesView : UserControl
         _current = set;
         _items = set.Set.Items.Select(i => new CollectibleItemModel(set.Set, i, ItemChanged)).ToList();
         ItemList.ItemsSource = _items;
-        bool mapped = _items.Any(i => i.MapLeft >= 0);
-        MapDots.ItemsSource = mapped ? _items : null;
+        bool mapped = _items.Any(i => i.HasLocation);
+        Map.Markers = mapped ? _items : null;
         MapBorder.Visibility = Visible(mapped);
-        Legend.Visibility = Visible(mapped);
+        MapColumn.Width = mapped ? new GridLength(3, GridUnitType.Star) : new GridLength(0);
+        MapColumn.MinWidth = mapped ? 320 : 0;
+        NextMissingButton.Visibility = Visible(mapped);
+        Select(null);
+        Map.ResetZoom();
+        LegendFound.Source = GamePictures.Collectible(set.Set.Kind, found: true);
+        LegendMissing.Source = GamePictures.Collectible(set.Set.Kind, found: false);
         CountPanel.Visibility = Visible(set.Set.CountOnly);
         CountBox.Text = set.Set.Collected.ToString();
         CountError.Text = "";
@@ -127,8 +130,75 @@ public partial class CollectiblesView : UserControl
         Refresh();
     }
 
+    /// <summary>Opens the set an item belongs to and, for a single item ("Letter Scraps No. 12"), selects it on the map.</summary>
+    public void ShowItem(string title)
+    {
+        var set = _sets.FirstOrDefault(s => title == s.Set.Name || title.StartsWith(s.Set.Name + " No. ", StringComparison.Ordinal));
+        if (set == null) return;
+        if (KindPicker.Children[_sets.IndexOf(set)] is RadioButton button) button.IsChecked = true;
+        if (_current != set) Show(set);
+        var item = _items.FirstOrDefault(i => i.Title == title);
+        if (item == null) return;
+        Select(item);
+        if (item.HasLocation) Dispatcher.BeginInvoke(() => Map.ZoomTo(item.MapCentre), System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    // ---- Picking an item ----
+
+    private CollectibleItemModel? _selected;
+
+    /// <summary>Highlights an item on the map and in the list, and shows its details card.</summary>
+    private void Select(CollectibleItemModel? item)
+    {
+        if (_selected != null) _selected.IsSelected = false;
+        _selected = item;
+        if (item != null) item.IsSelected = true;
+        Details.DataContext = item;
+        Details.Visibility = Visible(item != null);
+    }
+
     private void Dot_Click(object sender, MouseButtonEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is CollectibleItemModel item) item.Collected = !item.Collected;
+        if ((sender as FrameworkElement)?.DataContext is CollectibleItemModel item) Select(item);
+        e.Handled = true;
+    }
+
+    /// <summary>A click on empty map closes the details card.</summary>
+    private void Map_Click(object? sender, Point e) => Select(null);
+
+    private void Card_Click(object sender, MouseButtonEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CollectibleItemModel item) return;
+        Select(item);
+        if (item.HasLocation) Map.ZoomTo(item.MapCentre);
+    }
+
+    private void CloseDetails_Click(object sender, RoutedEventArgs e) => Select(null);
+
+    private void ZoomToSelected_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selected is { HasLocation: true }) Map.ZoomTo(_selected.MapCentre);
+    }
+
+    private void NextItem_Click(object sender, RoutedEventArgs e) => Step(+1, _ => true);
+
+    private void PreviousItem_Click(object sender, RoutedEventArgs e) => Step(-1, _ => true);
+
+    private void NextMissing_Click(object sender, RoutedEventArgs e) => Step(+1, i => !i.Collected);
+
+    /// <summary>Moves to the next (or previous) mapped item that matches, wrapping round, and zooms to it.</summary>
+    private void Step(int direction, Func<CollectibleItemModel, bool> wanted)
+    {
+        var mapped = _items.Where(i => i.HasLocation).ToList();
+        if (mapped.Count == 0) return;
+        int start = _selected == null ? (direction > 0 ? -1 : 0) : mapped.IndexOf(_selected);
+        for (int n = 1; n <= mapped.Count; n++)
+        {
+            var item = mapped[((start + direction * n) % mapped.Count + mapped.Count) % mapped.Count];
+            if (!wanted(item)) continue;
+            Select(item);
+            Map.ZoomTo(item.MapCentre);
+            return;
+        }
     }
 }

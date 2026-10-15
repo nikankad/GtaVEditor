@@ -489,3 +489,7 @@ $RECYCLE.BIN/
 
 # The *.app rule above is for macOS bundles; it must not hide the WPF project.
 !/src/SaveEditor.App/
+
+
+
+docs/FINDINGS.md

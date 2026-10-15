@@ -56,7 +56,7 @@ public partial class UnlocksView : UserControl
                 .Select(g => new WeaponUnlockGroup(g.Key, g.Select(u => new WeaponUnlockModel(u, _onChanged)).ToList())).ToList();
             var button = new RadioButton
             {
-                Content = character, GroupName = "UnlockCharacter", Style = (Style)FindResource("Segment"),
+                Content = GamePictures.WithLabel(GamePictures.Character(character), character), GroupName = "UnlockCharacter", Style = (Style)FindResource("Segment"),
                 IsChecked = character == _weaponCharacter,
             };
             button.Checked += (_, _) => ShowWeapons(character);

@@ -5,7 +5,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="..\..\assets\icons\gta5.png" Link="Assets\gta5.png" />
+    <Resource Include="..\..\assets\icons\app.ico" Link="Assets\app.ico" />
+    <Resource Include="..\..\assets\icons\icon.png" Link="Assets\logo.png" />
+    <!-- The game's own artwork (portraits, weapons, mission thumbnails, map blips); looked up by Models/GamePictures.cs. -->
+    <Resource Include="Assets\Game\**\*" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -16,6 +19,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>..\..\assets\icons\app.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>

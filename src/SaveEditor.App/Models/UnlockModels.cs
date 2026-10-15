@@ -1,3 +1,5 @@
+using System.Windows;
+using System.Windows.Media;
 using SaveEditor.GtaV;
 
 namespace SaveEditor.App;
@@ -6,6 +8,7 @@ namespace SaveEditor.App;
 public sealed class CollectibleSetModel(CollectibleSet set) : Observable
 {
     public CollectibleSet Set => set;
+    public ImageSource? Blip => GamePictures.Collectible(set.Kind, found: true);
     public string Header => $"{set.Name}  {set.Collected}/{set.Total}";
     public string CountText => $"{set.Collected} of {set.Total} found";
 }
@@ -13,18 +16,41 @@ public sealed class CollectibleSetModel(CollectibleSet set) : Observable
 /// <summary>One collectible: a tick box in the list and a dot on the map.</summary>
 public sealed class CollectibleItemModel(CollectibleSet set, CollectibleItem item, Action onChanged) : Observable
 {
-    // The map spans the playable area in game metres; north is up.
-    public const double MapWidth = 400, MinX = -4100, MaxX = 4500, MinY = -4300, MaxY = 8300;
-    public const double Scale = MapWidth / (MaxX - MinX), MapHeight = (MaxY - MinY) * Scale, Dot = 10;
+    public const double Dot = 14;
 
     public string Label => $"No. {item.Number}";
+    public ImageSource? Blip => GamePictures.Collectible(set.Kind, item.Collected);
+    public bool HasLocation => item.Location != null;
 
     public string Tip => item.Location is { } l
         ? $"{set.Name} {item.Number}\n{l.X:0}, {l.Y:0}, {l.Z:0}" + (item.Collected ? "\nFound" : "\nNot found")
         : $"{set.Name} {item.Number}";
 
-    public double MapLeft => item.Location is { } l ? (l.X - MinX) * Scale - Dot / 2 : -100;
-    public double MapTop => item.Location is { } l ? (MaxY - l.Y) * Scale - Dot / 2 : -100;
+    // The details card shown when the item is picked on the map or in the list.
+    public string Title => $"{set.Name} No. {item.Number}";
+    public string Area => item.Location is { } l ? "Near " + MapLabel.Nearest(l.X, l.Y).Text : "Position not known";
+    public string Coordinates => item.Location is { } l ? $"X {l.X:0}   Y {l.Y:0}   Z {l.Z:0}" : "";
+    public string Status => item.Collected ? "Found" : "Not found yet";
+
+    public double MapLeft => item.Location is { } l ? MapView.ToMap(l.X, l.Y).X - Dot / 2 : -100;
+    public double MapTop => item.Location is { } l ? MapView.ToMap(l.X, l.Y).Y - Dot / 2 : -100;
+    public int MapLayer => _selected ? 10 : 0;
+
+    /// <summary>The middle of the dot, in map pixels.</summary>
+    public Point MapCentre => new(MapLeft + Dot / 2, MapTop + Dot / 2);
+
+    private bool _selected;
+
+    public bool IsSelected
+    {
+        get => _selected;
+        set
+        {
+            if (value == _selected) return;
+            _selected = value;
+            Raise(nameof(IsSelected), nameof(MapLayer));
+        }
+    }
 
     public bool Collected
     {
@@ -49,14 +75,34 @@ public sealed record MapLabel(string Text, double X, double Y)
         new("Paleto Bay", -300, 6400), new("Fort Zancudo", -2300, 3100), new("Alamo Sea", 900, 4200),
     ];
 
-    public double Left => (X - CollectibleItemModel.MinX) * CollectibleItemModel.Scale - 40;
-    public double Top => (CollectibleItemModel.MaxY - Y) * CollectibleItemModel.Scale - 8;
+    // Finer district names (rough centres) used only to say where an item is; too many to draw on the map.
+    private static readonly IReadOnlyList<MapLabel> Areas =
+    [
+        .. All,
+        new("Downtown", -100, -800), new("Little Seoul", -700, -900), new("Vespucci Beach", -1350, -1350),
+        new("Del Perro", -1500, -900), new("Rockford Hills", -800, -150), new("Richman", -1700, 300),
+        new("Pacific Bluffs", -2000, -350), new("Strawberry", 150, -1450), new("Davis", 100, -1700),
+        new("Rancho", 450, -1750), new("La Mesa", 800, -1000), new("Mirror Park", 1100, -600),
+        new("El Burro Heights", 1350, -2000), new("Elysian Island", 200, -2700), new("Terminal", 950, -3100),
+        new("Tataviam Mountains", 1800, -200), new("Palomino Highlands", 2500, -700), new("Banham Canyon", -2700, 1400),
+        new("Tongva Hills", -1700, 2300), new("Great Chaparral", -400, 2700), new("Harmony", 500, 2700),
+        new("Grand Senora Desert", 1500, 2900), new("Stab City", 60, 3700), new("Raton Canyon", -900, 4300),
+        new("North Chumash", -2200, 4300), new("Paleto Forest", -500, 5200), new("Mount Gordo", 2900, 5500),
+        new("Humane Labs", 3600, 3700),
+    ];
+
+    /// <summary>The place name closest to a world position, to say roughly where an item is.</summary>
+    public static MapLabel Nearest(double x, double y) => Areas.MinBy(l => (l.X - x) * (l.X - x) + (l.Y - y) * (l.Y - y))!;
+
+    public double Left => MapView.ToMap(X, Y).X - 40;
+    public double Top => MapView.ToMap(X, Y).Y - 8;
 }
 
 /// <summary>One weapon's Ammu-Nation unlock for one character.</summary>
 public sealed class WeaponUnlockModel(WeaponUnlock unlock, Action onChanged) : Observable
 {
     public string Label => unlock.Weapon.Label;
+    public ImageSource? Picture => GamePictures.Weapon(unlock.Weapon.Id);
 
     public bool Unlocked
     {
@@ -77,6 +123,8 @@ public sealed record WeaponUnlockGroup(string Category, IReadOnlyList<WeaponUnlo
 public sealed class WardrobeModel(Wardrobe wardrobe, Action onChanged) : Observable
 {
     public string Name => wardrobe.Character;
+    public ImageSource? Portrait => GamePictures.Character(wardrobe.Character);
+    public Brush Colour => GamePictures.CharacterColour(wardrobe.Character);
     public string OwnedText => $"{wardrobe.Owned:N0} clothing items owned";
 
     public void OwnAll()

@@ -14,11 +14,14 @@ Nothing to install (Windows 10/11, 64-bit).
 - **Checklist:** tick off 100% completion items
 - **Missions:** complete story missions, pick heist approaches, unlock and revive heist crew
 - **Strangers & Freaks:** complete their missions
-- **Collectibles:** mark letter scraps, spaceship parts, bridges and more as found, on a map
-- **Player:** money, skills, health, armor, wanted level, location, game clock
+- **Collectibles:** mark letter scraps, spaceship parts, bridges and more as found, on a map you can zoom, drag and click
+  for each item's number and location
+- **Player:** money, skills, health, armor, wanted level, game clock, and where each character is, picked on a map
 - **Vehicles:** park cars, planes, helicopters and boats in your garages, hangars and docks; own businesses
 - **Weapons and Unlocks:** give weapons and ammo, unlock Ammu-Nation stock, clothes, Director Mode actors, Flight School medals
 - **Stats and Game flags:** every stat and story switch, with plain-English names
+- **Search everything:** type in the box at the top to find any mission, collectible, flag or stat, tick it right there or jump to its tab
+- **Check before saving:** every save first lists what you changed, with an Undo for each one
 
 ## Back up your saves
 
