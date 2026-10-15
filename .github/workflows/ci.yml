@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore SaveEditor.sln --locked-mode
+      - name: Test
+        run: dotnet test tests/SaveEditor.Tests -c Release --no-restore --logger 'trx;LogFileName=tests.trx'
+      - name: Build research tools
+        shell: pwsh
+        run: |
+          foreach ($tool in @('KeyRecovery', 'StoryResearch')) {
+            dotnet build "tools/$tool/$tool.csproj" -c Release -p:RestoreLockedMode=true
+            if ($LASTEXITCODE -ne 0) { throw "$tool build failed." }
+          }
+      - name: Package public build
+        shell: pwsh
+        run: ./scripts/Publish-App.ps1 -LockedMode
+      - name: Smoke test packaged app startup
+        shell: pwsh
+        run: ./scripts/Test-AppStartup.ps1 -ArchivePath artifacts/release/GtaVSaveEditor-win-x64.zip
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-results
+          path: tests/SaveEditor.Tests/TestResults/*.trx
+          if-no-files-found: warn
+      - name: Upload preview package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: public-build-preview
+          path: artifacts/release/*
+          if-no-files-found: error

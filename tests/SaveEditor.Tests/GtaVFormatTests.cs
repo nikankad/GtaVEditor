@@ -134,33 +134,29 @@ public class GtaVSaveTests
     }
 
     /// <summary>Header check against a real PC save; set GTAV_SAMPLE_SAVE to its path to enable.</summary>
-    [Fact]
+    [RealSaveFact]
     public void RealSave_HeaderParses()
     {
         var path = Environment.GetEnvironmentVariable("GTAV_SAMPLE_SAVE");
-        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
-
-        var bytes = File.ReadAllBytes(path);
+        var bytes = File.ReadAllBytes(path!);
         var f = SgtaFile.Read(bytes);
         Assert.Equal(1u, f.Version);
         Assert.False(string.IsNullOrWhiteSpace(f.Title));
         Assert.Equal(bytes, f.Write());
-        Assert.True(SgtaFile.LooksLikeSgta(path));
+        Assert.True(SgtaFile.LooksLikeSgta(path!));
     }
 
     /// <summary>Full decrypt/verify/round-trip of a real save; set GTAV_SAMPLE_SAVE and GTAV_KEY_FILE to enable.</summary>
-    [Fact]
+    [RealSaveFact(needsKey: true)]
     public void RealSave_DecryptsVerifiesAndRoundTrips()
     {
         var path = Environment.GetEnvironmentVariable("GTAV_SAMPLE_SAVE");
         var keyFile = Environment.GetEnvironmentVariable("GTAV_KEY_FILE");
-        if (string.IsNullOrEmpty(path) || !File.Exists(path) || string.IsNullOrEmpty(keyFile) || !File.Exists(keyFile)) return;
-
-        var doc = GtaVSaveDocument.Load(path, File.ReadAllBytes(keyFile));
+        var doc = GtaVSaveDocument.Load(path!, File.ReadAllBytes(keyFile!));
 
         Assert.True(doc.Integrity.IsValid, doc.Integrity.Summary);
         Assert.Equal("CHKS", doc.Body.Blocks[^1].Id);
-        Assert.Equal(File.ReadAllBytes(path), doc.ToBytes());
+        Assert.Equal(File.ReadAllBytes(path!), doc.ToBytes());
     }
 }
 

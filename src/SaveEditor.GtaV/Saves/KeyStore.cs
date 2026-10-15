@@ -3,8 +3,8 @@ using System.Reflection;
 namespace SaveEditor.GtaV;
 
 /// <summary>
-/// Holds the 32-byte PC save key. The key is never in the source tree: release builds embed it from the GTAV_SAVE_KEY
-/// repository secret (written to the gitignored Data/gtav-pc.key just for the build), so players never see a key prompt.
+/// Holds the 32-byte PC save key. Maintainer releases may embed it from the GTAV_SAVE_KEY
+/// repository secret (written to the gitignored Data/gtav-pc.key just for the build).
 /// Builds without it ask the user to import a key once; it is kept under %AppData%\SaveEditor\keys and takes precedence.
 /// A candidate key is validated by decrypting a real save and checking its CHKS checksum.
 /// </summary>

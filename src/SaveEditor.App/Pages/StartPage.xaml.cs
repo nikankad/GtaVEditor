@@ -62,7 +62,7 @@ public partial class StartPage : UserControl
     {
         var gta = App.Game;
         MessageBox.Show(_shell,
-            "GTA V encrypts PC saves with a 32-byte AES key that belongs to Rockstar and is not included with this app.\n\n" +
+            "GTA V encrypts PC saves with a 32-byte AES key. This build needs a key before it can open saves.\n\n" +
             "Select a 32-byte key file, then one of your own GTA V saves. The key is only stored if it correctly decrypts that save.",
             "Import key", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -73,9 +73,17 @@ public partial class StartPage : UserControl
         if (folder != null) saveDlg.InitialDirectory = folder;
         if (saveDlg.ShowDialog(_shell) != true) return;
 
-        var result = gta.Keys.Import(File.ReadAllBytes(keyDlg.FileName), saveDlg.FileName);
-        MessageBox.Show(_shell, result.Summary, "Import key", MessageBoxButton.OK,
-            result.IsValid ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        try
+        {
+            var result = gta.Keys.Import(File.ReadAllBytes(keyDlg.FileName), saveDlg.FileName);
+            MessageBox.Show(_shell, result.Summary, "Import key", MessageBoxButton.OK,
+                result.IsValid ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveFormatException)
+        {
+            MessageBox.Show(_shell, "The key could not be imported. " + ex.Message,
+                "Import key", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
         ShowKeyState();
     }
 }

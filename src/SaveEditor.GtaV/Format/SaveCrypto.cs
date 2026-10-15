@@ -5,7 +5,7 @@ namespace SaveEditor.GtaV;
 /// <summary>
 /// Body encryption of GTA V PC saves: AES-256, ECB, zero padding
 /// (GTAV_Class::Decrypt/Encrypt, tokens 0x0600000F / 0x06000011: KeySize=256, Mode=ECB(2), Padding=Zeros(3)).
-/// The key is Rockstar's and is NOT shipped with this project; the user supplies it (see <see cref="KeyStore"/>).
+/// Source builds import the key; maintainer releases may embed it (see <see cref="KeyStore"/>).
 /// </summary>
 public static class SaveCrypto
 {

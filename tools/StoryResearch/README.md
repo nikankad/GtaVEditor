@@ -12,7 +12,7 @@ Downloaded game scripts are local research inputs, not included in this reposito
 
 ```powershell
 dotnet build tools/StoryResearch/StoryResearch.csproj -m:1 -p:BuildInParallel=false
-dotnet tools/StoryResearch/bin/Debug/net8.0/StoryResearch.dll <initial.c> <key-file> <save> [save ...]
+dotnet tools/StoryResearch/bin/Debug/net10.0/StoryResearch.dll <initial.c> <key-file> <save> [save ...]
 ```
 
 It reconstructs the 32 strand command ranges (1,882 commands), including suppression of duplicate labels.

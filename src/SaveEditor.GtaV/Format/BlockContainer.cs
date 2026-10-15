@@ -48,7 +48,7 @@ public sealed class BlockContainer
         {
             var id = Encoding.ASCII.GetString(body, pos, 4);
             int size = BinaryPrimitives.ReadInt32BigEndian(body.AsSpan(pos + 4));
-            if (!IsPrintableId(id) || size < SaveBlock.HeaderSize || pos + size > body.Length)
+            if (!IsPrintableId(id) || size < SaveBlock.HeaderSize || size > body.Length - pos)
                 throw new SaveFormatException(
                     $"Invalid block at 0x{pos:X} (id '{Sanitize(id)}', size {size}). Wrong key or not a GTA V PC save?");
             blocks.Add(new SaveBlock(id, body[(pos + SaveBlock.HeaderSize)..(pos + size)]));
@@ -57,6 +57,8 @@ public sealed class BlockContainer
         }
         if (blocks.Count == 0 || blocks[^1].Id != ChecksumId)
             throw new SaveFormatException("Save body ended without a CHKS block.");
+        if (blocks[^1].Data.Length < 8)
+            throw new SaveFormatException("CHKS block is too short.");
         return new BlockContainer(blocks, body[pos..]);
     }
 
@@ -98,6 +100,7 @@ public sealed class BlockContainer
         get
         {
             var d = Checksum.Data;
+            if (d.Length < 8) throw new SaveFormatException("CHKS block is too short.");
             return (BinaryPrimitives.ReadInt32BigEndian(d), BinaryPrimitives.ReadUInt32BigEndian(d.AsSpan(4)));
         }
     }

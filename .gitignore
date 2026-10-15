@@ -5,10 +5,14 @@
 
 # dotenv files
 .env
+.env.*
+!.env.example
 
 # Local game/editor binaries, player saves, and recovered encryption keys
 GtaStuff/
 *.key
+SGTA5*
+size-results/
 
 # User-specific files
 *.rsuser
@@ -195,6 +199,7 @@ publish/
 # Note: Comment the next line if you want to checkin your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
+!src/SaveEditor.App/Properties/PublishProfiles/Public.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
