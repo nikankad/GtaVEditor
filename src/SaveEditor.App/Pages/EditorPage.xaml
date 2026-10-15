@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:SaveEditor.App">
     <UserControl.Resources>
-        <ResourceDictionary Source="/Themes/GtaMap.xaml"/>
+        <ResourceDictionary Source="/GtaVSaveEditor;component/Themes/GtaMap.xaml"/>
     </UserControl.Resources>
     <DockPanel Background="{StaticResource PageBrush}">
         <!-- Header: which save, and the file actions. -->
@@ -16,7 +16,7 @@
                     <!-- Search every tab: missions, collectibles, weapons, stats, flags… -->
                     <Grid Width="250" Margin="0,0,14,0" VerticalAlignment="Center">
                         <TextBox x:Name="SearchBox" Padding="6,5" TextChanged="Search_Changed" PreviewKeyDown="Search_KeyDown"
-                                 GotKeyboardFocus="Search_Focus" ToolTip="Find anything in this save, on any tab"/>
+                                 GotKeyboardFocus="Search_Focus" ToolTip="Find anything in this save, on any tab (Ctrl+F)"/>
                         <TextBlock Text="Search everything…" Foreground="{StaticResource MutedBrush}" Margin="9,0,0,0"
                                    VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
@@ -70,9 +70,9 @@
                             ToolTip="Everything you've changed since the save was opened, with Undo"/>
                     <Button Content="Save to game slot…" Style="{StaticResource HeaderButton}" Margin="8,0,0,0" Click="SaveToSlot_Click"
                             ToolTip="Write this save into one of the game's Load Game slots"/>
-                    <Button Content="Save as…" Style="{StaticResource HeaderButton}" Margin="8,0,0,0" Click="SaveAs_Click"/>
+                    <Button Content="Save as…" Style="{StaticResource HeaderButton}" Margin="8,0,0,0" Click="SaveAs_Click" ToolTip="Save to another file (Ctrl+Shift+S)"/>
                     <Button x:Name="SaveButton" Content="Save" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
-                            IsEnabled="False" Click="Save_Click" ToolTip="Overwrite the file you opened (a backup is made first)"/>
+                            IsEnabled="False" Click="Save_Click" ToolTip="Save the current file (Ctrl+S); a backup is made first"/>
                 </StackPanel>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="TitleText" Foreground="White" FontFamily="{StaticResource HeadingFont}" FontSize="24" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
@@ -120,6 +120,7 @@
                                 </ItemsControl>
                             </StackPanel>
                         </Border>
+                        <CheckBox x:Name="ChecklistIncomplete" Content="Show incomplete only" Checked="CompletionFilter_Changed" Unchecked="CompletionFilter_Changed" Margin="0,0,0,8"/>
                         <StackPanel x:Name="ChecklistPicker" Orientation="Horizontal" Margin="0,0,0,12"/>
                         <WrapPanel>
                             <Button Content="Mark this section done" Click="ChecklistAllDone_Click" Margin="0,0,6,6"/>
@@ -201,6 +202,7 @@
                         </WrapPanel>
                         <TextBlock Text="Heist approaches and ending" Style="{StaticResource SectionTitle}" Margin="0,0,0,6"/>
                         <WrapPanel x:Name="ChoicePickers" Margin="0,0,0,10"/>
+                        <CheckBox x:Name="MissionsIncomplete" Content="Show incomplete only" Checked="CompletionFilter_Changed" Unchecked="CompletionFilter_Changed" Margin="0,0,0,8"/>
                     </StackPanel>
                     <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"
                                Text="Skipped missions don't pay out what the mission itself would (heist takes, for example). The game still asks for heist plans on the planning board; pick the approach you chose here. Unticking a mission the story has already passed doesn't make you replay it."/>
@@ -247,6 +249,7 @@
                         <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,14" TextWrapping="Wrap"
                                    Text="Tick a mission to mark it completed; its checklist entry is ticked too. The stranger won't offer it again."/>
                         <TextBlock x:Name="StrangersError" Style="{StaticResource ErrorText}" FontSize="13" Text=""/>
+                        <CheckBox x:Name="StrangersIncomplete" Content="Show incomplete only" Checked="CompletionFilter_Changed" Unchecked="CompletionFilter_Changed" Margin="0,0,0,8"/>
                         <WrapPanel x:Name="StrangersButtons">
                             <TextBlock x:Name="StrangersCountText" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,16,6"/>
                             <Button Content="Complete all" Click="StrangersAll_Click" Margin="0,0,6,6"/>
@@ -343,7 +346,7 @@
                                                 <StackPanel>
                                                     <StackPanel DataContext="{Binding Character}" Visibility="{Binding DataContext.CharacterVisibility, RelativeSource={RelativeSource AncestorType=Border}}">
                                                         <TextBlock Text="Cash" Style="{StaticResource Muted}" Margin="0,0,0,3"/>
-                                                        <TextBox Text="{Binding Cash, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
+                                                        <TextBox Tag="Cash" Text="{Binding Cash, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
                                                                  IsEnabled="{Binding HasCash}" FontSize="15" Padding="4,3"/>
                                                         <TextBlock Text="{Binding CashError}" Style="{StaticResource ErrorText}" Margin="0,2,0,0"/>
                                                     </StackPanel>
@@ -413,20 +416,20 @@
                                                     </Grid.RowDefinitions>
                                                     <TextBlock Text="Health" VerticalAlignment="Center"/>
                                                     <Slider Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
-                                                            Value="{Binding Health}" Margin="0,4"/>
+                                                            Tag="Health" Value="{Binding Health}" Margin="0,4"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding Health, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Row="1" Text="Armor" VerticalAlignment="Center"/>
                                                     <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
-                                                            Value="{Binding Armor}" Margin="0,4"/>
+                                                            Tag="Armor" Value="{Binding Armor}" Margin="0,4"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Armor, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center"/>
-                                                    <CheckBox Grid.Row="2" Grid.ColumnSpan="3" Content="Special ability unlocked" IsChecked="{Binding AbilityUnlocked}" Margin="0,6"/>
+                                                    <CheckBox Grid.Row="2" Grid.ColumnSpan="3" Content="Special ability unlocked" Tag="Special ability unlocked" IsChecked="{Binding AbilityUnlocked}" Margin="0,6"/>
                                                     <TextBlock Grid.Row="3" Text="Ability bar" VerticalAlignment="Center"/>
                                                     <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1"
-                                                            Value="{Binding Ability}" IsEnabled="{Binding AbilityUnlocked}" Margin="0,4"/>
+                                                            Tag="Ability bar" Value="{Binding Ability}" IsEnabled="{Binding AbilityUnlocked}" Margin="0,4"/>
                                                     <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Ability, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Row="4" Text="Wanted level" VerticalAlignment="Center"/>
                                                     <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="5" IsSnapToTickEnabled="True" TickFrequency="1"
-                                                            TickPlacement="BottomRight" Value="{Binding Wanted}" Margin="0,4"/>
+                                                            TickPlacement="BottomRight" Tag="Wanted level" Value="{Binding Wanted}" Margin="0,4"/>
                                                     <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding WantedText}" TextAlignment="Right" VerticalAlignment="Center"
                                                                Foreground="#C8960C"/>
                                                 </Grid>
@@ -436,7 +439,7 @@
                                                 <DockPanel>
                                                     <Border DockPanel.Dock="Left" Width="104" Height="152" Background="#14181C" Margin="0,0,14,0"
                                                             BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Cursor="Hand"
-                                                            MouseLeftButtonUp="ChooseLocation_Click" ToolTip="Choose on the map">
+                                                            Tag="Location" MouseLeftButtonUp="ChooseLocation_Click" ToolTip="Choose on the map">
                                                         <Viewbox Stretch="Uniform">
                                                             <Grid Width="{x:Static local:MapView.Width0}" Height="{x:Static local:MapView.Height0}">
                                                                 <Image Source="{StaticResource GtaMapImage}" Stretch="Fill"/>

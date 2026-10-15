@@ -1,0 +1,24 @@
+name: Editor checks
+
+on:
+  pull_request:
+  push:
+    branches: [feat/editor-quick-wins]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Core regression tests
+        run: dotnet test tests/SaveEditor.Tests -c Release
+      - name: Windows UI smoke checks
+        if: ${{ !cancelled() }}
+        run: dotnet run --project tests/SaveEditor.App.SmokeTests -c Release

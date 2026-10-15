@@ -13,9 +13,27 @@ public sealed class GtaVSaveDocument
         Body = body;
         _key = key;
         Integrity = body.Verify();
+        Rebase();
     }
 
-    public string FilePath { get; }
+    public string FilePath { get; private set; }
+    private string _savedTitle = "";
+    private (string Id, byte[] Data)[] _savedBlocks = [];
+    private byte[] _savedTrailer = [];
+
+    /// <summary>Compares the actual editable bytes, including fields outside the change review.</summary>
+    public bool HasChanges => Title != _savedTitle || !Body.Trailer.AsSpan().SequenceEqual(_savedTrailer)
+        || Body.Blocks.Count != _savedBlocks.Length
+        || Body.Blocks.Where((b, i) => b.Id != _savedBlocks[i].Id
+            || !b.Data.AsSpan(b.Id == BlockContainer.ChecksumId ? 8 : 0)
+                .SequenceEqual(_savedBlocks[i].Data.AsSpan(b.Id == BlockContainer.ChecksumId ? 8 : 0))).Any();
+
+    private void Rebase()
+    {
+        _savedTitle = Title;
+        _savedBlocks = Body.Blocks.Select(b => (b.Id, b.Data.ToArray())).ToArray();
+        _savedTrailer = Body.Trailer.ToArray();
+    }
     public BlockContainer Body { get; }
     public IntegrityReport Integrity { get; }
 
@@ -161,5 +179,7 @@ public sealed class GtaVSaveDocument
         var tmp = path + ".tmp";
         File.WriteAllBytes(tmp, bytes);
         File.Move(tmp, path, overwrite: true);
+        FilePath = Path.GetFullPath(path);
+        Rebase();
     }
 }
