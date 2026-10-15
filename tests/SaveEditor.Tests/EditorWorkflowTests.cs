@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using SaveEditor.GtaV;
+using SaveEditor.TestSupport;
 
 namespace SaveEditor.Tests;
 
@@ -161,6 +162,21 @@ public sealed class EditorWorkflowTests : IDisposable
         Assert.Throws<SaveFormatException>(() => service.Restore(backup, source));
         Assert.Equal(original, File.ReadAllBytes(source));
         Assert.Single(service.Entries());
+    }
+
+    [Fact]
+    public void UiFixture_ReadsChecklistAndStats_AndFullyRevertsEdits()
+    {
+        var doc = SyntheticSave.Build(_folder, new("M_ARM1", 27.5f, true, 1), new("M_ARM2", 27.5f, false, 1));
+        Assert.Equal(2, doc.Checklist.Count);
+        Assert.Equal(1234, doc.Stats.GetInt("SP0_TOTAL_CASH"));
+        Assert.Equal(27.5f, doc.Stats.GetFloat("TOTAL_PROGRESS_MADE"));
+        Assert.False(doc.HasChanges);
+        doc.Checklist.SetCompleted(doc.Checklist[1], true);
+        Assert.True(doc.HasChanges);
+        Assert.Equal(55f, doc.Stats.GetFloat("TOTAL_PROGRESS_MADE"));
+        doc.Checklist.SetCompleted(doc.Checklist[1], false);
+        Assert.False(doc.HasChanges);
     }
 
     public void Dispose() => Directory.Delete(_folder, recursive: true);
