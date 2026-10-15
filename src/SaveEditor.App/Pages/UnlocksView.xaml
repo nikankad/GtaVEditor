@@ -76,6 +76,27 @@
                                             <TextBlock Text="{Binding OwnedText}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </DockPanel>
+                                    <ItemsControl ItemsSource="{Binding Categories}" Margin="0,0,0,10">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="130"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="84"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"/>
+                                                    <ProgressBar Grid.Column="1" Height="7" Margin="6,0" Minimum="0" Maximum="{Binding Total, Mode=OneWay}"
+                                                                 Value="{Binding Owned, Mode=OneWay}" VerticalAlignment="Center"
+                                                                 Foreground="{StaticResource AccentBrush}" Background="{StaticResource LineBrush}" BorderThickness="0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding OwnedText}" Style="{StaticResource Muted}" TextAlignment="Right" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="3" Content="Own all" Style="{StaticResource LinkButton}" Margin="8,0,0,0"
+                                                            Click="OwnClothingKind_Click" IsEnabled="{Binding CanOwnAll}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                     <Button Content="Own every item the shops sell" HorizontalAlignment="Left" Click="OwnClothes_Click"/>
                                 </StackPanel>
                             </Border>

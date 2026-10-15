@@ -165,6 +165,17 @@ public sealed class ChangeTracker
                 t.Track("Vehicles", $"{s.Garage}, space {s.Number}", () => s.VehicleName, wasEmpty ? _ => s.Clear() : null, v => v);
             }
         });
+        // A car's paint and parts are one entry: the bytes decide whether it changed, the description is what's shown.
+        Try(() =>
+        {
+            foreach (var s in doc.Garages)
+            {
+                var look = s.CarLook;
+                t.Track("Vehicles", $"{s.Garage}, space {s.Number}: paint, plate and upgrades",
+                    () => (Summary: s.IsEmpty ? "Nothing parked" : $"{look.Describe()}, plate {s.PlateText}", Bytes: Convert.ToHexString(s.SnapshotLook())),
+                    v => s.RestoreLook(Convert.FromHexString(v.Bytes)), v => v.Summary);
+            }
+        });
         Try(() =>
         {
             foreach (var s in doc.PropertyVehicles)
@@ -197,6 +208,23 @@ public sealed class ChangeTracker
                     },
                     v => !v.Owned ? "Not owned" : w.Weapon.UsesAmmo ? $"Owned, {v.Ammo:N0} ammo" : "Owned");
         });
+        // Tint and attachments, for weapons that have them; only put back while the weapon is owned.
+        Try(() =>
+        {
+            foreach (var w in doc.Weapons.Where(w => w.Attachments.Count > 0 || w.CanTint))
+                t.Track("Weapons", $"{w.Character}: {w.Weapon.Label} tint and attachments",
+                    () => (Tint: w.CanTint ? w.Tint : 0, Fitted: string.Join(", ", w.Attachments.Where(w.HasAttachment).Select(a => a.Name))),
+                    v =>
+                    {
+                        if (!w.Owned) return;
+                        if (w.CanTint) w.Tint = v.Tint;
+                        var fitted = v.Fitted.Split(", ");
+                        foreach (var a in w.Attachments.Where(a => !fitted.Contains(a.Name))) w.SetAttachment(a, false);
+                        foreach (var a in w.Attachments.Where(a => fitted.Contains(a.Name))) w.SetAttachment(a, true);
+                    },
+                    v => string.Join(", ", new[] { w.CanTint ? $"{WeaponTints.Names[v.Tint]} tint" : "", v.Fitted.Length > 0 ? v.Fitted : "no attachments" }
+                        .Where(p => p.Length > 0)));
+        });
         Try(() =>
         {
             foreach (var u in doc.WeaponUnlocks)
@@ -206,7 +234,10 @@ public sealed class ChangeTracker
         Try(() =>
         {
             foreach (var w in doc.Wardrobes)
-                t.Track("Unlocks", $"{w.Character}: clothes", () => w.Owned, null, v => $"{v} of {w.Total} owned");
+                foreach (var kind in w.Categories)
+                    t.Track("Unlocks", $"{w.Character}: {kind.Label.ToLowerInvariant()}", () => string.Join(',', kind.Snapshot()),
+                        v => kind.Restore(v.Split(',').Select(int.Parse).ToArray()),
+                        v => $"{kind.OwnedIn(v.Split(',').Select(int.Parse).ToArray())} of {kind.Total} owned");
         });
         Try(() =>
         {

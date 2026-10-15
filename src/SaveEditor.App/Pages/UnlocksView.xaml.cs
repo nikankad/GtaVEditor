@@ -82,6 +82,8 @@ public partial class UnlocksView : UserControl
 
     private void OwnClothes_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as WardrobeModel)?.OwnAll();
 
+    private void OwnClothingKind_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as ClothingCategoryModel)?.OwnAll();
+
     private void ShowDirector()
     {
         if (_director == null) return;
@@ -111,7 +113,7 @@ public partial class UnlocksView : UserControl
         SearchNavigation.Reveal(this, e => e.DataContext switch
         {
             WeaponUnlockModel weapon => name == weapon.Label + " at Ammu-Nation",
-            WardrobeModel wardrobe => wardrobe.Name == who && name == "clothes",
+            WardrobeModel wardrobe => wardrobe.Name == who && wardrobe.Categories.Any(c => c.Label.ToLowerInvariant() == name),
             FlightLessonModel lesson => who == "Flight School" && lesson.Name == name,
             _ => label == "Director Mode actors" && e == DirectorCard,
         });
@@ -121,7 +123,7 @@ public partial class UnlocksView : UserControl
     public void Refresh()
     {
         foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
-        _wardrobes.ForEach(w => w.Refresh());
+        _wardrobes.ForEach(w => { w.Refresh(); foreach (var k in w.Categories) k.Refresh(); });
         _lessons.ForEach(l => l.Refresh());
         ShowDirector();
     }

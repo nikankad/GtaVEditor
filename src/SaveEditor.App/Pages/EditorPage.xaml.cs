@@ -112,7 +112,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         _propertyVehicles.ForEach(s => s.Refresh());
         _properties.ForEach(p => p.Refresh());
         _statRows.ForEach(r => r.Refresh());
-        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
+        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.RefreshAll();
         _collectibles.Refresh();
         _unlocks.Refresh();
         _flags.Refresh();
@@ -420,6 +420,12 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     private void EmptySpace_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as GarageSlotModel)?.Empty();
 
+    private void CustomiseSpace_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not GarageSlotModel { CanEmpty: true } slot) return;
+        new VehicleCustomiseWindow(slot.Slot, Changed) { Owner = _shell }.ShowDialog();
+    }
+
     // ---- Heist crew ----
 
     private HeistCrew? _crew;
@@ -562,6 +568,11 @@ public partial class EditorPage : UserControl, IGuardedPage
     private void FillAmmo_Click(object sender, RoutedEventArgs e)
     {
         foreach (var w in BulkTargets()) w.FillAmmo();
+    }
+
+    private void FitAttachments_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var w in BulkTargets()) w.FitAllAttachments();
     }
 
     private void RemoveAll_Click(object sender, RoutedEventArgs e)

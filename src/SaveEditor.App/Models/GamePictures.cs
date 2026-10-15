@@ -28,6 +28,25 @@ public static class GamePictures
 
     public static ImageSource? Weapon(string id) => Get($"weapons/{id}.png");
 
+    /// <summary>A vehicle's picture from the game, by its model hash.</summary>
+    public static ImageSource? Vehicle(uint hash) => Get($"vehicles/{hash:X8}.jpg");
+
+    /// <summary>A rim design's picture; <paramref name="type"/> is the wheel type number and the name is the design's name.</summary>
+    public static ImageSource? Rim(int type, string name) => Get($"rims/{type}/{Simple(name)}.png");
+
+    public static ImageSource? Plate(int style) => Get($"plates/{style}.png");
+
+    /// <summary>A livery as the game pictures it; <paramref name="index"/> is its position in the car's livery list.</summary>
+    public static ImageSource? Livery(uint hash, int index) => Get($"liveries/{hash:X8}/{index}.jpg");
+
+    /// <summary>The picture of one weapon attachment, by the attachment's bit; null when the game has none for it.</summary>
+    public static ImageSource? WeaponPart(string weaponId, int bit) => Get($"weaponparts/{weaponId}/{bit}.png");
+
+    /// <summary>The engraved finish of a weapon (its "Luxury" or gilded finish).</summary>
+    public static ImageSource? WeaponFinish(string weaponId) => Get($"weaponparts/{weaponId}/finish.png");
+
+    private static string Simple(string name) => new string(name.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
+
     public static ImageSource? Mission(string code) => Get($"missions/{code}.jpg");
 
     public static ImageSource? Stranger(int index) => Get($"strangers/{index}.jpg");

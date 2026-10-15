@@ -30,8 +30,8 @@ rewards, cutscenes, and story transitions. Keep a separate copy before changing 
 - **Collectibles:** mark letter scraps, spaceship parts, bridges and more as found, on a map you can zoom, drag and click
   for each item's number and location
 - **Player:** money, skills, health, armor, wanted level, game clock, and where each character is, picked on a map
-- **Vehicles:** park cars, planes, helicopters and boats in your garages, hangars and docks; own businesses
-- **Weapons and Unlocks:** give weapons and ammo, unlock Ammu-Nation stock, clothes, Director Mode actors, Flight School medals
+- **Vehicles:** park cars, planes, helicopters and boats in your garages, hangars and docks, with the game's pictures; customise garage cars (paint, number plate, window tint, neon, rims, tyre smoke, upgrades, body parts, liveries); own businesses
+- **Weapons and Unlocks:** give weapons and ammo, fit attachments and tints, unlock Ammu-Nation stock, clothes by kind, Director Mode actors, Flight School medals
 - **Stats and Game flags:** every stat and story switch, with plain-English names
 - **Open your saves quickly:** the start page lists detected saves with their slot, title, profile and modification date
 - **Focus on what remains:** show only incomplete checklist entries, missions and missing collectibles

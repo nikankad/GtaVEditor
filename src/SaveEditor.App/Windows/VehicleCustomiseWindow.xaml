@@ -1,0 +1,252 @@
+<Window x:Class="SaveEditor.App.VehicleCustomiseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Customise vehicle" Height="800" Width="960" WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
+        Background="{StaticResource PageBrush}" Icon="/GtaVSaveEditor;component/Assets/app.ico">
+    <Window.Resources>
+        <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+        <Style x:Key="Field" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="MaxDropDownHeight" Value="380"/>
+        </Style>
+        <Style x:Key="Note" TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <!-- A colour swatch beside the colour's name. -->
+        <DataTemplate x:Key="SwatchItem">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="22" Height="13" CornerRadius="2" Background="{Binding Swatch}" BorderBrush="{StaticResource LineBrush}"
+                        BorderThickness="1" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+        <!-- A picture from the game beside a name (plates, rims). -->
+        <DataTemplate x:Key="PictureItem">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding Picture}" Height="30" Width="60" Stretch="Uniform" Margin="0,1,10,1"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <DockPanel Margin="18">
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <Image Source="{Binding Picture}" Height="64" DockPanel.Dock="Left" Margin="0,0,16,0" Stretch="Uniform"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding VehicleName}" Style="{StaticResource PageTitle}" FontSize="22"/>
+                <TextBlock Text="{Binding Where}" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+            </StackPanel>
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <TextBlock Style="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"
+                       Text="Changes show the next time the save is loaded in game. They're listed in the change review before saving."/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Done" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Done_Click"/>
+                <Button Content="Cancel" Margin="6,0,0,0" IsCancel="True" Click="Cancel_Click"
+                        ToolTip="Puts the car back the way it was when this window opened"/>
+            </StackPanel>
+        </DockPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Paint" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Primary" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Primary}"/>
+                                <TextBlock Grid.Row="1" Text="Secondary" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Secondary}"/>
+                                <TextBlock Grid.Row="2" Text="Pearlescent" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Pearlescent}"
+                                          ToolTip="The shimmer over the primary paint"/>
+                                <TextBlock Grid.Row="3" Text="Wheels" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding WheelColour}"/>
+                                <TextBlock Grid.Row="4" Text="Interior" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Interior}"
+                                          ToolTip="Trim colour; only some cars show it"/>
+                                <TextBlock Grid.Row="5" Text="Dashboard" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="5" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding Paints}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Dashboard}"
+                                          ToolTip="Only some cars show it"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Windows and lights" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Window tint" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding WindowTints}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding WindowTint}"/>
+                                <TextBlock Grid.Row="1" Text="Neon colour" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding NeonColours}" ItemTemplate="{StaticResource SwatchItem}"
+                                          SelectedItem="{Binding NeonColour}"/>
+                                <TextBlock Grid.Row="2" Text="Neon on" Style="{StaticResource FieldLabel}"/>
+                                <WrapPanel Grid.Row="2" Grid.Column="1" Margin="0,5">
+                                    <CheckBox Content="Left" IsChecked="{Binding NeonLeft}" Margin="0,0,12,0"/>
+                                    <CheckBox Content="Right" IsChecked="{Binding NeonRight}" Margin="0,0,12,0"/>
+                                    <CheckBox Content="Front" IsChecked="{Binding NeonFront}" Margin="0,0,12,0"/>
+                                    <CheckBox Content="Back" IsChecked="{Binding NeonBack}"/>
+                                </WrapPanel>
+                            </Grid>
+                            <StackPanel IsEnabled="{Binding HasModKit}" Margin="0,6,0,0">
+                                <CheckBox Content="Xenon headlights" IsChecked="{Binding XenonLights}" Margin="0,3"/>
+                                <DockPanel Margin="0,3">
+                                    <CheckBox Content="Custom tyre smoke" IsChecked="{Binding TyreSmoke}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <ComboBox Style="{StaticResource Field}" ItemsSource="{Binding SmokeColours}" ItemTemplate="{StaticResource SwatchItem}"
+                                              SelectedItem="{Binding SmokeColour}" IsEnabled="{Binding TyreSmoke}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Number plate" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Plate text" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Grid.Column="1" MaxLength="8" CharacterCasing="Upper" Margin="0,3" FontFamily="Consolas" FontSize="15"
+                                         Text="{Binding PlateText, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"
+                                         ToolTip="Up to 8 letters, digits or spaces"/>
+                                <TextBlock Grid.Row="1" Text="Plate style" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding PlateStyles}" ItemTemplate="{StaticResource PictureItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding PlateStyle}"/>
+                            </Grid>
+                            <TextBlock Text="{Binding PlateError}" Style="{StaticResource ErrorText}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Style="{StaticResource Note}" Visibility="{Binding NoKitVisibility}" Foreground="{StaticResource TextBrush}"
+                               Text="This vehicle has never been to a mod shop, so only its paint, window tint, neon and plate can be changed here. Drive it into a Los Santos Customs once and save the game, and the editor can then change its rims and upgrades too."/>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Wheels" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Wheel type" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding WheelTypes}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding WheelType}" IsEnabled="{Binding HasModKit}"/>
+                                <TextBlock Grid.Row="1" Text="Rims" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding WheelDesigns}" ItemTemplate="{StaticResource PictureItem}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding WheelDesign}" IsEnabled="{Binding HasModKit}"/>
+                            </Grid>
+                            <CheckBox Content="Custom tyres" IsChecked="{Binding CustomTyres}" IsEnabled="{Binding HasModKit}" Margin="0,6,0,0"
+                                      ToolTip="Whitewall or racing tyres, depending on the rims"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Performance" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <TextBlock Style="{StaticResource Note}" Visibility="{Binding NoUpgradeVisibility}" Text="{Binding NoUpgradeText}"/>
+                            <Grid Visibility="{Binding UpgradeVisibility}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Engine" Style="{StaticResource FieldLabel}" Visibility="{Binding EngineVisibility}"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding EngineLevels}" Visibility="{Binding EngineVisibility}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Engine}"/>
+                                <TextBlock Grid.Row="1" Text="Brakes" Style="{StaticResource FieldLabel}" Visibility="{Binding BrakesVisibility}"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding BrakeLevels}" Visibility="{Binding BrakesVisibility}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Brakes}"/>
+                                <TextBlock Grid.Row="2" Text="Transmission" Style="{StaticResource FieldLabel}" Visibility="{Binding TransmissionVisibility}"/>
+                                <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding TransmissionLevels}" Visibility="{Binding TransmissionVisibility}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Transmission}"/>
+                                <TextBlock Grid.Row="3" Text="Suspension" Style="{StaticResource FieldLabel}" Visibility="{Binding SuspensionVisibility}"/>
+                                <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding SuspensionLevels}" Visibility="{Binding SuspensionVisibility}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Suspension}"/>
+                                <TextBlock Grid.Row="4" Text="Armour" Style="{StaticResource FieldLabel}" Visibility="{Binding ArmourVisibility}"/>
+                                <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource Field}" ItemsSource="{Binding ArmourLevels}" Visibility="{Binding ArmourVisibility}"
+                                          SelectedValuePath="Value" SelectedValue="{Binding Armour}"/>
+                                <CheckBox Grid.Row="5" Grid.ColumnSpan="2" Content="Turbo tuning" IsChecked="{Binding Turbo}" Margin="0,6,0,0"/>
+                            </Grid>
+                            <Button Content="Max performance" HorizontalAlignment="Left" Margin="0,10,0,0" Click="MaxPerformance_Click"
+                                    Visibility="{Binding UpgradeVisibility}" ToolTip="Best engine, brakes, transmission and armour, plus turbo"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding PartsVisibility}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,8">
+                                <Button DockPanel.Dock="Right" Content="Reset all to stock" Style="{StaticResource LinkButton}" Click="ResetParts_Click"
+                                        ToolTip="Puts every body part, the livery and the rims back to the car's own"/>
+                                <TextBlock Text="Body parts and livery" Style="{StaticResource SectionTitle}"/>
+                            </DockPanel>
+                            <TextBlock Style="{StaticResource Note}" Text="{Binding BodyNote}"/>
+                            <DockPanel Margin="0,0,0,2" Visibility="{Binding LiveryVisibility}">
+                                <TextBlock Text="Livery" Style="{StaticResource FieldLabel}" Width="120"/>
+                                <ComboBox Style="{StaticResource Field}" ItemsSource="{Binding LiveryNames}" SelectedIndex="{Binding Livery}"/>
+                            </DockPanel>
+                            <Image Source="{Binding LiveryPicture}" Visibility="{Binding LiveryPictureVisibility}" Height="110"
+                                   HorizontalAlignment="Left" Margin="120,2,0,8" Stretch="Uniform"/>
+                            <ItemsControl ItemsSource="{Binding PartRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="{Binding Label}" Style="{StaticResource FieldLabel}" Width="120" TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Label}"/>
+                                            <ComboBox Style="{StaticResource Field}" ItemsSource="{Binding Options}" SelectedIndex="{Binding Selected}"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

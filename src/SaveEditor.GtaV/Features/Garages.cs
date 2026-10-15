@@ -2,19 +2,40 @@ using System.Globalization;
 
 namespace SaveEditor.GtaV;
 
-/// <summary>A paint colour the editor offers, with the game's colour number.</summary>
-public sealed record VehicleColour(int Index, string Name)
+/// <summary>A paint colour the editor offers, with the game's colour number and its colour for a swatch.</summary>
+public sealed record VehicleColour(int Index, string Name, string Hex = "808080")
 {
+    /// <summary>Every paint the game has, by colour number.</summary>
+    public static IReadOnlyList<VehicleColour> Full { get; } = Load();
+
+    /// <summary>A short list of common paints for parking a new car.</summary>
     public static IReadOnlyList<VehicleColour> All { get; } =
-    [
-        new(0, "Black"), new(4, "Silver"), new(111, "White"), new(1, "Graphite"), new(27, "Red"), new(28, "Torino red"),
-        new(38, "Orange"), new(89, "Yellow"), new(92, "Lime green"), new(49, "Dark green"), new(64, "Blue"), new(70, "Bright blue"),
-        new(71, "Purple"), new(135, "Hot pink"),
-    ];
+        new[] { 0, 4, 111, 1, 27, 28, 38, 89, 92, 49, 64, 70, 71, 135 }.Select(i => Full[i]).ToList();
+
+    /// <summary>The paint's name, or its number for paints the list doesn't have.</summary>
+    public static string NameOf(int index) => index >= 0 && index < Full.Count ? Full[index].Name : $"Paint no. {index}";
+
+    public static string HexOf(int index) => index >= 0 && index < Full.Count ? Full[index].Hex : "808080";
+
+    private static List<VehicleColour> Load()
+    {
+        using var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("SaveEditor.GtaV.Paints.txt")
+                           ?? throw new InvalidOperationException("The paint list is missing.");
+        using var reader = new StreamReader(stream);
+        var list = new List<VehicleColour>();
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Length == 0 || line[0] == '#') continue;
+            var f = line.Split('|');
+            // Everyday paints say how they finish ("Black (Metallic)"); the rest have their own names.
+            var name = f[1] is "Metallic" or "Matte" or "Util" or "Worn" ? $"{f[2]} ({f[1]})" : f[2];
+            list.Add(new VehicleColour(int.Parse(f[0], CultureInfo.InvariantCulture), name, f[3]));
+        }
+        return list;
+    }
 
     public override string ToString() => Name;
 }
-
 /// <summary>
 /// One parking space in a safehouse garage. The game's own garage save (root struct 0x72194FCC) keeps the vehicle
 /// parked in each space and puts it back there when the save loads.
@@ -70,11 +91,15 @@ public sealed class GarageSlot
         Set(Unknown2EFC, -1);
         Set(InUse, true); Set(InUse2, true);
         Set(Count, 1);
+        PlateText = RandomPlate();
+        // Stock parts, the model's own mod kit (cars the game gives no kit keep their factory parts), and the wheel
+        // type that fits the vehicle; the game's own saves store 255 for "factory windows" and 156 for alloy wheels.
         var look = Node(Look);
         foreach (var (h, v) in new (uint, long)[]
                  {
-                     (Primary, colour.Index), (Secondary, colour.Index), (Pearl, colour.Index), (Wheels, 0),
-                     (SmokeR, 20), (SmokeG, 20), (SmokeB, 20), (LookE2E8, 1), (LookA2E9, 7), (Look87A3, 20),
+                     (Primary, colour.Index), (Secondary, colour.Index), (Pearl, colour.Index), (Wheels, 156),
+                     (SmokeR, 255), (SmokeG, 255), (SmokeB, 255), (LookE2E8, 255), (LookA2E9, DefaultWheelType(vehicle)),
+                     (Look87A3, VehicleData.Find(vehicle.Hash)?.Kit ?? 65535),
                  })
             SetIn(look, h, v);
     }
@@ -88,6 +113,81 @@ public sealed class GarageSlot
         foreach (var f in Node(Look).Children.Where(c => c.IsValue)) f.SetValue("0");
         SetIn(Node(Look), 0x8EA846D0, 255);
         SetIn(Node(Look), Look87A3, 65535);
+        CarLook.ResetParts();
+        _entry.Document.Data.AsSpan(_entry.Offset + PlateAt, PlateLength).Clear();
+    }
+
+    private VehicleLook? _look;
+
+    /// <summary>Paint, lights, wheels and upgrades of the vehicle parked here.</summary>
+    public VehicleLook CarLook => _look ??= new VehicleLook(Node(Look), () => ModelHash);
+
+    private static int DefaultWheelType(VehicleModel vehicle) => (VehicleData.Find(vehicle.Hash)?.Class ?? vehicle.Class) switch
+    {
+        "Motorcycles" => 6,
+        "Super" => 7,
+        "Muscle" => 1,
+        "SUVs" or "SUVs and off-road" => 3,
+        "Off-Road" => 4,
+        "Open Wheel" => 10,
+        _ => 0,
+    };
+
+    // ---- Number plate ----
+
+    // The plate is 8 characters inside the vehicle entry, padded with spaces; the style is the entry's small count field.
+    private const int PlateAt = 98, PlateLength = 8;
+
+    /// <summary>The plate styles the game has, by the number the save stores.</summary>
+    public static IReadOnlyList<LookOption> PlateStyles { get; } =
+    [
+        new(0, "Blue on white 1"), new(1, "Yellow on black"), new(2, "Yellow on blue"), new(3, "Blue on white 2"),
+        new(4, "Blue on white 3"), new(5, "North Yankton"), new(6, "eCola"), new(7, "Las Venturas"), new(8, "Liberty City"),
+        new(9, "Los Santos Car Meet"), new(10, "Panic"), new(11, "Pounders"), new(12, "Sprunk"),
+    ];
+
+    public const string PlateCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
+
+    /// <summary>The plate's text without its padding.</summary>
+    public string PlateText
+    {
+        get => System.Text.Encoding.ASCII.GetString(_entry.Document.Data, _entry.Offset + PlateAt, PlateLength).Replace("\0", "").Trim();
+        set
+        {
+            var text = (value ?? "").ToUpperInvariant();
+            if (text.Length > PlateLength || text.Any(c => !PlateCharacters.Contains(c)))
+                throw new ArgumentException("A plate has up to 8 letters, digits or spaces.");
+            var bytes = System.Text.Encoding.ASCII.GetBytes(text.PadRight(PlateLength));
+            bytes.CopyTo(_entry.Document.Data.AsSpan(_entry.Offset + PlateAt, PlateLength));
+        }
+    }
+
+    /// <summary>The plate style (see <see cref="PlateStyles"/>).</summary>
+    public int PlateStyle
+    {
+        get => int.Parse(Node(Count).ValueText!, CultureInfo.InvariantCulture);
+        set => Set(Count, Math.Clamp(value, 0, sbyte.MaxValue));
+    }
+
+    /// <summary>A plate in the shape the game gives its own cars: two digits, three letters, three digits.</summary>
+    public static string RandomPlate()
+    {
+        var r = Random.Shared;
+        return $"{r.Next(10)}{r.Next(10)}{(char)('A' + r.Next(26))}{(char)('A' + r.Next(26))}{(char)('A' + r.Next(26))}{r.Next(10)}{r.Next(10)}{r.Next(10)}";
+    }
+
+    // ---- Snapshot (change review) ----
+
+    /// <summary>Everything about the car's look and plate, for putting it back as it was.</summary>
+    public byte[] SnapshotLook() =>
+        [.. CarLook.Snapshot(), .. _entry.Document.Data.AsSpan(_entry.Offset + PlateAt, PlateLength).ToArray(), (byte)PlateStyle];
+
+    public void RestoreLook(byte[] snapshot)
+    {
+        int n = snapshot.Length - PlateLength - 1;
+        CarLook.Restore(snapshot[..n]);
+        snapshot.AsSpan(n, PlateLength).CopyTo(_entry.Document.Data.AsSpan(_entry.Offset + PlateAt, PlateLength));
+        PlateStyle = snapshot[^1];
     }
 
     private PsoNode Node(uint hash) => _entry.Children.First(c => c.NameHash == hash);

@@ -125,11 +125,34 @@ public sealed class WardrobeModel(Wardrobe wardrobe, Action onChanged) : Observa
     public string Name => wardrobe.Character;
     public ImageSource? Portrait => GamePictures.Character(wardrobe.Character);
     public Brush Colour => GamePictures.CharacterColour(wardrobe.Character);
-    public string OwnedText => $"{wardrobe.Owned:N0} clothing items owned";
+    public string OwnedText => $"{wardrobe.Owned:N0} of {wardrobe.Total:N0} clothing items owned";
+
+    public IReadOnlyList<ClothingCategoryModel> Categories { get; } =
+        wardrobe.Categories.Select(c => new ClothingCategoryModel(c, onChanged)).ToList();
 
     public void OwnAll()
     {
         wardrobe.OwnAll();
+        onChanged();
+        Refresh();
+        foreach (var c in Categories) c.Refresh();
+    }
+
+    public override string ToString() => Name;
+}
+
+/// <summary>One kind of clothing (shoes, hatsâ€¦) with how much of it a character owns.</summary>
+public sealed class ClothingCategoryModel(ClothingCategory category, Action onChanged) : Observable
+{
+    public string Label => category.Label;
+    public string OwnedText => $"{category.Owned} of {category.Total}";
+    public double Owned => category.Owned;
+    public double Total => category.Total;
+    public bool CanOwnAll => category.Owned < category.Total;
+
+    public void OwnAll()
+    {
+        category.OwnAll();
         onChanged();
         Refresh();
     }

@@ -116,7 +116,7 @@ public sealed class WeaponModel(CharacterWeapon weapon, Action onChanged) : Obse
             if (value) weapon.Give(); else weapon.Remove();
             _error = _pending = null;
             onChanged();
-            Refresh();
+            RefreshAll();
         }
     }
 
@@ -143,6 +143,56 @@ public sealed class WeaponModel(CharacterWeapon weapon, Action onChanged) : Obse
     public void Give() => Owned = true;
     public void Remove() => Owned = false;
 
+    private IReadOnlyList<AttachmentModel>? _attachments;
+
+    /// <summary>Tick boxes for the attachments this weapon can take.</summary>
+    public IReadOnlyList<AttachmentModel> Attachments =>
+        _attachments ??= weapon.Attachments.Select(a => new AttachmentModel(this, a)).ToList();
+
+    public Visibility AttachmentsVisibility => weapon.Owned && weapon.Attachments.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>Brass knuckles only have styles; everything else has attachments.</summary>
+    public string AttachmentsTitle => weapon.Attachments.All(a => a.Group == "style") ? "Style" : "Attachments";
+
+    public IReadOnlyList<string> Tints => WeaponTints.Names;
+    public Visibility TintVisibility => weapon.Owned && weapon.CanTint ? Visibility.Visible : Visibility.Collapsed;
+
+    public int Tint
+    {
+        get => weapon.Tint;
+        set
+        {
+            if (!weapon.Owned || !weapon.CanTint || value < 0 || value == weapon.Tint) return;
+            weapon.Tint = value;
+            onChanged();
+        }
+    }
+
+    internal bool HasAttachment(WeaponAttachment a) => weapon.HasAttachment(a);
+
+    internal void SetAttachment(WeaponAttachment a, bool on)
+    {
+        if (!weapon.Owned || on == weapon.HasAttachment(a)) return;
+        weapon.SetAttachment(a, on);
+        onChanged();
+        RefreshAll();
+    }
+
+    public void FitAllAttachments()
+    {
+        if (!weapon.Owned || weapon.Attachments.Count == 0) return;
+        weapon.FitAllAttachments();
+        onChanged();
+        RefreshAll();
+    }
+
+    /// <summary>Re-reads the weapon and its attachment tick boxes.</summary>
+    public void RefreshAll()
+    {
+        Refresh();
+        foreach (var a in Attachments) a.Refresh();
+    }
+
     public void FillAmmo()
     {
         if (!weapon.Owned || !UsesAmmo || weapon.Ammo == weapon.Weapon.MaxAmmo) return;
@@ -157,6 +207,25 @@ public sealed class WeaponModel(CharacterWeapon weapon, Action onChanged) : Obse
 }
 
 public sealed record WeaponGroup(string Category, IReadOnlyList<WeaponModel> Weapons);
+
+/// <summary>One attachment tick box on a weapon card; ticking a clip or scope swaps out the other ones.</summary>
+public sealed class AttachmentModel(WeaponModel weapon, WeaponAttachment attachment) : Observable
+{
+    public string Name => attachment.Name;
+
+    /// <summary>The attachment as the game pictures it (a finish shows the weapon's engraving); null when there is no picture.</summary>
+    public ImageSource? Picture => attachment.Group == "finish"
+        ? GamePictures.WeaponFinish(weapon.Weapon.Weapon.Id)
+        : GamePictures.WeaponPart(weapon.Weapon.Weapon.Id, attachment.Bit);
+
+    public Visibility PictureVisibility => Picture != null ? Visibility.Visible : Visibility.Hidden;
+
+    public bool IsOn
+    {
+        get => weapon.HasAttachment(attachment);
+        set => weapon.SetAttachment(attachment, value);
+    }
+}
 
 /// <summary>One checklist entry; ticking marks it done in the save and updates the completion figures.</summary>
 public sealed class ChecklistItemModel(Checklist checklist, ChecklistItem item, Action onChanged) : Observable
@@ -380,6 +449,9 @@ public sealed class GarageSlotModel(GarageSlot slot, Action onChanged) : Observa
     public GarageSlot Slot => slot;
     public string Space => $"Space {slot.Number}";
     public string VehicleName => slot.VehicleName;
+    public ImageSource? Picture => slot.IsEmpty ? null : GamePictures.Vehicle(slot.ModelHash);
+    public Visibility PictureVisibility => Picture != null ? Visibility.Visible : Visibility.Collapsed;
+    public string PlateText => slot.IsEmpty ? "" : slot.PlateText;
     public bool CanPlace => slot.CanPlace;
     public bool CanEmpty => !slot.IsEmpty;
     public IReadOnlyList<VehicleModel> Vehicles => VehicleCatalog.RoadVehicles;
