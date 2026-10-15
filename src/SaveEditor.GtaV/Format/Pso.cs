@@ -43,6 +43,7 @@ public sealed class PsoDocument
         Enums = enums;
         Blocks = blocks;
         RootBlock = rootBlock;
+        _nodeBudget = 8L * data.Length + 100_000;
     }
 
     /// <summary>The PSIN block's data; edits write straight into the save and are checksummed on save.</summary>
@@ -53,6 +54,12 @@ public sealed class PsoDocument
     public int RootBlock { get; }
 
     private PsoNode? _root;
+
+    // Pointers can form cycles in a crafted save, which would make the tree (and Walk) effectively endless.
+    // A genuine tree has at most about one node per byte of PSIN, so this leaves generous headroom.
+    private long _nodeBudget;
+
+    internal bool TryCreateNode() => _nodeBudget-- > 0;
 
     public PsoNode Root => _root ??= PsoNode.ForStruct(this, null, PsoNames.Root, Blocks[RootBlock - 1].TypeHash,
         Blocks[RootBlock - 1].Offset, "");
@@ -97,6 +104,8 @@ public sealed class PsoDocument
                 {
                     // Struct: [kind 0][unused][field count:16], length, unused, then 12-byte fields.
                     int fieldCount = (int)(head & 0xFFFF), length = BinaryPrimitives.ReadInt32BigEndian(psch.AsSpan(at + 4));
+                    if (at + 12L + fieldCount * 12L > psch.Length)
+                        throw new SaveFormatException("The save's PSO schema has a struct that runs past the end of PSCH.");
                     var fields = new List<PsoField>(fieldCount);
                     for (int f = 0; f < fieldCount; f++)
                     {
@@ -111,6 +120,9 @@ public sealed class PsoDocument
                 {
                     // Enum: [kind 1][value count:24], then (name hash, value) pairs.
                     int valueCount = (int)(head & 0xFFFFFF);
+                    // Checked before allocating: a crafted count must not reserve memory the schema cannot back.
+                    if (at + 4L + valueCount * 8L > psch.Length)
+                        throw new SaveFormatException("The save's PSO schema has an enum that runs past the end of PSCH.");
                     var values = new Dictionary<int, uint>(valueCount);
                     for (int v = 0; v < valueCount; v++)
                         values[BinaryPrimitives.ReadInt32BigEndian(psch.AsSpan(at + 8 + v * 8))] =
@@ -120,7 +132,7 @@ public sealed class PsoDocument
             }
             return new PsoDocument(psin, structs, enums, blocks, root);
         }
-        catch (Exception ex) when (ex is ArgumentOutOfRangeException or IndexOutOfRangeException)
+        catch (Exception ex) when (ex is ArgumentException or IndexOutOfRangeException)
         {
             throw new SaveFormatException("The save's PSO schema could not be read: " + ex.Message);
         }
@@ -132,6 +144,7 @@ public sealed class PsoDocument
     /// </summary>
     public int? ResolvePointer(int at)
     {
+        if (at < 0 || at > Data.Length - 4) return null;
         uint p = BinaryPrimitives.ReadUInt32BigEndian(Data.AsSpan(at));
         int block = (int)(p & 0xFFF), offset = (int)(p >> 12);
         if (block < 1 || block > Blocks.Count) return null;
@@ -265,9 +278,24 @@ public sealed class PsoNode
         return [];
     }
 
+    /// <summary>Bytes of PSIN that reading this field touches; a field that would run off the end is skipped.</summary>
+    private static int ReadSize(PsoField f) => f.Type switch
+    {
+        PsoType.Bool or PsoType.SByte or PsoType.UByte => 1,
+        PsoType.SShort or PsoType.UShort => 2,
+        PsoType.SInt or PsoType.UInt or PsoType.Float or PsoType.Flags => 4,
+        PsoType.Enum => f.Subtype == 0 ? 4 : 0,
+        PsoType.Float2 => 8,
+        PsoType.Float3 => 12,
+        PsoType.Float4 => 16,
+        PsoType.Structure => f.Subtype == 0 ? 1 : 4,
+        PsoType.Array => f.Subtype == 0 ? 10 : 1,
+        _ => 1,
+    };
+
     private PsoNode? Make(PsoField f, IReadOnlyList<PsoField> siblings, int at, string name, uint nameHash)
     {
-        if (at < 0 || at >= _doc.Data.Length) return null;
+        if (at < 0 || (long)at + ReadSize(f) > _doc.Data.Length || !_doc.TryCreateNode()) return null;
         string path = Path.Length == 0 ? name : name.StartsWith('[') ? Path + name : Path + "/" + name;
         switch (f.Type)
         {

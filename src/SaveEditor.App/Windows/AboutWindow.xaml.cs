@@ -18,7 +18,9 @@ public partial class AboutWindow : Window
 
     private void Link_Navigate(object sender, RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        // Only ever hand web links to the shell, never a file or custom-protocol URI.
+        if (e.Uri.Scheme == Uri.UriSchemeHttps)
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         e.Handled = true;
     }
 

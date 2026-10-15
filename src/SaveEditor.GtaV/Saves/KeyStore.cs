@@ -21,7 +21,7 @@ public sealed class KeyStore(string keyPath, byte[]? bundledKey = null)
     {
         if (File.Exists(KeyPath))
         {
-            var key = File.ReadAllBytes(KeyPath);
+            var key = SgtaFile.ReadAllBytesLimited(KeyPath, 1024);
             if (key.Length != SaveCrypto.KeyLength)
                 throw new SaveFormatException($"Key file '{KeyPath}' must be exactly {SaveCrypto.KeyLength} bytes.");
             return key;
@@ -48,7 +48,7 @@ public sealed class KeyStore(string keyPath, byte[]? bundledKey = null)
         IntegrityReport report;
         try
         {
-            var sgta = SgtaFile.Read(File.ReadAllBytes(sampleSavePath));
+            var sgta = SgtaFile.Read(SgtaFile.ReadAllBytesLimited(sampleSavePath));
             report = BlockContainer.Parse(SaveCrypto.Decrypt(sgta.EncryptedBody, key)).Verify();
         }
         catch (SaveFormatException ex)
