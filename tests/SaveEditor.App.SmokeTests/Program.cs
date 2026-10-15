@@ -18,10 +18,11 @@ internal static class Program
     [STAThread]
     private static int Main()
     {
-        var app = new App();
-        app.InitializeComponent();
-        app.StartupUri = null;
-        app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/GtaVSaveEditor;component/Themes/GtaTheme.xaml"),
+        });
         MainWindow? shell = null;
         try
         {
