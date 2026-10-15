@@ -34,6 +34,12 @@ public partial class GameFlagsView : UserControl
 
     private void Search_Changed(object sender, RoutedEventArgs e) => Filter();
 
+    public void ShowItem(string name)
+    {
+        Search.Text = name;
+        SearchNavigation.Reveal(this, e => e.DataContext is GameFlagModel flag && flag.Name == name);
+    }
+
     public void Refresh()
     {
         _flags.ForEach(f => f.Refresh());

@@ -43,6 +43,7 @@
                 <Button Content="Mark all not found" Click="None_Click" Margin="0,0,6,6"/>
                 <Button Content="Every kind: all found" Click="Everything_Click" Margin="0,0,6,6"
                         ToolTip="Marks every item of every kind found"/>
+                <CheckBox x:Name="MissingOnly" Content="Show not found only" Checked="Filter_Changed" Unchecked="Filter_Changed" Margin="0,0,12,6" VerticalAlignment="Center"/>
                 <Button x:Name="NextMissingButton" Content="Show next not found" Click="NextMissing_Click" Margin="0,0,6,6"
                         ToolTip="Picks the next item you haven't found and zooms the map to it"/>
                 <StackPanel x:Name="CountPanel" Orientation="Horizontal" Margin="12,0,0,6">

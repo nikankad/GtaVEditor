@@ -13,16 +13,19 @@ public partial class EditorPage : UserControl, IGuardedPage
     private readonly MainWindow _shell;
     private readonly GtaVSaveDocument _doc;
     private bool _dirty;
+    private readonly bool _openedBackup;
 
     private List<CharacterModel> _characters = [];
     private readonly Dictionary<string, List<WeaponGroup>> _weapons = [];
     private string _weaponCharacter = StatCatalog.Characters[0];
 
-    public EditorPage(MainWindow shell, GtaVSaveDocument doc)
+    public EditorPage(MainWindow shell, GtaVSaveDocument doc, bool openedBackup = false)
     {
         InitializeComponent();
         _shell = shell;
         _doc = doc;
+        _openedBackup = openedBackup;
+        PreviewKeyDown += Editor_KeyDown;
 
         ShowHeader();
         LoadChecklist();
@@ -50,10 +53,38 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     private void Changed()
     {
-        if (_dirty) return;
-        _dirty = true;
-        SaveButton.IsEnabled = true;
-        ShowHeader();
+        // Coalesce bulk edits and wait for linked counters to finish updating.
+        if (_changeCheckPending) return;
+        _changeCheckPending = true;
+        Dispatcher.BeginInvoke(() =>
+        {
+            _changeCheckPending = false;
+            SetDirty(_doc.HasChanges);
+            ApplyCompletionFilters();
+        }, System.Windows.Threading.DispatcherPriority.DataBind);
+    }
+
+    private bool _changeCheckPending;
+
+    private void Editor_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.F)
+        {
+            SearchBox.Focus();
+            SearchBox.SelectAll();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.S && (Keyboard.Modifiers == ModifierKeys.Control
+                 || Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)))
+        {
+            // Buttons normally move focus and commit LostFocus bindings. Shortcuts must do this too.
+            if (Keyboard.FocusedElement is TextBox textBox)
+                textBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+            SearchPopup.IsOpen = false;
+            e.Handled = true;
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) SaveAs_Click(sender, e);
+            else if (_doc.HasChanges) SaveCurrent();
+        }
     }
 
     // ---- Reviewing and undoing changes ----
@@ -86,7 +117,8 @@ public partial class EditorPage : UserControl, IGuardedPage
         _unlocks.Refresh();
         _flags.Refresh();
         // Everything put back: nothing left to save.
-        if (_tracker.Changes().Count == 0) SetDirty(false);
+        SetDirty(_doc.HasChanges);
+        ApplyCompletionFilters();
     }
 
     private void SetDirty(bool dirty)
@@ -181,23 +213,74 @@ public partial class EditorPage : UserControl, IGuardedPage
         if (tab == null) return;
         Sections.SelectedItem = tab;
         var name = hit.Label.Contains(": ") ? hit.Label[(hit.Label.IndexOf(": ", StringComparison.Ordinal) + 2)..] : hit.Label;
+        var who = hit.Label.Contains(": ") ? hit.Label[..hit.Label.IndexOf(": ", StringComparison.Ordinal)] : "";
+        Func<FrameworkElement, bool>? target = null;
         switch (hit.Section)
         {
-            case "Stats": StatSearch.Text = name; break;
-            case "Game flags": _flags.Search.Text = name; break;
-            case "Collectibles": _collectibles.ShowItem(hit.Label); break;
-            case "Weapons" when hit.Label.Contains(": "):
-                var who = hit.Label[..hit.Label.IndexOf(": ", StringComparison.Ordinal)];
-                foreach (var b in CharacterPicker.Children.OfType<RadioButton>())
-                    if (b.Tag as string == who) b.IsChecked = true;
+            case "Stats":
+                StatCharacter.SelectedIndex = 0;
+                StatSearch.Text = name;
+                var row = _statRows.FirstOrDefault(r => (string.IsNullOrEmpty(r.Entry.Character) ? r.Entry.Label : $"{r.Entry.Character}: {r.Entry.Label}") == hit.Label);
+                if (row != null) { StatRows.SelectedItem = row; StatRows.ScrollIntoView(row); }
+                target = e => ReferenceEquals(e.DataContext, row) && row != null;
+                break;
+            case "Game flags":
+                _flags.ShowItem(hit.Label);
+                return;
+            case "Collectibles":
+                _collectibles.ShowItem(hit.Label);
+                return;
+            case "Unlocks":
+                _unlocks.ShowItem(hit.Label);
+                return;
+            case "Weapons":
+                foreach (var button in CharacterPicker.Children.OfType<RadioButton>())
+                    if (button.Tag as string == who) button.IsChecked = true;
+                target = e => e.DataContext is WeaponModel w && w.Weapon.Character == who && w.Label == name;
                 break;
             case "Checklist":
+                ChecklistIncomplete.IsChecked = false;
                 var item = _checklistItems.FirstOrDefault(i => i.Item.Name == hit.Label);
                 if (item != null)
-                    foreach (var b in ChecklistPicker.Children.OfType<RadioButton>())
-                        if (b.Tag is ChecklistGroup g && g == item.Item.Group) b.IsChecked = true;
+                    foreach (var button in ChecklistPicker.Children.OfType<RadioButton>())
+                        if (button.Tag is ChecklistGroup g && g == item.Item.Group) button.IsChecked = true;
+                target = e => ReferenceEquals(e.DataContext, item) && item != null;
+                break;
+            case "Missions":
+                MissionsIncomplete.IsChecked = false;
+                var mission = _missions?.FirstOrDefault(m => m.Name == hit.Label);
+                if (mission?.Choice is { } choice && _missions != null)
+                {
+                    _missions.Select(choice, mission.Letter);
+                    BuildChoicePickers();
+                    ShowMissions();
+                }
+                target = hit.Label == "Heist crew" ? e => e == CrewCard
+                    : e => e.DataContext is MissionModel m && m.Name == hit.Label;
+                break;
+            case "Strangers & Freaks":
+                StrangersIncomplete.IsChecked = false;
+                target = e => e.DataContext is StrangerModel m && m.Mission.Character == who && m.Name == name;
+                break;
+            case "Player":
+                var character = _characters.FirstOrDefault(c => c.Name == who);
+                var skill = character?.Skills.FirstOrDefault(s => s.Label == name);
+                target = hit.Label == "Game date and time" ? e => e == ClockCard
+                    : skill != null ? e => ReferenceEquals(e.DataContext, skill)
+                    : e => e.Tag as string == name && (e.DataContext is CharacterModel c && c.Name == who
+                                                       || e.DataContext is StatusModel status && status.Name == who);
+                break;
+            case "Vehicles":
+                target = e => e.DataContext switch
+                {
+                    GarageSlotModel g => $"{g.Slot.Garage}, space {g.Slot.Number}" == hit.Label,
+                    PropertyVehicleModel v => $"{v.Place} ({v.Owner})" == hit.Label,
+                    PropertyModel property => "Business: " + property.Name == hit.Label,
+                    _ => false,
+                };
                 break;
         }
+        if (target != null) SearchNavigation.Reveal(tab, target);
     }
 
     // ---- Collectibles, unlocks and flags ----
@@ -494,6 +577,19 @@ public partial class EditorPage : UserControl, IGuardedPage
         if ((sender as FrameworkElement)?.DataContext is WeaponModel w) w.FillAmmo();
     }
 
+    private void CompletionFilter_Changed(object sender, RoutedEventArgs e) => ApplyCompletionFilters(true);
+
+    private void ApplyCompletionFilters(bool force = false)
+    {
+        if (!IsInitialized) return;
+        if (force || ChecklistIncomplete.IsChecked == true) ShowChecklistGroup(_checklistGroup);
+        if (force || MissionsIncomplete.IsChecked == true)
+            MissionItems.ItemsSource = _missionItems.Where(m => MissionsIncomplete.IsChecked != true || !m.Done).ToList();
+        if (force || StrangersIncomplete.IsChecked == true)
+            StrangerGroups.ItemsSource = _strangerItems.Where(m => StrangersIncomplete.IsChecked != true || !m.Done)
+                .GroupBy(m => m.Mission.Character).Select(g => new StrangerGroup(g.Key, g.ToList())).ToList();
+    }
+
     // ---- Checklist ----
 
     private static readonly Dictionary<ChecklistGroup, string> GroupTitles = new()
@@ -545,7 +641,7 @@ public partial class EditorPage : UserControl, IGuardedPage
     {
         _checklistGroup = group;
         // Items that count come first; optional and unused ones after them.
-        ChecklistItems.ItemsSource = _checklistItems.Where(i => i.Item.Group == group).OrderBy(i => !i.Item.Required).ToList();
+        ChecklistItems.ItemsSource = _checklistItems.Where(i => i.Item.Group == group && (ChecklistIncomplete.IsChecked != true || !i.Done)).OrderBy(i => !i.Item.Required).ToList();
     }
 
     private void ShowChecklistSummary()
@@ -631,7 +727,7 @@ public partial class EditorPage : UserControl, IGuardedPage
     {
         if (_missions == null) return;
         _missionItems = _missions.Path.Select(m => new MissionModel(_missions, m, MissionsChanged)).ToList();
-        MissionItems.ItemsSource = _missionItems;
+        MissionItems.ItemsSource = _missionItems.Where(m => MissionsIncomplete.IsChecked != true || !m.Done).ToList();
         ShowMissionSummary();
     }
 
@@ -697,7 +793,7 @@ public partial class EditorPage : UserControl, IGuardedPage
             return;
         }
         _strangerItems = _strangers.Select(m => new StrangerModel(_strangers, m, StrangersChanged)).ToList();
-        StrangerGroups.ItemsSource = _strangerItems.GroupBy(m => m.Mission.Character)
+        StrangerGroups.ItemsSource = _strangerItems.Where(m => StrangersIncomplete.IsChecked != true || !m.Done).GroupBy(m => m.Mission.Character)
             .Select(g => new StrangerGroup(g.Key, g.ToList())).ToList();
         ShowStrangersCount();
     }
@@ -729,16 +825,22 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     // ---- Saving and navigation ----
 
-    private void Save_Click(object sender, RoutedEventArgs e) => WriteTo(_doc.FilePath, "Save");
+    private bool SaveCurrent() => _openedBackup && BackupService.Default.Contains(_doc.FilePath)
+        ? SaveAs() : WriteTo(_doc.FilePath, "Save");
 
-    private void SaveAs_Click(object sender, RoutedEventArgs e)
+    private void Save_Click(object sender, RoutedEventArgs e) => SaveCurrent();
+
+    private void SaveAs_Click(object sender, RoutedEventArgs e) => SaveAs();
+
+    private bool SaveAs()
     {
         var dlg = new SaveFileDialog
         {
-            FileName = Path.GetFileName(_doc.FilePath), InitialDirectory = Path.GetDirectoryName(_doc.FilePath),
+            FileName = BackupService.Default.Contains(_doc.FilePath) ? Path.GetFileName(_doc.FilePath).Split('.')[0] : Path.GetFileName(_doc.FilePath),
+            InitialDirectory = BackupService.Default.Contains(_doc.FilePath) ? App.Game.DefaultSaveFolders().FirstOrDefault() : Path.GetDirectoryName(_doc.FilePath),
             Filter = "All files|*.*",
         };
-        if (dlg.ShowDialog(_shell) == true) WriteTo(dlg.FileName, "Save as " + Path.GetFileName(dlg.FileName));
+        return dlg.ShowDialog(_shell) == true && WriteTo(dlg.FileName, "Save as " + Path.GetFileName(dlg.FileName));
     }
 
     private void SaveToSlot_Click(object sender, RoutedEventArgs e)
@@ -773,6 +875,11 @@ public partial class EditorPage : UserControl, IGuardedPage
     /// <summary>Shows the changes, then writes the save; <paramref name="confirm"/> is the review's save button text.</summary>
     private bool WriteTo(string path, string confirm)
     {
+        if (BackupService.Default.Contains(path))
+        {
+            MessageBox.Show(_shell, "Choose a location outside the backups folder to keep the backup intact.", "Keep backup", MessageBoxButton.OK, MessageBoxImage.Information);
+            return false;
+        }
         if (_tracker.Changes().Count > 0 && !Review(confirm)) return false;
         if (!AcceptSaveWarning()) return false;
         try
@@ -794,11 +901,11 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     public bool ConfirmLeave()
     {
-        if (!_dirty) return true;
+        if (!_doc.HasChanges) return true;
         return MessageBox.Show(_shell, $"Save your changes to \"{_doc.Title}\" before leaving?", "Unsaved changes",
                 MessageBoxButton.YesNoCancel, MessageBoxImage.Question) switch
         {
-            MessageBoxResult.Yes => WriteTo(_doc.FilePath, "Save and leave"),
+            MessageBoxResult.Yes => SaveCurrent(),
             MessageBoxResult.No => true,
             _ => false,
         };
