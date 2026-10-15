@@ -43,7 +43,3 @@ Builds from source don't include the save encryption key, so the app asks you to
 ```bash
 dotnet test tests/SaveEditor.Tests
 ```
-
-## About
-
-Made by [Nikan](https://github.com/nikankad). Not affiliated with Rockstar Games or Take-Two Interactive.
