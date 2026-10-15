@@ -11,8 +11,9 @@ A free save editor for **Grand Theft Auto V story mode on PC**. Open a save, cha
 Get **GtaVSaveEditor.exe** from the [latest release](https://github.com/nikankad/GtaVEditor/releases/latest) and run it.
 Nothing to install: the .NET runtime is built in. It targets Windows 10/11, 64-bit.
 
-Some releases include the PC save encryption key. If the start page asks for a key, choose **Import key…**, select a
-32-byte key file, then select one of your own saves to verify it. Source builds use this same import flow.
+The release EXE has the PC save encryption key built in, so your saves open straight away. Builds from source don't include
+it: the start page asks for a key once, so choose **Import key…**, select a 32-byte key file, then select one of your own
+saves to verify it.
 
 ## Supported saves
 

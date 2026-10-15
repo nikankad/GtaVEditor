@@ -1,0 +1,104 @@
+# Builds the client and publishes it as a GitHub release whenever a version tag is pushed:
+#
+#   git tag v0.1.0
+#   git push origin v0.1.0
+#
+# The save encryption key is never in the repository. It comes from the repository secret GTAV_SAVE_KEY
+# (the 32-byte key file, base64-encoded). It is written to the gitignored src/SaveEditor.GtaV/Data/gtav-pc.key
+# only for the publish step, built into the EXE, and deleted again afterwards, even if the build fails.
+# Versions below 1.0.0 are published as pre-releases (beta).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing version tag to build (for example v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Validate tag
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$') {
+            throw 'Use a version tag such as v0.1.0 or v0.1.1-beta.1.'
+          }
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish with the save key built in
+        shell: pwsh
+        env:
+          GTAV_SAVE_KEY: ${{ secrets.GTAV_SAVE_KEY }}
+        run: |
+          if (-not $env:GTAV_SAVE_KEY) {
+            throw 'The GTAV_SAVE_KEY repository secret is not set. A release without the key could not open saves.'
+          }
+          $keyPath = Join-Path $PWD 'src/SaveEditor.GtaV/Data/gtav-pc.key'
+          $version = $env:RELEASE_TAG.Substring(1)
+          try {
+            $key = [Convert]::FromBase64String($env:GTAV_SAVE_KEY.Trim())
+            if ($key.Length -ne 32) { throw 'GTAV_SAVE_KEY must decode to exactly 32 bytes.' }
+            [IO.File]::WriteAllBytes($keyPath, $key)
+            dotnet publish src/SaveEditor.App/SaveEditor.App.csproj -c Release -p:PublishProfile=Public "-p:Version=$version" -o publish
+            if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed.' }
+          }
+          finally {
+            if (Test-Path $keyPath) { Remove-Item -LiteralPath $keyPath -Force }
+          }
+
+      - name: Check the EXE and write its checksum
+        shell: pwsh
+        run: |
+          $exe = Get-Item 'publish/GtaVSaveEditor.exe'
+          if ($exe.Length -lt 30MB) { throw 'The EXE looks too small; the .NET runtime may not be bundled.' }
+          $hash = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path 'publish/SHA256SUMS.txt' -Value "$hash  GtaVSaveEditor.exe" -Encoding ascii
+          "{0:N1} MB, SHA-256 {1}" -f ($exe.Length / 1MB), $hash
+
+      - name: Create the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $notes = @(
+            'Download **GtaVSaveEditor.exe** and run it. Nothing else to install: the .NET runtime and the save key are built in.',
+            '',
+            'Story mode PC saves only. Back up your saves before editing. GTA V Enhanced compatibility has not been verified.',
+            '',
+            'Check the download against **SHA256SUMS.txt**.'
+          ) -join "`n"
+          $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+          [IO.File]::WriteAllText($notesPath, $notes)
+          $arguments = @('release', 'create', $env:RELEASE_TAG, '--verify-tag', '--title', "GTA V Save Editor $env:RELEASE_TAG", '--notes-file', $notesPath)
+          if ($env:RELEASE_TAG.Contains('-') -or $env:RELEASE_TAG.StartsWith('v0.')) { $arguments += '--prerelease' }
+          $arguments += @('publish/GtaVSaveEditor.exe', 'publish/SHA256SUMS.txt')
+          gh @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'Release creation failed; check for an existing release with this tag.' }
