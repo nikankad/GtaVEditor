@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:SaveEditor.App"
         Title="Choose a location" Height="780" Width="1120" WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
-        Background="{StaticResource PageBrush}" Icon="/Assets/app.ico">
+        Background="{StaticResource PageBrush}" Icon="/GtaVSaveEditor;component/Assets/app.ico">
     <Window.Resources>
         <!-- Small dots are places you can stand; bigger yellow dots are named places; portraits are where each character is now. -->
         <DataTemplate x:Key="SpotTemplate">

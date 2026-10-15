@@ -60,9 +60,8 @@ public partial class CollectiblesView : UserControl
     {
         _current = set;
         _items = set.Set.Items.Select(i => new CollectibleItemModel(set.Set, i, ItemChanged)).ToList();
-        ItemList.ItemsSource = _items;
         bool mapped = _items.Any(i => i.HasLocation);
-        Map.Markers = mapped ? _items : null;
+        ApplyFilter();
         MapBorder.Visibility = Visible(mapped);
         MapColumn.Width = mapped ? new GridLength(3, GridUnitType.Star) : new GridLength(0);
         MapColumn.MinWidth = mapped ? 320 : 0;
@@ -78,6 +77,17 @@ public partial class CollectiblesView : UserControl
         ShowCount();
     }
 
+    private void Filter_Changed(object sender, RoutedEventArgs e) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var shown = _items.Where(i => MissingOnly.IsChecked != true || !i.Collected).ToList();
+        ItemList.ItemsSource = shown;
+        Map.Markers = shown.Where(i => i.HasLocation).ToList();
+        if (_selected != null && !shown.Contains(_selected)) Select(null);
+        MissingOnly.IsEnabled = _current?.Set.CountOnly != true;
+    }
+
     private static Visibility Visible(bool visible) => visible ? Visibility.Visible : Visibility.Collapsed;
 
     private void ShowCount()
@@ -91,6 +101,7 @@ public partial class CollectiblesView : UserControl
     {
         _onChanged();
         ShowCount();
+        Dispatcher.BeginInvoke(ApplyFilter);
     }
 
     /// <summary>Re-reads everything (after another view changed the same save bytes).</summary>
@@ -100,6 +111,7 @@ public partial class CollectiblesView : UserControl
         _items.ForEach(i => i.Refresh());
         if (_current != null) CountBox.Text = _current.Set.Collected.ToString();
         ShowCount();
+        ApplyFilter();
     }
 
     private void SetAll(IEnumerable<CollectibleSetModel> sets, bool found)
@@ -139,7 +151,9 @@ public partial class CollectiblesView : UserControl
         if (_current != set) Show(set);
         var item = _items.FirstOrDefault(i => i.Title == title);
         if (item == null) return;
+        MissingOnly.IsChecked = false;
         Select(item);
+        SearchNavigation.Reveal(this, e => ReferenceEquals(e.DataContext, item));
         if (item.HasLocation) Dispatcher.BeginInvoke(() => Map.ZoomTo(item.MapCentre), System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
@@ -189,7 +203,7 @@ public partial class CollectiblesView : UserControl
     /// <summary>Moves to the next (or previous) mapped item that matches, wrapping round, and zooms to it.</summary>
     private void Step(int direction, Func<CollectibleItemModel, bool> wanted)
     {
-        var mapped = _items.Where(i => i.HasLocation).ToList();
+        var mapped = _items.Where(i => i.HasLocation && (MissingOnly.IsChecked != true || !i.Collected)).ToList();
         if (mapped.Count == 0) return;
         int start = _selected == null ? (direction > 0 ? -1 : 0) : mapped.IndexOf(_selected);
         for (int n = 1; n <= mapped.Count; n++)

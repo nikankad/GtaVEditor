@@ -29,5 +29,4 @@ before reading story fields. No generated save was loaded in-game.
 Exit 0 means all supplied strand hashes matched; exit 3 means some were unresolved (which does not establish
 save corruption); exit 2 means incorrect arguments. Unsupported source or malformed data raises an error.
 
-See `docs/FINDINGS.md`, section 11, for the mission-skip path and remaining limitations. This tool does not
-implement mission skipping; a matching hash alone does not establish a valid story transition.
+This tool does not implement mission skipping; a matching hash alone does not establish a valid story transition.

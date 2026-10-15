@@ -4,7 +4,7 @@ namespace SaveEditor.GtaV;
 
 /// <summary>
 /// Whether a weapon is for sale at Ammu-Nation for one character. The gun shop script reads bit (n % 32) of the stat
-/// SPx_WEAP_UNLOCK_(n / 32), where n is the weapon's unlock number (docs/FINDINGS.md section 19).
+/// SPx_WEAP_UNLOCK_(n / 32), where n is the weapon's unlock number.
 /// </summary>
 public sealed class WeaponUnlock(StatStore stats, string character, string stat, int bit, WeaponInfo weapon)
 {

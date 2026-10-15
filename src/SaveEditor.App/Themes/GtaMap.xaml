@@ -1,5 +1,5 @@
 <!-- The island of San Andreas as vector shapes, in the Collectibles map frame (world x -4100..4500, y 8300..-4300,
-     400 px wide). Source: the map in the XB36Hazard editor data (Maps/Main.svg), recoloured; see docs/FINDINGS.md. -->
+     400 px wide). Source: a third-party vector map, recoloured; see THIRD_PARTY_NOTICES.md. -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DrawingImage x:Key="GtaMapImage">

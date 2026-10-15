@@ -31,8 +31,7 @@ public sealed record PsoBlock(uint TypeHash, int Offset, int Length);
 /// <summary>
 /// The decrypted GTA V PC save body is a PSO document (same format as .ymt files): PSIN holds the data,
 /// PMAP maps typed regions of it, PSCH describes every struct (field name hashes, types, offsets).
-/// The reference editor navigates it by the JOAAT hash (exact case) of the game's script save variable names.
-/// See docs/FINDINGS.md, "PSO".
+/// Fields are located by the JOAAT hash (exact case) of the game's script save variable names.
 /// </summary>
 public sealed class PsoDocument
 {

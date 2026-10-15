@@ -61,7 +61,7 @@ public sealed class StoryMission
 /// <summary>
 /// The story missions in the order a typical playthrough meets them, with their saved mission records.
 /// <para>
-/// Marking a mission completed writes what the game itself writes when one is passed (docs/FINDINGS.md section 12):
+/// Marking a mission completed writes what the game itself writes when one is passed:
 /// the record's completed flag and completion order, the missions-completed counter, the mission's FL_CO_ stat and its
 /// 100% checklist entry. The story itself is not moved here: when the game's flow controller reaches a mission whose
 /// record is already completed, it skips the mission and carries on with the story after it.
@@ -200,7 +200,7 @@ internal sealed record MissionInfo(int Index, string Code, string Name, int? Che
     /// (the user's 98.8% save never had Amanda's), so they are never "the next mission".</summary>
     public bool Optional => Code is "MEA1" or "MEJ1" or "MET1";
 
-    // Story order follows two real playthroughs (the user's 100% saves); see docs/FINDINGS.md section 12.
+    // Story order follows two real playthroughs (the user's 100% saves).
     // Record indices, ids, checklist entries and stats come from the game's mission data (build 2628 scripts).
     public static IReadOnlyList<MissionInfo> All { get; } =
     [

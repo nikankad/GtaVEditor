@@ -17,7 +17,7 @@ public sealed record VehicleColour(int Index, string Name)
 
 /// <summary>
 /// One parking space in a safehouse garage. The game's own garage save (root struct 0x72194FCC) keeps the vehicle
-/// parked in each space and puts it back there when the save loads. See docs/FINDINGS.md section 17.
+/// parked in each space and puts it back there when the save loads.
 /// </summary>
 public sealed class GarageSlot
 {

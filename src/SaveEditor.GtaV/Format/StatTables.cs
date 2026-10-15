@@ -6,7 +6,7 @@ public enum StatKind { Int32, Float, UInt64 }
 
 /// <summary>
 /// One sorted stat table inside the PSIN block: entries of big-endian (JOAAT name hash, value),
-/// strictly ascending by hash. Observed in a real PC save (see docs/FINDINGS.md, "Stats").
+/// strictly ascending by hash. Observed in a real PC save.
 /// </summary>
 public sealed class StatTable
 {

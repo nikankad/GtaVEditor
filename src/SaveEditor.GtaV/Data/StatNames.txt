@@ -1,6 +1,6 @@
 # Single-player stat names (the game's own names), grouped for the Stats page.
 # Format: Category|NAME|type|perCharacter|min|max|label. perCharacter names are stored as SP0_/SP1_/SP2_NAME.
-# Names and min/max ranges come from the reference editor's stat lists (Main.db); see docs/FINDINGS.md section 15.
+# Names and min/max ranges for the stats shown on the Stats page.
 Money|TOTAL_CASH_EARNED|int|1|||Total cash earned
 Money|MONEY_TOTAL_SPENT|int|1|0|1073741823|Total cash spent
 Money|MONEY_SPENT_CAR_MODS|int|1|0|1073741823|Spent on car mods

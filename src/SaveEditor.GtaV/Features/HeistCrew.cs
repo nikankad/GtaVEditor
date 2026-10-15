@@ -3,7 +3,7 @@ namespace SaveEditor.GtaV;
 
 /// <summary>
 /// Heist crew availability: the script data's crew struct holds bitsets of unlocked, used and dead crew members, one
-/// bit per member (bits 1–13; every finished save has all 13 unlocked). See docs/FINDINGS.md section 16.
+/// bit per member (bits 1–13; every finished save has all 13 unlocked).
 /// </summary>
 public sealed class HeistCrew
 {

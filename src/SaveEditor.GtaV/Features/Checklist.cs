@@ -60,7 +60,7 @@ public sealed record ChecklistProgress(ChecklistGroup Group, int Completed, int 
 /// <summary>
 /// The game's 100% completion checklist. The script save data holds one entry per item (label, weight, completed flag,
 /// category). The completion percentage and the pause-menu counters are worked out from the entries the same way the
-/// game's own figures come out in real saves (see docs/FINDINGS.md "100% checklist"):
+/// game's own figures come out in real saves:
 /// Missions 55% (category 1), Hobbies and Pastimes 10% (3), Strangers and Freaks 10% (7), Random Events 5% (9; any 14),
 /// Miscellaneous 20% (11 and 13). Categories 0, 4, 6, 8, 12 and 14 hold optional or unused entries that do not count.
 /// Ticking an entry changes the checklist and these figures only; it does not play the mission or move the story.

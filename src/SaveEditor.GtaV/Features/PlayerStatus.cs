@@ -4,8 +4,7 @@ namespace SaveEditor.GtaV;
 
 /// <summary>
 /// One character's status in the script save data's player-ped struct (field names from the game's script variable
-/// names, the same ones the reference editor's layout map uses; see docs/FINDINGS.md section 14). Every field holds
-/// one value per character in the order Michael, Franklin, Trevor.
+/// names). Every field holds one value per character in the order Michael, Franklin, Trevor.
 /// </summary>
 public sealed class CharacterStatus
 {

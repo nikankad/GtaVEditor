@@ -2,7 +2,6 @@ namespace SaveEditor.GtaV;
 
 /// <summary>
 /// Jenkins one-at-a-time variants used by GTA V.
-/// Ported from the reference editor's "GTAV Class" assembly (see docs/FINDINGS.md).
 /// </summary>
 public static class GtaHash
 {

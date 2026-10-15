@@ -10,7 +10,7 @@ public sealed record WeaponInfo(string Id, string Label, string Category, int Ta
 
 /// <summary>
 /// One weapon for one character. Every weapon has a fixed slot in the character's slot tables; an all-zero slot
-/// means the character does not have it (observed in real saves; see docs/FINDINGS.md "Weapons").
+/// means the character does not have it (observed in real saves).
 /// </summary>
 public sealed class CharacterWeapon
 {

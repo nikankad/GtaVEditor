@@ -87,7 +87,7 @@ public sealed class StrangerMission
 /// <summary>
 /// The 63 Strangers and Freaks (random character) missions, grouped by character in the game's own order.
 /// Marking one completed writes its record (state, completed flag, completion order), the Strangers and Freaks
-/// counter and its 100% checklist entry; see docs/FINDINGS.md section 13.
+/// counter and its 100% checklist entry.
 /// </summary>
 public sealed class StrangersAndFreaks : ReadOnlyCollection<StrangerMission>
 {

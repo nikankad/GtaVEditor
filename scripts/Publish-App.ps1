@@ -28,7 +28,9 @@ try {
 
     $exe = Join-Path $publish 'GtaVSaveEditor.exe'
     if (!(Test-Path $exe)) { throw 'Publish did not produce GtaVSaveEditor.exe.' }
-    if ((Get-Item $exe).Length -gt 20MB) { throw 'The EXE exceeds the 20 MiB public-build size limit.' }
+    $exeMB = (Get-Item $exe).Length / 1MB
+    if ($exeMB -lt 30) { throw "The EXE is only {0:N1} MB; it looks framework-dependent. The public build must bundle the .NET runtime." -f $exeMB }
+    if ($exeMB -gt 200) { throw "The EXE is {0:N1} MB, far larger than expected; check what was bundled." -f $exeMB }
     Copy-Item $exe $package
     foreach ($file in @('LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md')) {
         Copy-Item (Join-Path $repoRoot $file) $package

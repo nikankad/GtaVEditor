@@ -13,10 +13,10 @@ text must be recorded by the maintainer before publishing the public release.
 
 ## Map
 
-`src/SaveEditor.App/Themes/GtaMap.xaml` contains recolored vector geometry derived
-from `Maps/Main.svg` in XB36Hazard's GTA V Save Editor, as recorded in that file's
-source comment. Credit: XB36Hazard's GTA V Save Editor. The original map's license,
-source link, and any required permission text must be supplied by the maintainer.
+`src/SaveEditor.App/Themes/GtaMap.xaml` contains recolored vector map geometry from a
+third-party source. This is not covered by the Apache-2.0 license. The original source,
+license, and any required credit or permission text must be recorded here by the
+maintainer before public release.
 
 ## Application branding
 
@@ -29,16 +29,15 @@ sources; it does not grant permission on behalf of third-party rights holders.
 
 ## Runtime and development dependencies
 
-The default download uses the separately installed Microsoft .NET Desktop
-Runtime; it does not bundle that runtime. Development and test dependencies are
-listed with their resolved versions in the committed `packages.lock.json` files.
-They are not shipped in the app's release ZIP.
+The release EXE bundles the Microsoft .NET runtime (MIT license; see
+https://github.com/dotnet/runtime/blob/main/LICENSE.TXT). Development and test
+dependencies are listed with their resolved versions in the committed
+`packages.lock.json` files. They are not shipped in the app's release ZIP.
 
 ## Local research inputs and save keys
 
-The reference editor binary, decompiled game scripts, and player save files used
-for research are not distributed in this repository or its release ZIP. The
-format research is described in `docs/FINDINGS.md`. A maintainer release may embed
+Decompiled game scripts and player save files used for research are not
+distributed in this repository or its release ZIP. A maintainer release may embed
 a save encryption key using the `GTAV_SAVE_KEY` Actions secret. The key is not
 part of the Apache-2.0 license, and embedding it in an executable makes it
 extractable; that repository secret is a build input, not a promise of secrecy

@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="../SaveEditor.App.SmokeTests/SyntheticSave.cs" Link="Fixtures/SyntheticSave.cs" />
     <Using Include="Xunit" />
   </ItemGroup>
 

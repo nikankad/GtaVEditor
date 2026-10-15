@@ -7,10 +7,10 @@ publication remain explicit maintainer actions.
 ## Repository readiness
 
 - [x] Apache-2.0 license and copyright notice for original code.
-- [x] Small, runtime-dependent Windows x64 publish profile and packaging script.
+- [x] Self-contained single-file Windows x64 publish profile and packaging script (no runtime install needed).
 - [x] PR CI with tests, tool builds, packaged-app startup check, and a preview package; no release secrets.
 - [x] Locked dependencies, vulnerability checks, pinned Action revisions, SHA-256 checksums.
-- [x] Runtime, key setup, backup/restore, support scope, and contribution documentation.
+- [x] Key setup, backup/restore, support scope, and contribution documentation.
 - [ ] Add the maintainer's permission terms, source links, and required attribution for
   retained artwork, branding, and map to `THIRD_PARTY_NOTICES.md`.
 - [ ] Review all existing Git history, old releases, screenshots, issues, and Actions
@@ -46,15 +46,14 @@ dotnet test tests/SaveEditor.Tests -c Release --no-restore
 Get-FileHash artifacts/release/GtaVSaveEditor-win-x64.zip -Algorithm SHA256
 ```
 
-The packaging script limits the EXE to 20 MiB to catch accidentally bundled
-runtimes. It packages files from a fresh temporary directory; debug symbols,
+The packaging script checks that the EXE is a bundled-runtime build (roughly 30-200 MB), so a
+framework-dependent publish is caught. It packages files from a fresh temporary directory; debug symbols,
 player saves, research binaries, and loose keys are excluded.
 
 ## Windows smoke test before publishing the draft
 
-- [ ] On a clean Windows x64 machine without the .NET 10 Desktop Runtime, confirm
-  that launching the EXE directs the user to the missing runtime. Install the
-  Desktop Runtime and confirm the extracted app starts without the SDK.
+- [ ] On a clean Windows x64 machine with no .NET runtime or SDK installed, extract the ZIP
+  and confirm the EXE starts and shows the start page.
 - [ ] Check the version in About, branding, and the source/download links.
 - [ ] Test bundled-key startup if the release includes one. For a build without a
   bundled key, test correct/incorrect imports and missing or unreadable files.

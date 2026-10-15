@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +16,7 @@ public partial class StartPage : UserControl
         InitializeComponent();
         _shell = shell;
         ShowKeyState();
+        DetectSaves();
     }
 
     private void ShowKeyState()
@@ -24,6 +24,8 @@ public partial class StartPage : UserControl
         bool needsKey = !App.Game.Keys.HasKey;
         KeyBanner.Visibility = needsKey ? Visibility.Visible : Visibility.Collapsed;
         SelectButton.IsEnabled = !needsKey;
+        DetectedList.IsEnabled = !needsKey;
+        OpenDetectedButton.IsEnabled = !needsKey && DetectedList.SelectedItem != null;
     }
 
     private void Select_Click(object sender, RoutedEventArgs e)
@@ -34,7 +36,7 @@ public partial class StartPage : UserControl
         if (dlg.ShowDialog(_shell) == true) Open(dlg.FileName);
     }
 
-    private void Open(string path)
+    private void Open(string path, bool backup = false)
     {
         GtaVSaveDocument doc;
         try
@@ -46,14 +48,40 @@ public partial class StartPage : UserControl
             MessageBox.Show(_shell, ex.Message, "Cannot open save", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-        _shell.Navigate(new EditorPage(_shell, doc));
+        _shell.Navigate(new EditorPage(_shell, doc, backup));
     }
+
+    private void DetectSaves()
+    {
+        try
+        {
+            var saves = DetectedSave.Find(App.Game.DefaultSaveFolders());
+            DetectedList.ItemsSource = saves;
+            DetectedList.SelectedIndex = saves.Count > 0 ? 0 : -1;
+            DetectionNote.Text = saves.Count == 0 ? "No saves found. You can still select a save file above." : $"{saves.Count} saves, newest first";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            DetectionNote.Text = "Couldn't scan the game folders. You can still select a save file above.";
+        }
+    }
+
+    private void RefreshSaves_Click(object sender, RoutedEventArgs e) => DetectSaves();
+    private void Detected_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (OpenDetectedButton != null) OpenDetectedButton.IsEnabled = App.Game.Keys.HasKey && DetectedList.SelectedItem != null;
+    }
+    private void OpenDetected_Click(object sender, RoutedEventArgs e)
+    {
+        if (App.Game.Keys.HasKey && DetectedList.SelectedItem is DetectedSave save) Open(save.FilePath);
+    }
+    private void Detected_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) => OpenDetected_Click(sender, e);
 
     private void Backups_Click(object sender, RoutedEventArgs e)
     {
-        var dir = BackupService.Default.BackupRoot;
-        Directory.CreateDirectory(dir);
-        Process.Start(new ProcessStartInfo("explorer.exe", dir) { UseShellExecute = true });
+        var browser = new BackupsWindow { Owner = _shell };
+        if (browser.ShowDialog() == true && browser.ChosenPath is { } path) Open(path, browser.OpenedBackup);
+        else DetectSaves();
     }
 
     private void About_Click(object sender, RoutedEventArgs e) => new AboutWindow { Owner = _shell }.ShowDialog();
@@ -85,5 +113,6 @@ public partial class StartPage : UserControl
                 "Import key", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         ShowKeyState();
+        DetectSaves();
     }
 }

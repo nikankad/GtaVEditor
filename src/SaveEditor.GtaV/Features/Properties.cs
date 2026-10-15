@@ -4,7 +4,7 @@ namespace SaveEditor.GtaV;
 
 /// <summary>
 /// A hangar, helipad or boat dock vehicle slot (script data vehicle generators, 0x943A0A56/0xC3630453). The game
-/// spawns the vehicle stored here at that character's hangar, helipad or dock. See docs/FINDINGS.md section 18.
+/// spawns the vehicle stored here at that character's hangar, helipad or dock.
 /// </summary>
 public sealed class PropertyVehicleSlot
 {

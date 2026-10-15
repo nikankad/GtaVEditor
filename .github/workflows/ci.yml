@@ -30,10 +30,10 @@ jobs:
         run: dotnet restore SaveEditor.sln --locked-mode
       - name: Test
         run: dotnet test tests/SaveEditor.Tests -c Release --no-restore --logger 'trx;LogFileName=tests.trx'
-      - name: Build research tools
+      - name: Build research tool
         shell: pwsh
         run: |
-          foreach ($tool in @('KeyRecovery', 'StoryResearch')) {
+          foreach ($tool in @('StoryResearch')) {
             dotnet build "tools/$tool/$tool.csproj" -c Release -p:RestoreLockedMode=true
             if ($LASTEXITCODE -ne 0) { throw "$tool build failed." }
           }

@@ -1,4 +1,4 @@
-# Collectible positions (x, y, z in game metres), taken from the decompiled collectible scripts (see docs/FINDINGS.md section 19).
+# Collectible positions (x, y, z in game metres), taken from the decompiled collectible scripts.
 # Format: kind,index,x,y,z. Bridge and knife-flight indexes are bit numbers in BRIDGES_FLOWN_UNDER_FLAGS*.
 LetterScraps,0,1026.705,-3026.052,13.3323
 LetterScraps,1,-1048.604,-2734.218,12.8895

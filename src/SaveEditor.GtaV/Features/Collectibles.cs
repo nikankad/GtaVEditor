@@ -135,7 +135,7 @@ internal sealed class NodeBits(IReadOnlyList<PsoNode> ints) : IBits
 
 /// <summary>
 /// The game's single-player "packed stat" bools: index i is bit (i - 705) of the 64-bit stats SP_PSTAT_BOOL0..8,
-/// lowest bit first (docs/FINDINGS.md section 19).
+/// lowest bit first.
 /// </summary>
 internal sealed class PackedStatBools(StatStore stats) : IBits
 {
@@ -156,7 +156,7 @@ internal sealed class PackedStatBools(StatStore stats) : IBits
 
 /// <summary>
 /// Every collectible kind the save tracks. Where each is stored was worked out from the game's collectible scripts and
-/// checked against real saves (docs/FINDINGS.md section 19). Kinds whose data is missing from a save are left out.
+/// checked against real saves. Kinds whose data is missing from a save are left out.
 /// </summary>
 public sealed class Collectibles : ReadOnlyCollection<CollectibleSet>
 {

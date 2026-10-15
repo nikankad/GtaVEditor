@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveEditor.Tests", "tests\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveEditor.GtaV", "src\SaveEditor.GtaV\SaveEditor.GtaV.csproj", "{AEBC00A3-C7E3-44C2-A325-CFE699E99A29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveEditor.App.SmokeTests", "tests\SaveEditor.App.SmokeTests\SaveEditor.App.SmokeTests.csproj", "{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{AEBC00A3-C7E3-44C2-A325-CFE699E99A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEBC00A3-C7E3-44C2-A325-CFE699E99A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEBC00A3-C7E3-44C2-A325-CFE699E99A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6D8D513A-0F92-4381-8F11-517D71D217FB} = {6183996C-3792-47E9-A7D5-17B83F980CD4}
 		{9D69CCC8-DD52-4FBE-883A-83C3CC7ADEED} = {8E6E6AC4-6EA4-4887-BAB4-9B5C584FF7C4}
 		{AEBC00A3-C7E3-44C2-A325-CFE699E99A29} = {6183996C-3792-47E9-A7D5-17B83F980CD4}
+		{2828B6EC-2C2E-4D20-8CC3-F9A81C8C7CD4} = {8E6E6AC4-6EA4-4887-BAB4-9B5C584FF7C4}
 	EndGlobalSection
 EndGlobal

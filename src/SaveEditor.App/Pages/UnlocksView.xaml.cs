@@ -57,7 +57,7 @@ public partial class UnlocksView : UserControl
             var button = new RadioButton
             {
                 Content = GamePictures.WithLabel(GamePictures.Character(character), character), GroupName = "UnlockCharacter", Style = (Style)FindResource("Segment"),
-                IsChecked = character == _weaponCharacter,
+                IsChecked = character == _weaponCharacter, Tag = character,
             };
             button.Checked += (_, _) => ShowWeapons(character);
             WeaponCharacters.Children.Add(button);
@@ -99,6 +99,22 @@ public partial class UnlocksView : UserControl
     private void GoldAll_Click(object sender, RoutedEventArgs e)
     {
         foreach (var l in _lessons) l.Medal = FlightLesson.Medals[^1];
+    }
+
+    public void ShowItem(string label)
+    {
+        var split = label.IndexOf(": ", StringComparison.Ordinal);
+        var who = split < 0 ? "" : label[..split];
+        var name = split < 0 ? label : label[(split + 2)..];
+        foreach (var button in WeaponCharacters.Children.OfType<RadioButton>())
+            if (button.Tag as string == who) button.IsChecked = true;
+        SearchNavigation.Reveal(this, e => e.DataContext switch
+        {
+            WeaponUnlockModel weapon => name == weapon.Label + " at Ammu-Nation",
+            WardrobeModel wardrobe => wardrobe.Name == who && name == "clothes",
+            FlightLessonModel lesson => who == "Flight School" && lesson.Name == name,
+            _ => label == "Director Mode actors" && e == DirectorCard,
+        });
     }
 
     /// <summary>Re-reads everything (after another view changed the same save bytes).</summary>

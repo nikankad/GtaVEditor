@@ -9,8 +9,9 @@ The GitHub repository's visibility and existing releases have not been changed.
   Existing artwork and map retained at the maintainer's request.
 - .NET 10 LTS, exact SDK pin, locked dependencies, vulnerability warnings as errors,
   and monthly dependency/Actions update configuration.
-- Runtime-dependent Windows x64 publishing, resized logo, and a ZIP containing
-  the EXE, setup instructions, license, copyright and third-party notices.
+- Self-contained single-file Windows x64 publishing (the .NET runtime is built in,
+  nothing to install), resized logo, and a ZIP containing the EXE, instructions,
+  license, copyright and third-party notices.
 - PR CI builds/tests and a preview package without release secrets. Tagged
   releases create drafts after testing, packaging, and a Windows startup check.
 - Optional release-only key embedding with length validation and input cleanup.
@@ -20,16 +21,16 @@ The GitHub repository's visibility and existing releases have not been changed.
 
 ## Verification performed
 
-Checks run locally with .NET SDK 10.0.402 on Linux:
+These checks were run with .NET SDK 10.0.402 on Linux against an earlier, runtime-dependent version of this branch,
+before it was made self-contained and `main` was merged in. Re-run them (CI does) before releasing:
 
 | Check | Result |
 | --- | --- |
 | Locked solution restore | Passed |
 | Release solution cross-build | Passed; 0 warnings, 0 errors |
 | Core tests | 48 passed, 2 skipped, 0 failed |
-| KeyRecovery and StoryResearch builds | Passed; 0 warnings, 0 errors |
+| StoryResearch tool build | Passed; 0 warnings, 0 errors |
 | Public packaging script in PowerShell 7 | Passed |
-| Resulting EXE / complete release ZIP | About 4.27 MB / 3.21 MB |
 | ZIP contents, CRC, and SHA-256 manifest | Passed |
 | NuGet audit, direct and transitive packages | No known vulnerable packages reported |
 | GitHub workflows (actionlint) | Passed |
@@ -41,9 +42,9 @@ The two skipped tests require a private local save and, for decryption, a key.
 They are not counted as passing real-save checks. The history scan is evidence of
 no detected leaks, not a guarantee that every historical asset is publishable.
 
-The previous self-contained release is 76.82 MB. The new runtime-dependent EXE
-is about 94% smaller, and its complete ZIP download about 96% smaller. Users
-install the .NET 10 Desktop Runtime separately; it is shared on their machine.
+The download stays self-contained (previously about 77 MB with .NET 8). A smaller
+runtime-dependent package was considered and rejected so that players have nothing
+to install.
 
 ## Before public launch
 

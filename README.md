@@ -8,21 +8,18 @@ A free save editor for **Grand Theft Auto V story mode on PC**. Open a save, cha
 
 ## Download
 
-1. Install the **[.NET 10 Desktop Runtime for Windows x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)**.
-   Choose **Desktop Runtime**, rather than the SDK or ASP.NET Core Runtime. You only need to install it once.
-2. Download **GtaVSaveEditor-win-x64.zip** from the [latest release](https://github.com/nikankad/GtaVEditor/releases/latest).
-3. Extract the ZIP and run **GtaVSaveEditor.exe**. Keep the included license and notices with it.
+1. Download **GtaVSaveEditor-win-x64.zip** from the [latest release](https://github.com/nikankad/GtaVEditor/releases/latest).
+2. Extract the ZIP and run **GtaVSaveEditor.exe**. Keep the included license and notices with it.
 
-The app targets Windows 10/11, 64-bit. The runtime is installed separately to keep downloads small.
+Nothing else to install: the .NET runtime is built in. It targets Windows 10/11, 64-bit.
 Release downloads include `SHA256SUMS.txt`; check the ZIP with `Get-FileHash -Algorithm SHA256` if you want to verify it.
 
 Some releases include the PC save encryption key. If the start page asks for a key, choose **Import key…**, select a
-32-byte key file, then select one of your own saves to verify it. See [local key setup](tools/KeyRecovery/README.md)
-for the supported recovery tool. Source builds use this same import flow.
+32-byte key file, then select one of your own saves to verify it. Source builds use this same import flow.
 
 ## Supported saves
 
-This editor handles the PC story-mode save layout described in [the format research](docs/FINDINGS.md).
+This editor handles the PC story-mode save layout.
 **GTA Online and console saves are unsupported. GTA V Enhanced compatibility has not been verified.**
 Completing a mission entry changes saved completion data; it does not play the mission or simulate all of its
 rewards, cutscenes, and story transitions. Keep a separate copy before changing story progress.
@@ -38,13 +35,17 @@ rewards, cutscenes, and story transitions. Keep a separate copy before changing 
 - **Vehicles:** park cars, planes, helicopters and boats in your garages, hangars and docks; own businesses
 - **Weapons and Unlocks:** give weapons and ammo, unlock Ammu-Nation stock, clothes, Director Mode actors, Flight School medals
 - **Stats and Game flags:** every stat and story switch, with plain-English names
-- **Search everything:** type in the box at the top to find any mission, collectible, flag or stat, tick it right there or jump to its tab
+- **Open your saves quickly:** the start page lists detected saves with their slot, title, profile and modification date
+- **Focus on what remains:** show only incomplete checklist entries, missions and missing collectibles
+- **Restore backups:** browse dated backups, inspect a copy, or restore one while preserving the save being replaced
+- **Keyboard shortcuts:** Ctrl+S saves the current file, Ctrl+Shift+S saves a copy, and Ctrl+F focuses search
+- **Search everything:** type in the box at the top to find any mission, collectible, flag or stat, tick it right there or jump to the matching item, which is briefly highlighted
 - **Check before saving:** every save first lists what you changed, with an Undo for each one
 
 ## Back up your saves
 
 Editing a save can corrupt it or break story progress. The editor copies each save to a backups folder before
-writing it, but keep your own copy of any save you care about. Use at your own risk.
+writing it. Use **Browse backups…** on the start page to inspect or restore a copy; saving an opened backup asks for a working-copy location. Keep your own copy of any save you care about. Use at your own risk.
 
 Close GTA V before editing. Automatic backups are in `%LocalAppData%\SaveEditor\Backups\gtav-pc`;
 use **Open backups folder** on the start page. To restore one, close the game, copy the backup to your profile
@@ -54,11 +55,29 @@ Imported keys are stored locally at `%AppData%\SaveEditor\keys\gtav-pc.key`.
 Saves are in `Documents\Rockstar Games\GTA V\Profiles\<id>\SGTA500xx`. If cloud saves are on, the game may replace
 an edited save with the cloud copy.
 
+## Disclaimer
+
+**For educational and personal use only.** This is an independent, non-commercial hobby project that shows how GTA V
+single-player save files are laid out. It is meant for learning and for editing your own saves offline.
+
+- **Not affiliated with or endorsed by** Rockstar Games, Take-Two Interactive or any of their subsidiaries.
+  *Grand Theft Auto*, *GTA V* and related names, logos, characters and artwork are trademarks or copyrights of their
+  respective owners and are used here only to identify the game the tool works with. All rights remain with them.
+- **Story mode only.** It does not touch GTA Online, and it is not meant to be used to cheat, gain an unfair advantage
+  or harm other players. Don't use it with online services; doing so can get an account banned.
+- **You need your own copy of the game.** It does not include, distribute or help you obtain the game.
+- **No warranty.** The software is provided "as is", without warranty of any kind. The author is not liable for
+  corrupted or lost saves, broken progress, account actions, or any other damage or loss from using it. Back up your
+  saves and use it at your own risk.
+- **You are responsible** for making sure your use complies with the game's terms of service and the laws where you live.
+
+If you are a rights holder and have a concern about this project, please open an issue and it will be addressed promptly.
+
 ## Build it yourself
 
 Needs Windows and the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
-The SDK includes the runtime needed for development. Install the SDK version listed in `global.json`;
-CI and release builds use that exact version so dependency locks remain reproducible.
+Install the SDK version listed in `global.json`; CI and release builds use that exact version so
+dependency locks remain reproducible. (Players of the release download do not need it.)
 
 ```bash
 git clone https://github.com/nikankad/GtaVEditor.git
@@ -73,7 +92,7 @@ Builds from source don't include the save encryption key, so the app asks you to
 dotnet test tests/SaveEditor.Tests
 ```
 
-Build the small Windows release ZIP from PowerShell:
+Build the self-contained Windows release ZIP from PowerShell:
 
 ```powershell
 ./scripts/Publish-App.ps1 -Version 1.1.0 -LockedMode
@@ -94,3 +113,8 @@ Original code is licensed under [Apache-2.0](LICENSE). Third-party artwork, map 
 retain their separate rights; see [NOTICE](NOTICE) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
 This project is not affiliated with Rockstar Games or Take-Two Interactive.
+On Windows, run the UI smoke checks (uses generated saves; no game or key needed):
+
+```bash
+dotnet run --project tests/SaveEditor.App.SmokeTests -c Release
+```

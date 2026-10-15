@@ -14,8 +14,8 @@ body:
   - type: input
     id: environment
     attributes:
-      label: Windows, runtime, and GTA V edition/build
-      placeholder: Windows 11 x64, .NET 10 Desktop Runtime, GTA V Legacy build ...
+      label: Windows version and GTA V edition/build
+      placeholder: Windows 11 x64, GTA V Legacy build ...
     validations:
       required: true
   - type: textarea

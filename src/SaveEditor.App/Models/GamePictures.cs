@@ -92,7 +92,7 @@ public static class GamePictures
         {
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri($"pack://application:,,,/{Root}{path}");
+            bitmap.UriSource = new Uri($"pack://application:,,,/GtaVSaveEditor;component/{Root}{path}");
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             bitmap.Freeze();

@@ -19,7 +19,7 @@ Core tests also run on Linux/macOS. Cross-building WPF on Linux requires
 
 The app, core library, and tests live under `src/` and `tests/`. Local research
 tools live under `tools/`; they are built in CI but not included in the release
-ZIP. The save-format evidence and current limitations are in `docs/FINDINGS.md`.
+ZIP.
 
 Commit `packages.lock.json` updates when intentionally changing dependencies.
 Run `dotnet restore SaveEditor.sln --force-evaluate` and restore each affected
@@ -44,7 +44,7 @@ dotnet test tests/SaveEditor.Tests -c Release
 ```
 
 These tests show as skipped when fixtures are unavailable. Never commit real
-player saves, game/editor binaries, decompiled scripts, encryption keys, or
+player saves, game binaries, decompiled scripts, encryption keys, or
 credentials. Do not paste those inputs into issues or CI logs.
 
 ## Interface and release changes

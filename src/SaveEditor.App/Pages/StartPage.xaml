@@ -17,7 +17,7 @@
             <StackPanel Margin="48,28" MaxWidth="720" HorizontalAlignment="Center">
                 <Image Height="170" HorizontalAlignment="Center" Margin="0,0,0,20" RenderOptions.BitmapScalingMode="HighQuality">
                     <Image.Source>
-                        <BitmapImage UriSource="/Assets/logo.png" DecodePixelHeight="340"/>
+                        <BitmapImage UriSource="/GtaVSaveEditor;component/Assets/logo.png" DecodePixelHeight="340"/>
                     </Image.Source>
                 </Image>
                 <TextBlock Text="Edit a story mode save" Style="{StaticResource PageTitle}" HorizontalAlignment="Center"/>
@@ -43,9 +43,34 @@
                 <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center"
                            Text="Saves are in Documents\Rockstar Games\GTA V\Profiles\…, named SGTA50000 to SGTA50015."/>
                 <WrapPanel Margin="0,16,0,0" HorizontalAlignment="Center">
-                    <Button Content="Open backups folder" Click="Backups_Click" Margin="0,0,0,8"
+                    <Button Content="Browse backups…" Click="Backups_Click" Margin="0,0,0,8"
                             ToolTip="The copies made before every save"/>
                 </WrapPanel>
+
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <Button DockPanel.Dock="Right" Content="Refresh" Click="RefreshSaves_Click"/>
+                            <TextBlock Text="Your saves" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <TextBlock x:Name="DetectionNote" Style="{StaticResource Muted}" Margin="0,0,0,8"/>
+                        <ListBox x:Name="DetectedList" MaxHeight="200" HorizontalContentAlignment="Stretch"
+                                 SelectionChanged="Detected_Changed" MouseDoubleClick="Detected_DoubleClick">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ToolTip="{Binding FilePath}" Margin="0,4">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Slot}"/>
+                                        <StackPanel Grid.Column="1"><TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Profile, StringFormat=Profile: {0}}" Style="{StaticResource Muted}" FontSize="11"/></StackPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding Modified, StringFormat={}{0:g}}" Style="{StaticResource Muted}" TextAlignment="Right"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button x:Name="OpenDetectedButton" Content="Open selected save" Click="OpenDetected_Click" HorizontalAlignment="Right" Margin="0,8,0,0" IsEnabled="False"/>
+                    </StackPanel>
+                </Border>
 
                 <!-- Disclaimer -->
                 <Border Style="{StaticResource Card}" Margin="0,24,0,0">
@@ -54,7 +79,7 @@
                         <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="20"
                                    Text="Editing a save can corrupt it, stop it loading, or break story progress, and you could lose the save for good. The editor copies the old file to the backups folder before every write, but keep your own copy of any save you care about as well."/>
                         <TextBlock Style="{StaticResource Muted}" Margin="0,8,0,0" LineHeight="20"
-                                   Text="Story mode only. Not made by or affiliated with Rockstar Games. Edits haven't been tested in-game for every case; use at your own risk. With cloud saves on, the game may replace an edited save with the cloud copy."/>
+                                   Text="For educational purposes only. Story mode only. Not made by or affiliated with Rockstar Games. Edits haven't been tested in-game for every case; use at your own risk. With cloud saves on, the game may replace an edited save with the cloud copy."/>
                     </StackPanel>
                 </Border>
             </StackPanel>

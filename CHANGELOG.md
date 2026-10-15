@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Move the projects to .NET 10 LTS and pin the build SDK and dependency locks.
-- Make the default Windows download use a separately installed Desktop Runtime.
+- Keep the Windows download self-contained: one EXE with the .NET runtime built in, nothing to install.
 - Resize the oversized app logo and package the EXE with setup instructions,
   Apache-2.0 license, third-party notices, and a SHA-256 checksum.
 - Build and test pull requests without release secrets. Create draft releases

@@ -1,7 +1,7 @@
 # Script save variable names (case-sensitive) found in a real GTA V PC save. The save stores only JOAAT hashes
 # of these names (exact case); each one listed here matched a field in the PSCH schema of a 100% save.
 # Most names come from the save-registration calls in publicly available decompiled game scripts
-# (REGISTER_*_TO_SAVE / START_SAVE_STRUCT_WITH_SIZE literals); docs/FINDINGS.md section 19 explains how.
+# (REGISTER_*_TO_SAVE / START_SAVE_STRUCT_WITH_SIZE literals).
 ACQUIRED
 ActivityFeedPostsMadeBitset
 Actual_Take

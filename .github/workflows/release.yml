@@ -98,7 +98,7 @@ jobs:
           $notes = @"
           Download **GtaVSaveEditor-win-x64.zip**, extract it, and run **GtaVSaveEditor.exe**.
 
-          Requires the [.NET 10 Desktop Runtime for Windows x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), installed separately.
+          Nothing else to install: the .NET runtime is built in.
 
           $keyNote
 
