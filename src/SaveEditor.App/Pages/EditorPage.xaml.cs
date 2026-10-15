@@ -280,7 +280,7 @@ public partial class EditorPage : UserControl, IGuardedPage
                 };
                 break;
         }
-        if (target != null) SearchNavigation.Reveal(tab, target);
+        if (target != null) SearchNavigation.Reveal(this, target);
     }
 
     // ---- Collectibles, unlocks and flags ----
