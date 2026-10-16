@@ -403,8 +403,14 @@ public partial class EditorPage : UserControl, IGuardedPage
         }
     }
 
-    private void GivePropertyVehicle_Click(object sender, RoutedEventArgs e) =>
-        ((sender as FrameworkElement)?.DataContext as PropertyVehicleModel)?.Park();
+    private void ChoosePropertyVehicle_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not PropertyVehicleModel slot) return;
+        var picker = new VehiclePickerWindow(slot.Vehicles, slot.Vehicle, $"{slot.Owner}: {slot.Place}", "Give") { Owner = _shell };
+        if (picker.ShowDialog() != true || picker.Vehicle == null) return;
+        (slot.Vehicle, slot.Colour) = (picker.Vehicle, picker.Colour);
+        slot.Park();
+    }
 
     private void EmptyPropertyVehicle_Click(object sender, RoutedEventArgs e) =>
         ((sender as FrameworkElement)?.DataContext as PropertyVehicleModel)?.Empty();
@@ -416,7 +422,14 @@ public partial class EditorPage : UserControl, IGuardedPage
         _properties.ForEach(p => p.Refresh());
     }
 
-    private void ParkHere_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as GarageSlotModel)?.Park();
+    private void ChooseVehicle_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not GarageSlotModel slot) return;
+        var picker = new VehiclePickerWindow(slot.Vehicles, slot.Vehicle, $"{slot.Slot.Garage}, space {slot.Slot.Number}", "Park here") { Owner = _shell };
+        if (picker.ShowDialog() != true || picker.Vehicle == null) return;
+        (slot.Vehicle, slot.Colour) = (picker.Vehicle, picker.Colour);
+        slot.Park();
+    }
 
     private void EmptySpace_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as GarageSlotModel)?.Empty();
 

@@ -458,6 +458,7 @@ public sealed class GarageSlotModel(GarageSlot slot, Action onChanged) : Observa
     public IReadOnlyList<VehicleColour> Colours => VehicleColour.All;
     public VehicleModel? Vehicle { get; set; } = VehicleCatalog.Find(slot.ModelHash) ?? VehicleCatalog.RoadVehicles[0];
     public VehicleColour Colour { get; set; } = VehicleColour.All[0];
+    public string ChooseText => slot.IsEmpty ? "Choose a vehicle…" : "Swap for another vehicle…";
 
     public void Park()
     {
@@ -492,6 +493,8 @@ public sealed class PropertyVehicleModel(PropertyVehicleSlot slot, Action onChan
     public IReadOnlyList<VehicleColour> Colours => VehicleColour.All;
     public VehicleModel? Vehicle { get; set; }
     public VehicleColour Colour { get; set; } = VehicleColour.All[2];
+    public ImageSource? Picture => slot.IsEmpty ? null : GamePictures.Vehicle(slot.ModelHash);
+    public string ChooseText => slot.IsEmpty ? "Choose a vehicle…" : "Swap for another…";
 
     public PropertyVehicleModel Init()
     {
