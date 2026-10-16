@@ -21,7 +21,14 @@ public partial class UnlocksView : UserControl
         _doc = doc;
         _onChanged = onChanged;
         LoadWeapons();
-        Try(ClothingError, "Clothing", () => Wardrobes.ItemsSource = _wardrobes = doc.Wardrobes.Select(w => new WardrobeModel(w, onChanged)).ToList());
+        Try(ClothingError, "Clothing", () =>
+        {
+            // A save whose outfit data can't be read still shows the wardrobe, without the "Wearing now" lists.
+            IReadOnlyList<Outfit> outfits = [];
+            try { outfits = doc.Outfits; } catch (SaveFormatException) { }
+            Wardrobes.ItemsSource = _wardrobes = doc.Wardrobes
+                .Select(w => new WardrobeModel(w, outfits.FirstOrDefault(o => o.Character == w.Character), onChanged)).ToList();
+        });
         if (!Try(DirectorError, "Director Mode", () => _director = doc.DirectorMode)) DirectorCard.Visibility = Visibility.Collapsed;
         if (!Try(FlightError, "Flight School", () => Lessons.ItemsSource = _lessons = doc.FlightSchool.Select(l => new FlightLessonModel(l, onChanged)).ToList()))
             GoldButton.Visibility = Visibility.Collapsed;

@@ -241,6 +241,14 @@ public sealed class ChangeTracker
         });
         Try(() =>
         {
+            foreach (var o in doc.Outfits)
+                foreach (var slot in o.Slots)
+                    t.Track("Unlocks", $"{o.Character} wearing: {slot.Label.ToLowerInvariant()}", () => string.Join(',', slot.Snapshot()),
+                        v => slot.Restore(v.Split(',').Select(int.Parse).ToArray()),
+                        v => slot.NameIn(v.Split(',').Select(int.Parse).ToArray()));
+        });
+        Try(() =>
+        {
             var director = doc.DirectorMode;
             t.Track("Unlocks", "Director Mode actors", () => director.Progress.Sum(p => p.Unlocked), null,
                 v => $"{v} of {director.Progress.Sum(p => p.Total)} unlocked");

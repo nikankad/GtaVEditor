@@ -215,6 +215,26 @@ public sealed class VehicleLookModel : Observable, IDataErrorInfo
     public int Suspension { get => _look.Suspension; set => Set(() => _look.Suspension = value, _look.HasSuspension); }
     public bool Turbo { get => _look.Turbo; set => Set(() => _look.Turbo = value, _look.HasModKit); }
 
+    // ---- Horn ----
+
+    public Visibility HornVisibility => Show(_look.HasHorn);
+
+    /// <summary>"Stock" then the horns this car's kit has room for.</summary>
+    public IReadOnlyList<string> HornNames => ["Stock horn", .. VehicleLook.HornNames.Take(_look.HornCount)];
+
+    public string HornNote => _look.HornCount < VehicleLook.HornNames.Count
+        ? $"This car's mod shop keeps only the first {_look.HornCount} horns where the editor can find them. Fit the newer ones at a Los Santos Customs in game."
+        : "";
+
+    public Visibility HornNoteVisibility => Show(_look.HasHorn && HornNote.Length > 0);
+
+    /// <summary>0 for the stock horn, then the horns in the game's order.</summary>
+    public int Horn
+    {
+        get => _look.Horn + 1;
+        set { if (value >= 0) Set(() => _look.Horn = value - 1, _look.HasHorn); }
+    }
+
     public void MaxPerformance()
     {
         if (!_look.CanUpgrade) return;
@@ -248,8 +268,11 @@ public sealed class VehicleLookModel : Observable, IDataErrorInfo
         }
     }
 
-    public string BodyNote => PartRows.Count > 0 ? "Pick an option for each part; Stock leaves the car's own."
-        : "The editor doesn't have a parts list for this car, so it can only put its parts back to stock.";
+    public string BodyNote => PartRows.Count == 0
+        ? "The editor doesn't have a parts list for this car, so it can only put its parts back to stock."
+        : _look.Info?.PartsNumbered == true
+            ? "The game's names for this car's parts aren't known, so the options are numbered in the mod shop's order. Pick one, then check the look in game; Stock leaves the car's own."
+            : "Pick an option for each part; Stock leaves the car's own.";
 
     public void ResetBodyParts()
     {

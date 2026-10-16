@@ -119,8 +119,8 @@ public sealed class WeaponUnlockModel(WeaponUnlock unlock, Action onChanged) : O
 
 public sealed record WeaponUnlockGroup(string Category, IReadOnlyList<WeaponUnlockModel> Weapons);
 
-/// <summary>One character's clothes on the Unlocks tab.</summary>
-public sealed class WardrobeModel(Wardrobe wardrobe, Action onChanged) : Observable
+/// <summary>One character's clothes on the Unlocks tab: what they own and what they're wearing now.</summary>
+public sealed class WardrobeModel(Wardrobe wardrobe, Outfit? outfit, Action onChanged) : Observable
 {
     public string Name => wardrobe.Character;
     public ImageSource? Portrait => GamePictures.Character(wardrobe.Character);
@@ -129,6 +129,18 @@ public sealed class WardrobeModel(Wardrobe wardrobe, Action onChanged) : Observa
 
     public IReadOnlyList<ClothingCategoryModel> Categories { get; } =
         wardrobe.Categories.Select(c => new ClothingCategoryModel(c, onChanged)).ToList();
+
+    /// <summary>One drop-down per clothing slot; wearing an item also adds it to the wardrobe, so the totals update.</summary>
+    public IReadOnlyList<OutfitSlotModel> Wearing => _wearing ??= outfit?.Slots.Select(s => new OutfitSlotModel(s, () =>
+    {
+        onChanged();
+        Refresh();
+        foreach (var c in Categories) c.Refresh();
+    })).ToList() ?? [];
+
+    private IReadOnlyList<OutfitSlotModel>? _wearing;
+
+    public Visibility WearingVisibility => Wearing.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
     public void OwnAll()
     {
@@ -139,6 +151,41 @@ public sealed class WardrobeModel(Wardrobe wardrobe, Action onChanged) : Observa
     }
 
     public override string ToString() => Name;
+}
+
+/// <summary>One slot of what a character is wearing, as a list of the shop items for it.</summary>
+public sealed class OutfitSlotModel : Observable
+{
+    private const string Nothing = "Nothing", NotSold = "Something the shops don't sell";
+    private readonly OutfitSlot _slot;
+    private readonly Action _onChanged;
+
+    public OutfitSlotModel(OutfitSlot slot, Action onChanged)
+    {
+        (_slot, _onChanged) = (slot, onChanged);
+        var names = new List<string>();
+        if (slot.IsProp) names.Add(Nothing);
+        if (slot.Current == null && !slot.IsEmpty) names.Add(NotSold);
+        names.AddRange(slot.Options.Select(o => o.Name));
+        Options = names;
+    }
+
+    public string Label => _slot.Label;
+    public IReadOnlyList<string> Options { get; }
+
+    public string Selected
+    {
+        get => _slot.Current?.Name ?? (_slot.IsEmpty ? Nothing : NotSold);
+        set
+        {
+            if (value == Selected) return;
+            if (value == Nothing) _slot.Wear(null);
+            else if (_slot.Options.FirstOrDefault(o => o.Name == value) is { } item) _slot.Wear(item);
+            else return;
+            _onChanged();
+            Raise(nameof(Selected));
+        }
+    }
 }
 
 /// <summary>One kind of clothing (shoes, hatsâ€¦) with how much of it a character owns.</summary>

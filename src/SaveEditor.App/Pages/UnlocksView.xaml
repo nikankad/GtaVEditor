@@ -98,6 +98,22 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                     <Button Content="Own every item the shops sell" HorizontalAlignment="Left" Click="OwnClothes_Click"/>
+                                    <StackPanel Visibility="{Binding WearingVisibility}" Margin="0,14,0,0">
+                                        <TextBlock Text="Wearing now" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                                        <TextBlock Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,6"
+                                                   Text="What the character has on when the save loads. A chosen item is also added to their wardrobe. Some tops only look right with a matching shirt underneath."/>
+                                        <ItemsControl ItemsSource="{Binding Wearing}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel Margin="0,2">
+                                                        <TextBlock Text="{Binding Label}" Width="130" VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"/>
+                                                        <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"/>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

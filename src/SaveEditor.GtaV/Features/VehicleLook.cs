@@ -292,6 +292,45 @@ public sealed class VehicleLook
         }
     }
 
+    // ---- Horn ----
+
+    /// <summary>The mod shop's horns in the game's order (the reference editor's horn list, without stock).</summary>
+    public static IReadOnlyList<string> HornNames { get; } =
+    [
+        "Truck horn", "Cop horn", "Clown horn", "Musical horn 1", "Musical horn 2", "Musical horn 3", "Musical horn 4",
+        "Musical horn 5", "Sad trombone", "Classical horn 1", "Classical horn 2", "Classical horn 3", "Classical horn 4",
+        "Classical horn 5", "Classical horn 6", "Classical horn 7", "Scale: Do", "Scale: Re", "Scale: Mi", "Scale: Fa",
+        "Scale: Sol", "Scale: La", "Scale: Ti", "Scale: Do (high)", "Jazz horn 1", "Jazz horn 2", "Jazz horn 3",
+        "Jazz horn loop", "Star Spangled Banner 1", "Star Spangled Banner 2", "Star Spangled Banner 3",
+        "Star Spangled Banner 4", "Classical horn 8", "Classical horn loop 1", "Classical horn loop 2",
+        "Classical horn 8 (repeat)", "Classical horn loop 1 (repeat)", "Classical horn loop 2 (repeat)", "Halloween organ 1",
+        "Halloween organ 1, version 2", "Halloween organ 2", "Halloween organ 2, version 2", "San Andreas loop",
+        "San Andreas loop 2", "Liberty City loop", "Liberty City loop 2", "Festive loop 1", "Festive loop 1, hidden",
+        "Festive loop 2", "Festive loop 2, hidden", "Festive loop 3", "Festive loop 3, hidden", "Air horn 1",
+        "Air horn 1, short", "Air horn 2", "Air horn 2, short", "Air horn 3", "Air horn 3, short",
+    ];
+
+    /// <summary>
+    /// How many horns the editor can offer: as many as fit before the stat part that follows them in the car's kit. Older
+    /// kits keep only the first nine horns there (the rest were added after the suspension, at positions not known).
+    /// </summary>
+    public int HornCount =>
+        HasModKit && Info is { HornStart: >= 0 } i ? Math.Min(HornNames.Count, RoomAfter(i.HornStart)) : 0;
+
+    /// <summary>True when the horn can be changed: the kit has horns and the saved one is stock or one of them.</summary>
+    public bool HasHorn => HornCount > 0 && Mod("horn") is var v && (v == Stock || (v >= Info!.HornStart && v < Info.HornStart + HornCount));
+
+    /// <summary>The horn's position in <see cref="HornNames"/>, or -1 for the car's own.</summary>
+    public int Horn
+    {
+        get => HasHorn && Mod("horn") is var v && v != Stock ? v - Info!.HornStart : -1;
+        set
+        {
+            if (!HasHorn) throw new InvalidOperationException("This car's horn can't be changed by the editor.");
+            SetMod("horn", value < 0 || value >= HornCount ? Stock : Info!.HornStart + value);
+        }
+    }
+
     // ---- Body parts and liveries (lists known per model) ----
 
     /// <summary>The parts this car has named options for (spoilers, bumpers and so on) that the editor can offer.</summary>
@@ -356,6 +395,7 @@ public sealed class VehicleLook
         if (NeonLeft || NeonRight || NeonFront || NeonBack) parts.Add("neon");
         if (HasModKit && WheelDesign != Stock) parts.Add(WheelDesigns(WheelType).FirstOrDefault(w => w.Value == WheelDesign)?.Name + " wheels");
         if (Livery >= 0) parts.Add(Liveries[Livery] + " livery");
+        if (Horn >= 0) parts.Add(HornNames[Horn]);
         if (FullyUpgraded) parts.Add("fully upgraded");
         return string.Join(", ", parts);
     }

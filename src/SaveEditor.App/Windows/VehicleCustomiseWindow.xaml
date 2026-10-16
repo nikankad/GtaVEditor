@@ -218,6 +218,17 @@
                         </StackPanel>
                     </Border>
 
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding HornVisibility}">
+                        <StackPanel>
+                            <TextBlock Text="Horn" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                            <DockPanel>
+                                <TextBlock Text="Horn" Style="{StaticResource FieldLabel}" Width="120"/>
+                                <ComboBox Style="{StaticResource Field}" ItemsSource="{Binding HornNames}" SelectedIndex="{Binding Horn}"/>
+                            </DockPanel>
+                            <TextBlock Style="{StaticResource Note}" Text="{Binding HornNote}" Visibility="{Binding HornNoteVisibility}" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
                     <Border Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="{Binding PartsVisibility}">
                         <StackPanel>
                             <DockPanel Margin="0,0,0,8">

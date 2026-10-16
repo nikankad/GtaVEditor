@@ -40,6 +40,9 @@ public sealed class VehicleInfo
 
     public IReadOnlyList<PartOptions> Parts { get; internal set; } = [];
 
+    /// <summary>True when the game's option names for this car aren't known, so its parts are offered as numbered options.</summary>
+    public bool PartsNumbered { get; internal set; }
+
     /// <summary>The liveries the car can wear, in the order the game lists them (without "none").</summary>
     public IReadOnlyList<string> Liveries { get; internal set; } = [];
 
@@ -52,6 +55,18 @@ public sealed class VehicleInfo
 /// <summary>Per-model vehicle facts, read from the editor's embedded data file.</summary>
 public static class VehicleData
 {
+    // Mod shop names of the visible part slots, for cars whose own part names aren't known. Declared before ByHash,
+    // which uses it while loading.
+    private static readonly Dictionary<int, string> PartLabels = new()
+    {
+        [0] = "Spoiler", [1] = "Front bumper", [2] = "Rear bumper", [3] = "Side skirts", [4] = "Exhaust", [5] = "Roll cage",
+        [6] = "Grille", [7] = "Hood", [8] = "Left fender", [9] = "Right fender", [10] = "Roof", [25] = "Plate holder",
+        [26] = "Vanity plate", [27] = "Trim design", [28] = "Ornaments", [29] = "Dashboard", [30] = "Dials",
+        [31] = "Door speakers", [32] = "Seats", [33] = "Steering wheel", [34] = "Shift lever", [35] = "Plaques",
+        [36] = "Speakers", [37] = "Trunk", [38] = "Hydraulics", [39] = "Engine block", [40] = "Air filter", [41] = "Struts",
+        [42] = "Arch covers", [43] = "Aerials", [44] = "Trim", [45] = "Fuel tank", [46] = "Left door", [47] = "Right door",
+    };
+
     private static readonly Dictionary<uint, VehicleInfo> ByHash = Load();
 
     public static int Count => ByHash.Count;
@@ -69,6 +84,7 @@ public static class VehicleData
         var vehicles = new Dictionary<uint, VehicleInfo>();
         var parts = new Dictionary<uint, List<PartOptions>>();
         var liveries = new Dictionary<uint, (int Start, string[] Names)>();
+        var numberedModels = new HashSet<uint>();
         while (reader.ReadLine() is { } line)
         {
             if (line.Length < 3 || line[0] == '#') continue;
@@ -87,10 +103,17 @@ public static class VehicleData
                 case "L":
                     liveries[hash] = (int.Parse(f[2], inv), f[3].Split(';'));
                     break;
+                case "N":
+                    if (!parts.TryGetValue(hash, out var numbered)) parts[hash] = numbered = [];
+                    int type = int.Parse(f[2], inv), count = int.Parse(f[4], inv);
+                    numbered.Add(new PartOptions(type, PartLabels.GetValueOrDefault(type, "Part"), int.Parse(f[3], inv),
+                        Enumerable.Range(1, count).Select(n => $"Option {n}").ToArray()));
+                    numberedModels.Add(hash);
+                    break;
             }
         }
         foreach (var (hash, list) in parts)
-            if (vehicles.TryGetValue(hash, out var v)) v.Parts = list;
+            if (vehicles.TryGetValue(hash, out var v)) (v.Parts, v.PartsNumbered) = (list, numberedModels.Contains(hash));
         foreach (var (hash, livery) in liveries)
             if (vehicles.TryGetValue(hash, out var v)) (v.LiveryStart, v.Liveries) = livery;
         return vehicles;

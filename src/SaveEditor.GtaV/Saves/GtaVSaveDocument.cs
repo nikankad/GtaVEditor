@@ -117,6 +117,11 @@ public sealed class GtaVSaveDocument
     /// <summary>Each character's owned clothes.</summary>
     public IReadOnlyList<Wardrobe> Wardrobes => _wardrobes ??= Wardrobe.Load(Pso);
 
+    private IReadOnlyList<Outfit>? _outfits;
+
+    /// <summary>What each character is wearing now.</summary>
+    public IReadOnlyList<Outfit> Outfits => _outfits ??= Outfit.Load(Pso);
+
     private DirectorModeUnlocks? _director;
 
     /// <summary>The Director Mode actors that are unlocked.</summary>
