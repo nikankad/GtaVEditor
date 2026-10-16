@@ -161,7 +161,7 @@ public sealed class GtaVSaveDocument
 
     public static GtaVSaveDocument Load(string path, byte[] key)
     {
-        var file = SgtaFile.Read(File.ReadAllBytes(path));
+        var file = SgtaFile.Read(SgtaFile.ReadAllBytesLimited(path));
         var body = BlockContainer.Parse(SaveCrypto.Decrypt(file.EncryptedBody, key));
         return new GtaVSaveDocument(path, file, body, key);
     }
@@ -174,11 +174,25 @@ public sealed class GtaVSaveDocument
 
     public void Save(string path)
     {
+        path = Path.GetFullPath(path);
         var bytes = ToBytes();
         // Write to a temp file first so a crash can never leave a half-written save.
-        var tmp = path + ".tmp";
-        File.WriteAllBytes(tmp, bytes);
-        File.Move(tmp, path, overwrite: true);
+        var tmp = path + $".{Guid.NewGuid():N}.tmp";
+        bool created = false;
+        try
+        {
+            using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                created = true;
+                stream.Write(bytes);
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(tmp, path, overwrite: true);
+        }
+        finally
+        {
+            if (created && File.Exists(tmp)) File.Delete(tmp);
+        }
         FilePath = Path.GetFullPath(path);
         Rebase();
     }
