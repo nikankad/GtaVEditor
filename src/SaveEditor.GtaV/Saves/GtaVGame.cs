@@ -14,7 +14,9 @@ public sealed class GtaVGame(KeyStore keys)
     {
         var profiles = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Rockstar Games", "GTA V", "Profiles");
-        return Directory.Exists(profiles) ? Directory.GetDirectories(profiles) : [];
+        try { return Directory.Exists(profiles) ? Directory.GetDirectories(profiles) : []; }
+        catch (IOException) { return []; }
+        catch (UnauthorizedAccessException) { return []; }
     }
 
     /// <summary>Cheap check (name and header only) whether a file looks like a GTA V save.</summary>
