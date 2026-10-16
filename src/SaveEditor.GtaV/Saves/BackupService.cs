@@ -40,12 +40,13 @@ public sealed class BackupService(string backupRoot)
         string? original = null;
         try
         {
-            if (File.Exists(path + ".json")) original = JsonSerializer.Deserialize<string>(File.ReadAllText(path + ".json"));
+            if (File.Exists(path + ".json")) original = JsonSerializer.Deserialize<string>(SgtaFile.ReadAllBytesLimited(path + ".json", 16 * 1024));
             if (original != null && !Path.IsPathFullyQualified(original)) original = null;
         }
         catch (IOException) { }
         catch (UnauthorizedAccessException) { }
         catch (JsonException) { }
+        catch (SaveFormatException) { }
         catch (ArgumentException) { original = null; }
         var parts = Path.GetFileName(path).Split('.');
         var created = parts.Length > 1 && DateTime.TryParseExact(parts[1], "yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture,
