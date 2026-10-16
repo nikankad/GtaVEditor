@@ -1,7 +1,10 @@
-# Builds the client and publishes it as a GitHub release whenever a version tag is pushed:
+# Builds the client and publishes it as a GitHub release on every push to main, merged pull requests included.
 #
-#   git tag v0.1.0
-#   git push origin v0.1.0
+# The version comes from <Version> in Directory.Build.props. A version that has no release yet is published as is;
+# after that each push bumps the patch number past the newest v* tag (0.1.0, 0.1.1, 0.1.2, ...). Raise <Version>
+# (for example to 0.2.0) to start a new minor or major version. The release creates its tag on the pushed commit.
+# A commit that already has a version tag is not released again, and a run for a commit that is no longer the head
+# of main is skipped, because the newer commit's run releases it.
 #
 # The save encryption key is never in the repository. It comes from the repository secret GTAV_SAVE_KEY
 # (the 32-byte key file, base64-encoded). It is written to the gitignored src/SaveEditor.GtaV/Data/gtav-pc.key
@@ -11,52 +14,74 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Existing version tag to build (for example v0.1.0)'
-        required: true
-        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ inputs.tag || github.ref_name }}
+  group: release
   cancel-in-progress: false
 
 jobs:
   release:
+    if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
     timeout-minutes: 20
     permissions:
       contents: write
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
-      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - name: Validate tag
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Pick the version
+        id: version
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$') {
-            throw 'Use a version tag such as v0.1.0 or v0.1.1-beta.1.'
+          $head = gh api "repos/$env:GITHUB_REPOSITORY/commits/main" --jq .sha
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the head of main.' }
+          if ($head -ne $env:GITHUB_SHA) {
+            "Skipping: main has moved on to $head, and that commit's run publishes the release."
+            'skip=true' >> $env:GITHUB_OUTPUT
+            exit 0
           }
-          gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:RELEASE_TAG" --silent
-          if ($LASTEXITCODE -ne 0) { throw 'The version tag must already exist.' }
 
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: refs/tags/${{ inputs.tag || github.ref_name }}
-          persist-credentials: false
+          $text = (Select-Xml -Path Directory.Build.props -XPath '//Version').Node.InnerText
+          if ($text -notmatch '^\d+\.\d+\.\d+$') { throw "<Version> in Directory.Build.props must look like 0.1.0, not '$text'." }
+          $base = [version]$text
+
+          $lines = gh api "repos/$env:GITHUB_REPOSITORY/tags?per_page=100" --paginate --jq '.[] | .name + " " + .commit.sha'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not list the existing tags.' }
+          $tags = foreach ($line in $lines) {
+            $name, $sha = $line -split ' '
+            if ($name -match '^v(\d+\.\d+\.\d+)$') { [pscustomobject]@{ Name = $name; Version = [version]$Matches[1]; Sha = $sha } }
+          }
+
+          $existing = $tags | Where-Object Sha -eq $env:GITHUB_SHA | Select-Object -First 1
+          if ($existing) {
+            "Skipping: this commit is already released as $($existing.Name)."
+            'skip=true' >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $latest = ($tags | Sort-Object Version -Descending | Select-Object -First 1).Version
+          $next = if (-not $latest -or $base -gt $latest) { $base } else { [version]::new($latest.Major, $latest.Minor, $latest.Build + 1) }
+          "Releasing v$next (Directory.Build.props says $base; newest tag: $(if ($latest) { "v$latest" } else { 'none' }))."
+          "tag=v$next" >> $env:GITHUB_OUTPUT
 
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        if: steps.version.outputs.skip != 'true'
         with:
           global-json-file: global.json
 
       - name: Restore and check
+        if: steps.version.outputs.skip != 'true'
         shell: pwsh
         run: |
           dotnet restore SaveEditor.sln --locked-mode
@@ -65,9 +90,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Regression checks failed.' }
 
       - name: Publish with the save key built in
+        if: steps.version.outputs.skip != 'true'
         shell: pwsh
         env:
           GTAV_SAVE_KEY: ${{ secrets.GTAV_SAVE_KEY }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           if (-not $env:GTAV_SAVE_KEY) {
             throw 'The GTAV_SAVE_KEY repository secret is not set. A release without the key could not open saves.'
@@ -86,10 +113,12 @@ jobs:
           }
 
       - name: Launch packaged app
+        if: steps.version.outputs.skip != 'true'
         shell: pwsh
         run: ./.github/checks/Startup.ps1 -Executable publish/GtaVSaveEditor.exe
 
       - name: Check the EXE and write its checksum
+        if: steps.version.outputs.skip != 'true'
         shell: pwsh
         run: |
           $exe = Get-Item 'publish/GtaVSaveEditor.exe'
@@ -100,10 +129,12 @@ jobs:
           "{0:N1} MB, SHA-256 {1}" -f ($exe.Length / 1MB), $hash
 
       - name: Create the release
+        if: steps.version.outputs.skip != 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
           $notes = @(
             'Download **GtaVSaveEditor.exe** and run it. Nothing else to install: the .NET runtime and the save key are built in.',
@@ -114,8 +145,9 @@ jobs:
           ) -join "`n"
           $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
           [IO.File]::WriteAllText($notesPath, $notes)
-          $arguments = @('release', 'create', $env:RELEASE_TAG, '--verify-tag', '--title', "GTA V Save Editor $env:RELEASE_TAG", '--notes-file', $notesPath)
-          if ($env:RELEASE_TAG.Contains('-') -or $env:RELEASE_TAG.StartsWith('v0.')) { $arguments += '--prerelease' }
+          $arguments = @('release', 'create', $env:RELEASE_TAG, '--target', $env:GITHUB_SHA, '--title', "GTA V Save Editor $env:RELEASE_TAG",
+            '--notes-file', $notesPath, '--generate-notes')
+          if ($env:RELEASE_TAG.StartsWith('v0.')) { $arguments += '--prerelease' }
           $arguments += @('publish/GtaVSaveEditor.exe', 'publish/SHA256SUMS.txt', 'publish/LICENSE', 'publish/NOTICE')
           gh @arguments
-          if ($LASTEXITCODE -ne 0) { throw 'Release creation failed; check for an existing release with this tag.' }
+          if ($LASTEXITCODE -ne 0) { throw 'Release creation failed.' }
