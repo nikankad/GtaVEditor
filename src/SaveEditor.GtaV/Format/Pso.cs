@@ -228,6 +228,10 @@ public sealed class PsoNode
     public bool IsNamed => PsoNames.IsKnown(NameHash) || (Name.StartsWith('[') && Parent?.IsNamed == true);
 
     public int Offset { get; }
+
+    /// <summary>The document this node reads from, for features that edit bytes the tree doesn't expand (maps, packed arrays).</summary>
+    internal PsoDocument Document => _doc;
+
     public string Path { get; }
     public int Depth { get; }
     public PsoNode? Parent { get; private init; }

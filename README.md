@@ -17,8 +17,8 @@ PC story-mode saves only. GTA Online and console saves are unsupported, and GTA 
 - Money, skills, health, armor, wanted level, character locations and the game clock.
 - Story missions, heist choices, crew and Strangers & Freaks missions.
 - The 100% checklist and collectibles, with an interactive map.
-- Garage vehicles, aircraft, boats and businesses.
-- Weapons, ammo, clothing, shop stock, Director Mode actors and Flight School medals.
+- Garage vehicles, aircraft, boats and businesses, and garage car customisation: paint, number plate, window tint, neon, rims, tyre smoke, upgrades, body parts and liveries.
+- Weapons, ammo, attachments and tints, clothes by kind, shop stock, Director Mode actors and Flight School medals.
 - Individual stats and story flags.
 
 The editor finds local saves, lets you search across its pages, and shows each change before writing it. You can undo changes individually or browse and restore automatic backups.

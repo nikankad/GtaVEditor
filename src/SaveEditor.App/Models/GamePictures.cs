@@ -28,6 +28,28 @@ public static class GamePictures
 
     public static ImageSource? Weapon(string id) => Get($"weapons/{id}.png");
 
+    /// <summary>A vehicle's picture from the game, by its model hash.</summary>
+    public static ImageSource? Vehicle(uint hash) => Get($"vehicles/{hash:X8}.jpg");
+
+    /// <summary>A vehicle's picture at tile size, for grids that show hundreds of them.</summary>
+    public static ImageSource? VehicleThumb(uint hash) => Get($"vehicles/{hash:X8}.jpg", decodeWidth: 200);
+
+    /// <summary>A rim design's picture; <paramref name="type"/> is the wheel type number and the name is the design's name.</summary>
+    public static ImageSource? Rim(int type, string name) => Get($"rims/{type}/{Simple(name)}.png");
+
+    public static ImageSource? Plate(int style) => Get($"plates/{style}.png");
+
+    /// <summary>A livery as the game pictures it; <paramref name="index"/> is its position in the car's livery list.</summary>
+    public static ImageSource? Livery(uint hash, int index) => Get($"liveries/{hash:X8}/{index}.jpg");
+
+    /// <summary>The picture of one weapon attachment, by the attachment's bit; null when the game has none for it.</summary>
+    public static ImageSource? WeaponPart(string weaponId, int bit) => Get($"weaponparts/{weaponId}/{bit}.png");
+
+    /// <summary>The engraved finish of a weapon (its "Luxury" or gilded finish).</summary>
+    public static ImageSource? WeaponFinish(string weaponId) => Get($"weaponparts/{weaponId}/finish.png");
+
+    private static string Simple(string name) => new string(name.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
+
     public static ImageSource? Mission(string code) => Get($"missions/{code}.jpg");
 
     public static ImageSource? Stranger(int index) => Get($"strangers/{index}.jpg");
@@ -83,10 +105,11 @@ public static class GamePictures
         return panel;
     }
 
-    private static ImageSource? Get(string path)
+    private static ImageSource? Get(string path, int decodeWidth = 0)
     {
         path = path.ToLowerInvariant();
-        if (Cache.TryGetValue(path, out var cached)) return cached;
+        var key = decodeWidth > 0 ? $"{path}@{decodeWidth}" : path;
+        if (Cache.TryGetValue(key, out var cached)) return cached;
         ImageSource? image = null;
         if (Available.Contains(Root + path))
         {
@@ -94,11 +117,12 @@ public static class GamePictures
             bitmap.BeginInit();
             bitmap.UriSource = new Uri($"pack://application:,,,/GtaVSaveEditor;component/{Root}{path}");
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
             bitmap.EndInit();
             bitmap.Freeze();
             image = bitmap;
         }
-        return Cache[path] = image;
+        return Cache[key] = image;
     }
 
     private static HashSet<string> LoadIndex()

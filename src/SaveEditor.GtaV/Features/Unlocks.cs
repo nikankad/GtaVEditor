@@ -60,6 +60,40 @@ public static class WeaponUnlocks
 }
 
 /// <summary>
+/// One kind of clothing for one character (hairstyles, shoesâ€¦): the save keeps, for each group of 32 items, a bitset of
+/// the items the shops offer (AVAILABLE) and of those the character owns (ACQUIRED). The items' names aren't in the
+/// save, so they are handled by kind.
+/// </summary>
+public sealed class ClothingCategory
+{
+    private readonly IReadOnlyList<(PsoNode Available, PsoNode Acquired)> _groups;
+
+    internal ClothingCategory(string label, IReadOnlyList<(PsoNode, PsoNode)> groups) => (Label, _groups) = (label, groups);
+
+    public string Label { get; }
+    public int Owned => _groups.Sum(g => BitOperations.PopCount((uint)(g.Acquired.GetInt32() & g.Available.GetInt32())));
+    public int Total => _groups.Sum(g => BitOperations.PopCount((uint)g.Available.GetInt32()));
+
+    /// <summary>Puts every item the shops offer in this kind into the wardrobe.</summary>
+    public void OwnAll()
+    {
+        foreach (var (available, acquired) in _groups) acquired.SetInt32(acquired.GetInt32() | available.GetInt32());
+    }
+
+    /// <summary>The owned bitsets, for putting the wardrobe back as it was.</summary>
+    public int[] Snapshot() => _groups.Select(g => g.Acquired.GetInt32()).ToArray();
+
+    /// <summary>How many items a snapshot of the owned bitsets holds.</summary>
+    public int OwnedIn(int[] snapshot) =>
+        _groups.Select((g, i) => BitOperations.PopCount((uint)(snapshot[i] & g.Available.GetInt32()))).Sum();
+
+    public void Restore(int[] snapshot)
+    {
+        for (int i = 0; i < _groups.Count && i < snapshot.Length; i++) _groups[i].Acquired.SetInt32(snapshot[i]);
+    }
+}
+
+/// <summary>
 /// One character's clothes. COMPONENTS_ARRAY holds, per clothing group, bitsets of items the shops offer (AVAILABLE)
 /// and items the character owns (ACQUIRED); owned items appear in the wardrobe.
 /// </summary>
@@ -67,9 +101,41 @@ public sealed class Wardrobe
 {
     private readonly IReadOnlyList<(PsoNode Available, PsoNode Acquired)> _groups;
 
-    internal Wardrobe(string character, IReadOnlyList<(PsoNode, PsoNode)> groups) => (Character, _groups) = (character, groups);
+    // The save's group names ("TORSO3", "PROP1"â€¦) belong to the game's clothing slots; groups of one slot are one kind here.
+    // Slots whose purpose isn't certain are gathered under "Other accessories".
+    private static readonly (string Label, Func<string, bool> Match)[] Kinds =
+    [
+        ("Hairstyles", n => n.StartsWith("HAIR")), ("Beards and stubble", n => n.StartsWith("BEARD")), ("Heads", n => n.StartsWith("HEAD")),
+        ("Shirts and torsos", n => n.StartsWith("TORSO")), ("Jackets and tops", n => n.StartsWith("JBIB")),
+        ("Trousers and shorts", n => n.StartsWith("LEGS")), ("Shoes", n => n.StartsWith("FEET")),
+        ("Hats and helmets", n => n == "PROP0"), ("Glasses", n => n == "PROP1"), ("Ear pieces", n => n == "PROP2"),
+        ("Outfits", n => n.StartsWith("OUTF")),
+    ];
+
+    internal Wardrobe(string character, IReadOnlyList<(string Name, PsoNode Available, PsoNode Acquired)> groups)
+    {
+        Character = character;
+        _groups = groups.Select(g => (g.Available, g.Acquired)).ToList();
+        var categories = new List<ClothingCategory>();
+        var used = new HashSet<string>();
+        foreach (var (label, match) in Kinds)
+        {
+            var members = groups.Where(g => match(g.Name)).ToList();
+            members.ForEach(m => used.Add(m.Name));
+            if (members.Sum(m => BitOperations.PopCount((uint)m.Available.GetInt32())) > 0)
+                categories.Add(new ClothingCategory(label, members.Select(m => (m.Available, m.Acquired)).ToList()));
+        }
+        var rest = groups.Where(g => !used.Contains(g.Name)).ToList();
+        if (rest.Sum(m => BitOperations.PopCount((uint)m.Available.GetInt32())) > 0)
+            categories.Add(new ClothingCategory("Other accessories", rest.Select(m => (m.Available, m.Acquired)).ToList()));
+        Categories = categories;
+    }
 
     public string Character { get; }
+
+    /// <summary>The kinds of clothing the character has, each with how many items they own.</summary>
+    public IReadOnlyList<ClothingCategory> Categories { get; }
+
     public int Owned => _groups.Sum(g => BitOperations.PopCount((uint)(g.Acquired.GetInt32() & g.Available.GetInt32())));
     public int Total => _groups.Sum(g => BitOperations.PopCount((uint)g.Available.GetInt32()));
 
@@ -88,12 +154,12 @@ public sealed class Wardrobe
         {
             var character = root.Children.FirstOrDefault(n => n.NameHash == PsoNames.Hash($"SP{c}"));
             if (character == null) continue;
-            var groups = new List<(PsoNode, PsoNode)>();
+            var groups = new List<(string, PsoNode, PsoNode)>();
             foreach (var g in character.Children.Where(n => n.IsStruct))
             {
                 var available = g.Children.FirstOrDefault(n => n.NameHash == PsoNames.Hash("AVAILABLE") && n.Type == PsoType.SInt);
                 var acquired = g.Children.FirstOrDefault(n => n.NameHash == PsoNames.Hash("ACQUIRED") && n.Type == PsoType.SInt);
-                if (available != null && acquired != null) groups.Add((available, acquired));
+                if (available != null && acquired != null) groups.Add((g.Name, available, acquired));
             }
             if (groups.Count > 0) list.Add(new Wardrobe(StatCatalog.Characters[c], groups));
         }
@@ -101,7 +167,6 @@ public sealed class Wardrobe
         return list;
     }
 }
-
 /// <summary>
 /// The Director Mode actor unlock bitsets. The "all unlocked" values are the ones in a real 100% save, where every
 /// story, heist, special and animal actor is available.

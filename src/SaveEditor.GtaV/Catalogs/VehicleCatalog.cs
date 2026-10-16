@@ -17,7 +17,7 @@ public static class VehicleCatalog
     public static VehicleModel? Find(uint hash) => ByHash.GetValueOrDefault(hash);
 
     /// <summary>Display name for a model hash, or a neutral description for models the catalog doesn't list.</summary>
-    public static string NameOf(uint hash) => Find(hash)?.Name ?? "Other vehicle";
+    public static string NameOf(uint hash) => Find(hash)?.Name ?? VehicleData.Find(hash)?.Name ?? "Other vehicle";
 
     private static List<VehicleModel> Build()
     {

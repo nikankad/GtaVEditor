@@ -542,19 +542,26 @@
                                                             <DockPanel>
                                                                 <Button DockPanel.Dock="Right" Content="Empty" Style="{StaticResource LinkButton}"
                                                                         Click="EmptySpace_Click" IsEnabled="{Binding CanEmpty}"/>
+                                                                <Button DockPanel.Dock="Right" Content="Customise…" Style="{StaticResource LinkButton}" Margin="0,0,12,0"
+                                                                        Click="CustomiseSpace_Click" IsEnabled="{Binding CanEmpty}"
+                                                                        ToolTip="Paint, window tint, neon, wheels and upgrades"/>
                                                                 <TextBlock>
                                                                     <Run Text="{Binding Space, Mode=OneWay}" Foreground="{StaticResource MutedBrush}"/>
                                                                     <Run Text="  "/>
                                                                     <Run Text="{Binding VehicleName, Mode=OneWay}" FontWeight="SemiBold"/>
                                                                 </TextBlock>
                                                             </DockPanel>
-                                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0" IsEnabled="{Binding CanPlace}">
-                                                                <ComboBox ItemsSource="{Binding Vehicles}" SelectedItem="{Binding Vehicle}" Width="210"
-                                                                          ToolTip="Vehicle to park here"/>
-                                                                <ComboBox ItemsSource="{Binding Colours}" SelectedItem="{Binding Colour}" Width="110" Margin="6,0"
-                                                                          ToolTip="Paint colour"/>
-                                                                <Button Content="Park here" Click="ParkHere_Click"/>
-                                                            </StackPanel>
+                                                            <!-- The vehicle as the game pictures it, with its plate. -->
+                                                            <DockPanel Margin="0,4,0,0" Visibility="{Binding PictureVisibility}">
+                                                                <Border DockPanel.Dock="Right" VerticalAlignment="Bottom" Padding="7,1" CornerRadius="3" Background="#1E261F"
+                                                                        BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+                                                                    <TextBlock Text="{Binding PlateText, Mode=OneWay}" FontFamily="Consolas" FontSize="13"/>
+                                                                </Border>
+                                                                <Image Source="{Binding Picture}" Height="56" HorizontalAlignment="Left" Stretch="Uniform"/>
+                                                            </DockPanel>
+                                                            <Button Content="{Binding ChooseText}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                                                    Click="ChooseVehicle_Click" IsEnabled="{Binding CanPlace}"
+                                                                    ToolTip="Pick a car, motorcycle or truck by its picture and park it here"/>
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -592,16 +599,10 @@
                                                                 </TextBlock>
                                                             </DockPanel>
                                                             <TextBlock Text="{Binding Place}" Style="{StaticResource Muted}" FontSize="11"/>
-                                                            <Grid Margin="0,4,0,0">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="76"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <ComboBox ItemsSource="{Binding Vehicles}" SelectedItem="{Binding Vehicle}"/>
-                                                                <ComboBox Grid.Column="1" ItemsSource="{Binding Colours}" SelectedItem="{Binding Colour}" Margin="4,0"/>
-                                                                <Button Grid.Column="2" Content="Give" Click="GivePropertyVehicle_Click"/>
-                                                            </Grid>
+                                                            <Image Source="{Binding Picture}" Style="{StaticResource GamePicture}" Height="56"
+                                                                   HorizontalAlignment="Left" Margin="0,4,0,0"/>
+                                                            <Button Content="{Binding ChooseText}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                                                    Click="ChoosePropertyVehicle_Click" ToolTip="Pick one by its picture"/>
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -726,11 +727,13 @@
                     <StackPanel DockPanel.Dock="Top">
                         <TextBlock Text="Weapons" Style="{StaticResource PageTitle}" FontSize="20"/>
                         <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,14"
-                                   Text="Tick a weapon to give it, untick to take it away. Weapons you give come with full ammo."/>
+                                   Text="Tick a weapon to give it, untick to take it away. Weapons you give come with full ammo. Owned guns show their tint and attachments."/>
                         <StackPanel x:Name="CharacterPicker" Orientation="Horizontal" Margin="0,0,0,12"/>
                         <WrapPanel>
                             <Button Content="Give all weapons" Click="GiveAll_Click" Margin="0,0,6,6"/>
                             <Button Content="Fill all ammo" Click="FillAmmo_Click" Margin="0,0,6,6"/>
+                            <Button Content="Fit all attachments" Click="FitAttachments_Click" Margin="0,0,6,6"
+                                    ToolTip="The biggest clip, the best scope, and the flashlight, suppressor and grip on every owned weapon"/>
                             <Button Content="Remove all weapons" Click="RemoveAll_Click" Margin="0,0,6,6"/>
                             <CheckBox x:Name="AllCharactersBox" Content="Apply these buttons to all three characters"
                                       VerticalAlignment="Center" Margin="10,0,0,6"/>
@@ -781,6 +784,28 @@
                                                                         Click="WeaponMax_Click"/>
                                                             </StackPanel>
                                                             <TextBlock Text="{Binding AmmoError}" Style="{StaticResource ErrorText}" Margin="20,2,0,0"/>
+                                                            <StackPanel Orientation="Horizontal" Margin="20,6,0,0" Visibility="{Binding TintVisibility}">
+                                                                <TextBlock Text="Tint" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                                <ComboBox ItemsSource="{Binding Tints}" SelectedIndex="{Binding Tint}" Width="110"
+                                                                          ToolTip="The weapon's paint colour"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="20,8,0,0" Visibility="{Binding AttachmentsVisibility}">
+                                                                <TextBlock Text="{Binding AttachmentsTitle}" Style="{StaticResource Muted}" Margin="0,0,0,2"/>
+                                                                <ItemsControl ItemsSource="{Binding Attachments}">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                                                <!-- On a light plate so dark parts such as suppressors show up. -->
+                                                                                <Border Width="46" Height="22" CornerRadius="3" Background="#D6DADC" Margin="0,0,6,0"
+                                                                                        Visibility="{Binding PictureVisibility}">
+                                                                                    <Image Source="{Binding Picture}" Margin="3,2" Stretch="Uniform"/>
+                                                                                </Border>
+                                                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsOn}" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
                                                         </StackPanel>
                                                     </Border>
                                                 </DataTemplate>

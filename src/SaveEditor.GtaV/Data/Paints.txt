@@ -1,0 +1,162 @@
+# Paints. index|type|name|hex colour
+0|Metallic|Black|080808
+1|Metallic|Graphite|0F0F0F
+2|Metallic|Black Steel|1C1E21
+3|Metallic|Dark Steel|292C2E
+4|Metallic|Silver|5A5E66
+5|Metallic|Bluish Silver|777C87
+6|Metallic|Rolled Steel|515459
+7|Metallic|Shadow Silver|323B47
+8|Metallic|Stone Silver|333333
+9|Metallic|Midnight Silver|1F2226
+10|Metallic|Cast Iron Silver|23292E
+11|Metallic|Anthracite Gray|121110
+12|Matte|Black|050505
+13|Matte|Gray|121212
+14|Matte|Light Gray|2F3233
+15|Util|Black|080808
+16|Util|Black Poly|121212
+17|Util|Dark Silver|202224
+18|Util|Silver|575961
+19|Util|Gun Metal|23292E
+20|Util|Shadow Silver|323B47
+21|Worn|Black|0F1012
+22|Worn|Graphite|212121
+23|Worn|Silver Grey|5B5D5E
+24|Worn|Silver|888A99
+25|Worn|Blue Silver|697187
+26|Worn|Shadow Silver|3B4654
+27|Metallic|Red|690000
+28|Metallic|Torino Red|8A0B00
+29|Metallic|Formula Red|6B0000
+30|Metallic|Blaze Red|611009
+31|Metallic|Grace Red|4A0A0A
+32|Metallic|Garnet Red|470E0E
+33|Metallic|Sunset Red|380C00
+34|Metallic|Cabernet Red|26030B
+35|Metallic|Candy Red|630012
+36|Metallic|Sunrise Orange|802800
+37|Metallic|Gold|6E4F2D
+38|Metallic|Orange|BD4800
+39|Matte|Red|780000
+40|Matte|Dark Red|360000
+41|Matte|Orange|AB3F00
+42|Matte|Yellow|DE7E00
+43|Util|Red|520000
+44|Util|Bright Red|8C0404
+45|Util|Garnet Red|4A1000
+46|Worn|Red|592525
+47|Worn|Golden Red|754231
+48|Worn|Dark Red|210804
+49|Metallic|Dark Green|001207
+50|Metallic|Racing Green|001A0B
+51|Metallic|Sea Green|00211E
+52|Metallic|Olive Green|1F261E
+53|Metallic|Bright Green|003805
+54|Metallic|Gasoline Green|0B4145
+55|Matte|Lime Green|418503
+56|Util|Dark Green|0F1F15
+57|Util|Green|023613
+58|Worn|Dark Green|162419
+59|Worn|Green|2A3625
+60|Worn|Sea Wash|455C56
+61|Metallic|Galaxy Blue|000D14
+62|Metallic|Dark Blue|001029
+63|Metallic|Saxon Blue|1C2F4F
+64|Metallic|Blue|001B57
+65|Metallic|Mariner Blue|3B4E78
+66|Metallic|Harbor Blue|272D3B
+67|Metallic|Diamond Blue|95B2DB
+68|Metallic|Surf Blue|3E627A
+69|Metallic|Nautical Blue|1C3140
+70|Metallic|Ultra Blue|0055C4
+71|Metallic|Schafter Purple|1A182E
+72|Metallic|Spinnaker Purple|161629
+73|Metallic|Racing Blue|0E316D
+74|Metallic|Light Blue|395A83
+75|Util|Dark Blue|09142E
+76|Util|Midnight Blue|0F1021
+77|Util|Blue|152A52
+78|Util|Sea Foam Blue|324654
+79|Util|Lightning Blue|152563
+80|Util|Maui Blue Poly|223BA1
+81|Util|Bright Blue/Slate Blue|1F1FA1
+82|Matte|Dark Blue|030E2E
+83|Matte|Blue|0F1E73
+84|Matte|Midnight Blue|001C32
+85|Worn|Dark Blue|2A3754
+86|Worn|Blue|303C5E
+87|Worn|Baby Blue|3B6796
+88|Metallic|Yellow|F5890F
+89|Metallic|Race Yellow|D9A600
+90|Metallic|Bronze|4A341B
+91|Metallic|Dew Yellow/Yellow Bird|A2A827
+92|Metallic|Lime Green|568F00
+93|Metallic|Champagne|57514B
+94|Metallic|Feltzer Brown|291B06
+95|Metallic|Creek Brown|262117
+96|Metallic|Chocolate Brown|120D07
+97|Metallic|Maple Brown|332111
+98|Metallic|Saddle Brown|3D3023
+99|Metallic|Straw Brown|5E5343
+100|Metallic|Moss Brown|37382B
+101|Metallic|Bison Brown|221918
+102|Metallic|WoodBeech Brown|575036
+103|Metallic|BeechWood Brown|241309
+104|Metallic|Sienna Brown|3B1700
+105|Metallic|Sandy Brown|6E6246
+106|Metallic|Bleached Brown|998D73
+107|Metallic|Cream|CFC0A5
+108|Util|Brown|1F1709
+109|Util|Medium Brown|3D311D
+110|Util|Light Brown|665847
+111|Metallic|Ice White|F0F0F0
+112|Metallic|Frost White|B3B9C9
+113|Worn|Honey Beige|615F55
+114|Worn|Brown|241E1A
+115|Worn|Dark Brown|171413
+116|Worn|Straw Beige|3B372F
+117|Metals|Brushed Steel|3B4045
+118|Metals|Brushed Black Steel|1A1E21
+119|Metals|Brushed Aluminium|5E646B
+120|Chrome|Chrome|D8DBDE
+121|Worn|Off White|B0B0B0
+122|Util|Off White|999999
+123|Worn|Orange|B56519
+124|Worn|Light Orange|C45C33
+125|Metallic|Pea Green/Securicor Green|47783C
+126|Worn|Taxi Yellow|BA8425
+127|Util|Police Blue|2A77A1
+128|Matte|Green|243022
+129|Matte|Brown|6B5F54
+130|Worn|Orange 2|C96E34
+131|Matte|Ice White|D9D9D9
+132|Worn|White|F0F0F0
+133|Worn|Olive Army Green|3F4228
+134|Other|Pure White|FFFFFF
+135|Rim|Hot Pink|B01259
+136|Rim|Salmon Pink|F69799
+137|Metallic|Pfister Pink|8F2F55
+138|Rim|Bright Orange|C26610
+139|Other|Green Bright|69BD45
+140|Rim|Fluorescent Blue|00AEEF
+141|Metallic|Midnight Blue|000108
+142|Metallic|Midnight Purple|050008
+143|Metallic|Wine Red|080000
+144|Other|Hunter Green|565751
+145|Metallic|Bright Purple|320642
+146|Metallic|Midnight Purple / V Dark Blue|050008
+147|Metallic|Carbon Black|080808
+148|Matte|Schafter Purple|320642
+149|Matte|Midnight Purple|050008
+150|Metallic|Lava Red|6B0B00
+151|Matte|Forest Green|121710
+152|Matte|Olive Drab|323325
+153|Matte|Dark Earth|3B352D
+154|Matte|Desert Tan|706656
+155|Matte|Foliage Green|2B302B
+156|Rim|Alloy|414347
+157|Other|Epsilon Blue|6690B5
+158|Metals|Pure Gold|47391B
+159|Metals|Brushed Gold|47391B
+160|Hidden|MP100|FFD859

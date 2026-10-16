@@ -112,7 +112,7 @@ public partial class EditorPage : UserControl, IGuardedPage
         _propertyVehicles.ForEach(s => s.Refresh());
         _properties.ForEach(p => p.Refresh());
         _statRows.ForEach(r => r.Refresh());
-        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
+        foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.RefreshAll();
         _collectibles.Refresh();
         _unlocks.Refresh();
         _flags.Refresh();
@@ -403,8 +403,14 @@ public partial class EditorPage : UserControl, IGuardedPage
         }
     }
 
-    private void GivePropertyVehicle_Click(object sender, RoutedEventArgs e) =>
-        ((sender as FrameworkElement)?.DataContext as PropertyVehicleModel)?.Park();
+    private void ChoosePropertyVehicle_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not PropertyVehicleModel slot) return;
+        var picker = new VehiclePickerWindow(slot.Vehicles, slot.Vehicle, $"{slot.Owner}: {slot.Place}", "Give") { Owner = _shell };
+        if (picker.ShowDialog() != true || picker.Vehicle == null) return;
+        (slot.Vehicle, slot.Colour) = (picker.Vehicle, picker.Colour);
+        slot.Park();
+    }
 
     private void EmptyPropertyVehicle_Click(object sender, RoutedEventArgs e) =>
         ((sender as FrameworkElement)?.DataContext as PropertyVehicleModel)?.Empty();
@@ -416,9 +422,22 @@ public partial class EditorPage : UserControl, IGuardedPage
         _properties.ForEach(p => p.Refresh());
     }
 
-    private void ParkHere_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as GarageSlotModel)?.Park();
+    private void ChooseVehicle_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not GarageSlotModel slot) return;
+        var picker = new VehiclePickerWindow(slot.Vehicles, slot.Vehicle, $"{slot.Slot.Garage}, space {slot.Slot.Number}", "Park here") { Owner = _shell };
+        if (picker.ShowDialog() != true || picker.Vehicle == null) return;
+        (slot.Vehicle, slot.Colour) = (picker.Vehicle, picker.Colour);
+        slot.Park();
+    }
 
     private void EmptySpace_Click(object sender, RoutedEventArgs e) => ((sender as FrameworkElement)?.DataContext as GarageSlotModel)?.Empty();
+
+    private void CustomiseSpace_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not GarageSlotModel { CanEmpty: true } slot) return;
+        new VehicleCustomiseWindow(slot.Slot, Changed) { Owner = _shell }.ShowDialog();
+    }
 
     // ---- Heist crew ----
 
@@ -562,6 +581,11 @@ public partial class EditorPage : UserControl, IGuardedPage
     private void FillAmmo_Click(object sender, RoutedEventArgs e)
     {
         foreach (var w in BulkTargets()) w.FillAmmo();
+    }
+
+    private void FitAttachments_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var w in BulkTargets()) w.FitAllAttachments();
     }
 
     private void RemoveAll_Click(object sender, RoutedEventArgs e)

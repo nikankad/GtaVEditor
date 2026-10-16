@@ -6,6 +6,9 @@
     <EmbeddedResource Include="Data\StatNames.txt" LogicalName="SaveEditor.GtaV.StatNames.txt" />
     <EmbeddedResource Include="Data\CollectibleLocations.txt" LogicalName="SaveEditor.GtaV.CollectibleLocations.txt" />
     <EmbeddedResource Include="Data\FlagLabels.txt" LogicalName="SaveEditor.GtaV.FlagLabels.txt" />
+    <EmbeddedResource Include="Data\VehicleData.txt" LogicalName="SaveEditor.GtaV.VehicleData.txt" />
+    <EmbeddedResource Include="Data\Paints.txt" LogicalName="SaveEditor.GtaV.Paints.txt" />
+    <EmbeddedResource Include="Data\ClothingItems.txt" LogicalName="SaveEditor.GtaV.ClothingItems.txt" />
     <!-- Optional release input: the workflow writes GTAV_SAVE_KEY here (gitignored, never committed). -->
     <EmbeddedResource Include="Data\gtav-pc.key" LogicalName="SaveEditor.GtaV.gtav-pc.key" Condition="Exists('Data\gtav-pc.key')" />
   </ItemGroup>
