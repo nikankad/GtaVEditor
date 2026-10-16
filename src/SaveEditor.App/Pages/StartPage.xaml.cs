@@ -103,7 +103,7 @@ public partial class StartPage : UserControl
 
         try
         {
-            var result = gta.Keys.Import(File.ReadAllBytes(keyDlg.FileName), saveDlg.FileName);
+            var result = gta.Keys.Import(SgtaFile.ReadAllBytesLimited(keyDlg.FileName, SaveCrypto.KeyLength), saveDlg.FileName);
             MessageBox.Show(_shell, result.Summary, "Import key", MessageBoxButton.OK,
                 result.IsValid ? MessageBoxImage.Information : MessageBoxImage.Warning);
         }

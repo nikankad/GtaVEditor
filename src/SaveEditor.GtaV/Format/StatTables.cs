@@ -97,6 +97,7 @@ public sealed class StatStore
             for (int pos = 0, hit; (hit = data.AsSpan(pos).IndexOf(pattern)) >= 0; pos += hit + 1)
             {
                 int at = pos + hit, start = at, end = at; // end = offset of last entry
+                if (at > data.Length - stride) continue;
                 // Hash 0 is not a real stat name; it is padding just before a table.
                 while (start - stride >= 0 && Hash(data, start - stride) is var h && h != 0 && h < Hash(data, start)) start -= stride;
                 while (end + 2 * stride <= data.Length && Hash(data, end + stride) > Hash(data, end)) end += stride;
