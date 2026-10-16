@@ -508,6 +508,8 @@ $RECYCLE.BIN/
 !.github/workflows/release.yml
 !.github/workflows/ci.yml
 !.github/checks/
+!.github/artwork-checks/
+!.github/BLOAT-AUDIT.md
 !.github/SECURITY.md
 !.github/RELEASING.md
 tests/

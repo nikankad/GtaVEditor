@@ -8,7 +8,8 @@
     <Resource Include="..\..\assets\icons\app.ico" Link="Assets\app.ico" />
     <Resource Include="..\..\assets\icons\icon.png" Link="Assets\logo.png" />
     <!-- The game's own artwork (portraits, weapons, mission thumbnails, map blips); looked up by Models/GamePictures.cs. -->
-    <Resource Include="Assets\Game\**\*" />
+    <Resource Include="Assets\Game\**\*" Exclude="Assets\Game\PictureAliases.txt" />
+    <EmbeddedResource Include="Assets\Game\PictureAliases.txt" LogicalName="GtaVSaveEditor.PictureAliases.txt" />
   </ItemGroup>
 
   <PropertyGroup>

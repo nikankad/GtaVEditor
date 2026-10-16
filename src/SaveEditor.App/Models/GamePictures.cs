@@ -1,4 +1,4 @@
-using System.Collections;
+using System.IO;
 using System.Resources;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,9 +17,13 @@ public static class GamePictures
 {
     private const string Root = "assets/game/";
 
+    private static readonly Dictionary<string, string> Aliases = LoadAliases();
     // Resource names as WPF stores them: lower case, relative to the project.
     private static readonly HashSet<string> Available = LoadIndex();
-    private static readonly Dictionary<string, ImageSource?> Cache = [];
+    private static readonly string[] ChecklistPictures = Available
+        .Where(n => n.StartsWith(Root + "checklist/", StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray();
+    // Keep pictures alive while a control uses them, without retaining every image ever browsed.
+    private static readonly Dictionary<(string Path, int Width), WeakReference<ImageSource>> Cache = [];
 
     public static ImageSource? Character(string name) => Get($"characters/{name}.png");
 
@@ -70,7 +74,7 @@ public static class GamePictures
         for (int trim = 1; trim <= 2 && key.Length - trim >= 4; trim++)
         {
             var prefix = $"{Root}checklist/{key[..^trim]}";
-            var sibling = Available.Where(n => n.StartsWith(prefix, StringComparison.Ordinal)).Order(StringComparer.Ordinal).FirstOrDefault();
+            var sibling = ChecklistPictures.FirstOrDefault(n => n.StartsWith(prefix, StringComparison.Ordinal));
             if (sibling != null) return Get(sibling[Root.Length..]);
         }
         return null;
@@ -108,21 +112,19 @@ public static class GamePictures
     private static ImageSource? Get(string path, int decodeWidth = 0)
     {
         path = path.ToLowerInvariant();
-        var key = decodeWidth > 0 ? $"{path}@{decodeWidth}" : path;
-        if (Cache.TryGetValue(key, out var cached)) return cached;
-        ImageSource? image = null;
-        if (Available.Contains(Root + path))
-        {
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri($"pack://application:,,,/GtaVSaveEditor;component/{Root}{path}");
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
-            bitmap.EndInit();
-            bitmap.Freeze();
-            image = bitmap;
-        }
-        return Cache[key] = image;
+        if (!Available.Contains(Root + path)) return null;
+        path = Aliases.GetValueOrDefault(path) ?? path;
+        var key = (path, decodeWidth);
+        if (Cache.TryGetValue(key, out var cached) && cached.TryGetTarget(out var image)) return image;
+        var bitmap = new BitmapImage();
+        bitmap.BeginInit();
+        bitmap.UriSource = new Uri($"pack://application:,,,/GtaVSaveEditor;component/{Root}{path}");
+        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+        if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
+        bitmap.EndInit();
+        bitmap.Freeze();
+        Cache[key] = new WeakReference<ImageSource>(bitmap);
+        return bitmap;
     }
 
     private static HashSet<string> LoadIndex()
@@ -132,8 +134,30 @@ public static class GamePictures
         using var stream = assembly.GetManifestResourceStream(assembly.GetName().Name + ".g.resources");
         if (stream == null) return names;
         using var reader = new ResourceReader(stream);
-        foreach (DictionaryEntry entry in reader)
-            if (entry.Key is string name && name.StartsWith(Root, StringComparison.Ordinal)) names.Add(name);
+        var entries = reader.GetEnumerator();
+        // Reading DictionaryEntry.Value here would deserialize every bundled picture just to list its name.
+        while (entries.MoveNext())
+            if (entries.Key is string name && name.StartsWith(Root, StringComparison.Ordinal)) names.Add(name);
+        foreach (var (alias, target) in Aliases)
+        {
+            if (!names.Contains(Root + target)) throw new InvalidDataException($"Missing picture alias target: {target}");
+            names.Add(Root + alias);
+        }
         return names;
+    }
+
+    private static Dictionary<string, string> LoadAliases()
+    {
+        using var stream = typeof(GamePictures).Assembly.GetManifestResourceStream("GtaVSaveEditor.PictureAliases.txt")
+            ?? throw new InvalidDataException("The picture aliases are missing.");
+        using var reader = new StreamReader(stream);
+        var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
+        while (reader.ReadLine() is { } line)
+        {
+            if (line.Length == 0 || line[0] == '#') continue;
+            var fields = line.Split('|');
+            aliases.Add(fields[0], fields[1]);
+        }
+        return aliases;
     }
 }

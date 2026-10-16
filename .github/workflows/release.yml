@@ -88,6 +88,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Locked restore failed.' }
           dotnet run --project .github/checks -c Release -p:RestoreLockedMode=true
           if ($LASTEXITCODE -ne 0) { throw 'Regression checks failed.' }
+          dotnet run --project .github/artwork-checks -c Release -p:RestoreLockedMode=true
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled artwork checks failed.' }
 
       - name: Publish with the save key built in
         if: steps.version.outputs.skip != 'true'

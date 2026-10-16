@@ -30,6 +30,8 @@ jobs:
         run: dotnet restore SaveEditor.sln --locked-mode
       - name: Run synthetic regression checks
         run: dotnet run --project .github/checks -c Release -p:RestoreLockedMode=true
+      - name: Check bundled artwork and image lookups
+        run: dotnet run --project .github/artwork-checks -c Release -p:RestoreLockedMode=true
       - name: Publish self-contained app
         run: dotnet publish src/SaveEditor.App -c Release -p:PublishProfile=Public -p:RestoreLockedMode=true -o publish
       - name: Launch packaged app

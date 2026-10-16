@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows7.0": {
+      "GtaVSaveEditor": {
+        "type": "Project",
+        "dependencies": {
+          "SaveEditor.GtaV": "[0.1.0, )"
+        }
+      },
+      "saveeditor.gtav": {
+        "type": "Project"
+      }
+    },
+    "net10.0-windows7.0/win-x64": {}
+  }
+}
