@@ -1,6 +1,9 @@
 # Releasing
 
-1. Check Windows CI on the intended commit. It runs synthetic save checks,
+Every push to `main`, merged pull requests included, publishes a release. Do
+steps 1–3 on the pull request before merging.
+
+1. Check Windows CI on the pull request. It runs synthetic save checks,
    publishes the self-contained EXE and launches it. CI uses no production save key.
 2. Review the changes in `NOTICE` and confirm permission and required credit for
    retained artwork, branding and map geometry. The source license does not grant
@@ -12,10 +15,13 @@
    checks separately; synthetic checks do not prove story progress is safe.
 4. Set `GTAV_SAVE_KEY` to the base64-encoded 32-byte save key. Releases require it;
    ordinary CI does not. Embedding it makes it extractable from the public EXE.
-5. Push a version tag such as `v0.1.1`. The workflow tests, publishes with the key,
-   launches the EXE and attaches its checksum, license and notices to the release.
-   Tags below 1.0.0 and tags with a suffix are marked as prereleases. Manual runs
-   require an existing tag and build that tag's commit.
+5. Merge to `main`. The release workflow tests, publishes with the key, launches
+   the EXE, tags the commit and attaches its checksum, license and notices to the
+   release. The first release of the `<Version>` in `Directory.Build.props` uses it
+   as is; later pushes bump the patch number (0.1.0, 0.1.1, …). Raise `<Version>`
+   to start a new minor or major version. Versions below 1.0.0 are marked as
+   prereleases. A manual run releases the current head of `main` if it has no
+   release yet.
 
 The pinned SDK and package locks must be updated together for SDK servicing.
 Code signing is not configured. The public README describes the shipped app;
