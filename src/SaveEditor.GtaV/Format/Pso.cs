@@ -43,7 +43,6 @@ public sealed class PsoDocument
         Enums = enums;
         Blocks = blocks;
         RootBlock = rootBlock;
-        _nodeBudget = 8L * data.Length + 100_000;
     }
 
     /// <summary>The PSIN block's data; edits write straight into the save and are checksummed on save.</summary>
@@ -55,11 +54,14 @@ public sealed class PsoDocument
 
     private PsoNode? _root;
 
-    // Pointers can form cycles in a crafted save, which would make the tree (and Walk) effectively endless.
-    // A genuine tree has at most about one node per byte of PSIN, so this leaves generous headroom.
-    private long _nodeBudget;
+    private const int MaxNodes = 100_000;
+    private int _nodeCount;
 
-    internal bool TryCreateNode() => _nodeBudget-- > 0;
+    internal void CountNode()
+    {
+        if (++_nodeCount > MaxNodes)
+            throw new SaveFormatException("This save's PSO tree is too complex to edit safely.");
+    }
 
     public PsoNode Root => _root ??= PsoNode.ForStruct(this, null, PsoNames.Root, Blocks[RootBlock - 1].TypeHash,
         Blocks[RootBlock - 1].Offset, "");
@@ -79,50 +81,66 @@ public sealed class PsoDocument
             // PMAP: int32 root block id, uint16 count, uint16 0x7070, then 16-byte entries (type hash, offset, 0, length).
             int root = BinaryPrimitives.ReadInt32BigEndian(pmap);
             int count = BinaryPrimitives.ReadUInt16BigEndian(pmap.AsSpan(4));
+            if (pmap.Length < 8 || count > (pmap.Length - 8) / 16)
+                throw new SaveFormatException("The save's PMAP table is truncated.");
             var blocks = new List<PsoBlock>(count);
             for (int i = 0; i < count; i++)
             {
                 var e = pmap.AsSpan(8 + i * 16);
-                var b = new PsoBlock(BinaryPrimitives.ReadUInt32BigEndian(e),
-                    BinaryPrimitives.ReadInt32BigEndian(e[4..]) - SectionHeader, BinaryPrimitives.ReadInt32BigEndian(e[12..]));
-                if (b.Offset < 0 || b.Length < 0 || b.Offset + b.Length > psin.Length)
+                long offset = (long)BinaryPrimitives.ReadInt32BigEndian(e[4..]) - SectionHeader;
+                int length = BinaryPrimitives.ReadInt32BigEndian(e[12..]);
+                if (offset < 0 || length < 0 || offset + length > psin.Length)
                     throw new SaveFormatException($"PMAP entry {i + 1} points outside PSIN.");
-                blocks.Add(b);
+                blocks.Add(new PsoBlock(BinaryPrimitives.ReadUInt32BigEndian(e), (int)offset, length));
             }
             if (root < 1 || root > blocks.Count) throw new SaveFormatException("PMAP root block id is out of range.");
 
             // PSCH: int32 count, (name hash, offset) index, then each struct or enum description.
             int schemaCount = BinaryPrimitives.ReadInt32BigEndian(psch);
+            if (schemaCount < 0 || schemaCount > (psch.Length - 4) / 8)
+                throw new SaveFormatException("The save's PSCH index is invalid.");
+            int schemaBudget = 100_000;
             var structs = new Dictionary<uint, PsoStruct>();
             var enums = new Dictionary<uint, Dictionary<int, uint>>();
             for (int i = 0; i < schemaCount; i++)
             {
                 uint hash = BinaryPrimitives.ReadUInt32BigEndian(psch.AsSpan(4 + i * 8));
                 int at = BinaryPrimitives.ReadInt32BigEndian(psch.AsSpan(8 + i * 8)) - SectionHeader;
+                if (at < 4 + schemaCount * 8 || at > psch.Length - 4)
+                    throw new SaveFormatException("The save's PSCH entry is outside its schema data.");
                 uint head = BinaryPrimitives.ReadUInt32BigEndian(psch.AsSpan(at));
                 if (head >> 24 == 0)
                 {
                     // Struct: [kind 0][unused][field count:16], length, unused, then 12-byte fields.
                     int fieldCount = (int)(head & 0xFFFF), length = BinaryPrimitives.ReadInt32BigEndian(psch.AsSpan(at + 4));
-                    if (at + 12L + fieldCount * 12L > psch.Length)
+                    if (length < 0 || at + 12L + fieldCount * 12L > psch.Length)
                         throw new SaveFormatException("The save's PSO schema has a struct that runs past the end of PSCH.");
+                    if ((schemaBudget -= fieldCount) < 0)
+                        throw new SaveFormatException("The save's PSO schema has too many fields.");
                     var fields = new List<PsoField>(fieldCount);
+                    var names = new HashSet<uint>();
                     for (int f = 0; f < fieldCount; f++)
                     {
                         var e = psch.AsSpan(at + 12 + f * 12);
+                        uint name = BinaryPrimitives.ReadUInt32BigEndian(e);
+                        if (name != 0x100 && !names.Add(name))
+                            throw new SaveFormatException("The save's PSO schema has duplicate field names.");
                         byte sub = e[5];
-                        fields.Add(new PsoField(BinaryPrimitives.ReadUInt32BigEndian(e), (PsoType)e[4], (byte)(sub & 0x3F),
+                        fields.Add(new PsoField(name, (PsoType)e[4], (byte)(sub & 0x3F),
                             BinaryPrimitives.ReadUInt16BigEndian(e[6..]) | (sub >> 6) << 16, BinaryPrimitives.ReadUInt32BigEndian(e[8..])));
                     }
                     structs[hash] = new PsoStruct(hash, length, fields);
                 }
                 else
                 {
+                    if (head >> 24 != 1) throw new SaveFormatException("The save's PSO schema type is not supported.");
                     // Enum: [kind 1][value count:24], then (name hash, value) pairs.
                     int valueCount = (int)(head & 0xFFFFFF);
                     // Checked before allocating: a crafted count must not reserve memory the schema cannot back.
                     if (at + 4L + valueCount * 8L > psch.Length)
                         throw new SaveFormatException("The save's PSO schema has an enum that runs past the end of PSCH.");
+                    if ((schemaBudget -= valueCount) < 0)
+                        throw new SaveFormatException("The save's PSO schema has too many enum values.");
                     var values = new Dictionary<int, uint>(valueCount);
                     for (int v = 0; v < valueCount; v++)
                         values[BinaryPrimitives.ReadInt32BigEndian(psch.AsSpan(at + 8 + v * 8))] =
@@ -259,6 +277,9 @@ public sealed class PsoNode
         if (Depth >= MaxDepth) return [];
         if (IsStruct)
         {
+            // Shared objects may be visited through separate branches; a pointer back to an ancestor is a cycle.
+            for (var ancestor = Parent; ancestor != null; ancestor = ancestor.Parent)
+                if (ancestor.IsStruct && ancestor.StructHash == StructHash && ancestor.Offset == Offset) return [];
             if (!_doc.Structs.TryGetValue(StructHash, out var s)) return [];
             var list = new List<PsoNode>();
             foreach (var f in s.Fields.Where(f => !f.IsElementDescriptor).OrderBy(f => f.Offset))
@@ -268,10 +289,11 @@ public sealed class PsoNode
         if (IsArray && _element != null)
         {
             int size = ElementSize(_element);
-            if (size <= 0) return [];
+            if (size <= 0 || Start < 0 || Start > _doc.Data.Length) return [];
+            int count = Math.Min(Count, (_doc.Data.Length - Start) / size);
             var siblings = _doc.Structs.TryGetValue(Parent?.StructHash ?? 0, out var ps) ? ps.Fields : [];
-            var list = new List<PsoNode>(Count);
-            for (int i = 0; i < Count; i++)
+            var list = new List<PsoNode>(count);
+            for (int i = 0; i < count; i++)
                 if (Make(_element, siblings, Start + i * size, $"[{i}]", NameHash) is { } n) list.Add(n);
             return list;
         }
@@ -284,7 +306,7 @@ public sealed class PsoNode
         PsoType.Bool or PsoType.SByte or PsoType.UByte => 1,
         PsoType.SShort or PsoType.UShort => 2,
         PsoType.SInt or PsoType.UInt or PsoType.Float or PsoType.Flags => 4,
-        PsoType.Enum => f.Subtype == 0 ? 4 : 0,
+        PsoType.Enum => 4,
         PsoType.Float2 => 8,
         PsoType.Float3 => 12,
         PsoType.Float4 => 16,
@@ -295,7 +317,8 @@ public sealed class PsoNode
 
     private PsoNode? Make(PsoField f, IReadOnlyList<PsoField> siblings, int at, string name, uint nameHash)
     {
-        if (at < 0 || (long)at + ReadSize(f) > _doc.Data.Length || !_doc.TryCreateNode()) return null;
+        if (at < 0 || (long)at + ReadSize(f) > _doc.Data.Length) return null;
+        _doc.CountNode();
         string path = Path.Length == 0 ? name : name.StartsWith('[') ? Path + name : Path + "/" + name;
         switch (f.Type)
         {

@@ -30,9 +30,14 @@ public sealed class SgtaFile
 
     public static byte[] ReadAllBytesLimited(string path, long maxBytes = MaxFileBytes)
     {
-        if (new FileInfo(path).Length > maxBytes)
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        if (maxBytes < 0 || maxBytes > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(maxBytes));
+        long length = stream.Length;
+        if (length > maxBytes)
             throw new SaveFormatException($"'{Path.GetFileName(path)}' is too large to read.");
-        return File.ReadAllBytes(path);
+        var bytes = new byte[(int)length];
+        stream.ReadExactly(bytes);
+        return bytes;
     }
 
     public static SgtaFile Read(byte[] file)
@@ -41,6 +46,8 @@ public sealed class SgtaFile
             throw new SaveFormatException("File is too small to be a GTA V PC save.");
         if ((file.Length - BodyOffset) % 16 != 0)
             throw new SaveFormatException("Encrypted body is not a multiple of 16 bytes; not a GTA V PC save.");
+        if (BinaryPrimitives.ReadUInt32BigEndian(file) != 1)
+            throw new SaveFormatException("This save version is not supported. Expected a GTA V PC story-mode save.");
 
         var titleSpan = file.AsSpan(TitleOffset, TitleBytes);
         var title = Encoding.Unicode.GetString(titleSpan);

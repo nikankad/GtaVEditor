@@ -19,9 +19,14 @@ public partial class AboutWindow : Window
     private void Link_Navigate(object sender, RequestNavigateEventArgs e)
     {
         // Only ever hand web links to the shell, never a file or custom-protocol URI.
-        if (e.Uri.Scheme == Uri.UriSchemeHttps)
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         e.Handled = true;
+        if (!e.Uri.IsAbsoluteUri || e.Uri.Scheme != Uri.UriSchemeHttps) return;
+        try { Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true }); }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            MessageBox.Show(this, "Couldn't open your browser. You can visit " + e.Uri.AbsoluteUri,
+                "Open link", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
