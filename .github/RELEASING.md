@@ -16,8 +16,8 @@ steps 1–3 on the pull request before merging.
 4. Set `GTAV_SAVE_KEY` to the base64-encoded 32-byte save key. Releases require it;
    ordinary CI does not. Embedding it makes it extractable from the public EXE.
 5. Merge to `main`. The release workflow tests, publishes with the key, launches
-   the EXE, tags the commit and attaches its checksum, license and notices to the
-   release. The first release of the `<Version>` in `Directory.Build.props` uses it
+   the EXE, tags the commit and attaches it to the release. GitHub also provides
+   the source-code ZIP automatically. The first release of the `<Version>` in `Directory.Build.props` uses it
    as is; later pushes bump the patch number (0.1.0, 0.1.1, …). Raise `<Version>`
    to start a new minor or major version. Versions below 1.0.0 are marked as
    prereleases. A manual run releases the current head of `main` if it has no

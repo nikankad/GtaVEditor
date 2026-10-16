@@ -123,10 +123,7 @@ jobs:
         run: |
           $exe = Get-Item 'publish/GtaVSaveEditor.exe'
           if ($exe.Length -lt 30MB) { throw 'The EXE looks too small; the .NET runtime may not be bundled.' }
-          $hash = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-          Copy-Item LICENSE, NOTICE publish/
-          Set-Content -Path 'publish/SHA256SUMS.txt' -Value "$hash  GtaVSaveEditor.exe" -Encoding ascii
-          "{0:N1} MB, SHA-256 {1}" -f ($exe.Length / 1MB), $hash
+          "{0:N1} MB" -f ($exe.Length / 1MB)
 
       - name: Create the release
         if: steps.version.outputs.skip != 'true'
@@ -140,14 +137,13 @@ jobs:
             'Download **GtaVSaveEditor.exe** and run it. Nothing else to install: the .NET runtime and the save key are built in.',
             '',
             'Story mode PC saves only. Back up your saves before editing. GTA V Enhanced compatibility has not been verified.',
-            '',
-            'Check the download against **SHA256SUMS.txt**.'
+            ''
           ) -join "`n"
           $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
           [IO.File]::WriteAllText($notesPath, $notes)
           $arguments = @('release', 'create', $env:RELEASE_TAG, '--target', $env:GITHUB_SHA, '--title', "GTA V Save Editor $env:RELEASE_TAG",
             '--notes-file', $notesPath, '--generate-notes')
           if ($env:RELEASE_TAG.StartsWith('v0.')) { $arguments += '--prerelease' }
-          $arguments += @('publish/GtaVSaveEditor.exe', 'publish/SHA256SUMS.txt', 'publish/LICENSE', 'publish/NOTICE')
+          $arguments += @('publish/GtaVSaveEditor.exe')
           gh @arguments
           if ($LASTEXITCODE -ne 0) { throw 'Release creation failed.' }
