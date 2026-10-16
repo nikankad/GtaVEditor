@@ -174,17 +174,24 @@ public sealed class GtaVSaveDocument
 
     public void Save(string path)
     {
+        path = Path.GetFullPath(path);
         var bytes = ToBytes();
         // Write to a temp file first so a crash can never leave a half-written save.
         var tmp = path + $".{Guid.NewGuid():N}.tmp";
+        bool created = false;
         try
         {
-            File.WriteAllBytes(tmp, bytes);
+            using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                created = true;
+                stream.Write(bytes);
+                stream.Flush(flushToDisk: true);
+            }
             File.Move(tmp, path, overwrite: true);
         }
         finally
         {
-            if (File.Exists(tmp)) File.Delete(tmp);
+            if (created && File.Exists(tmp)) File.Delete(tmp);
         }
         FilePath = Path.GetFullPath(path);
         Rebase();

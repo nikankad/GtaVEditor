@@ -501,11 +501,15 @@ $RECYCLE.BIN/
 # Local test build of the editor (made by build/republish.ps1)
 /build/
 
-# Development-only files stay local; the repository shows only the client.
+# Keep local research files out; include the client and its release checks.
 .github/*
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/release.yml
+!.github/workflows/ci.yml
+!.github/checks/
+!.github/SECURITY.md
+!.github/RELEASING.md
 tests/
 tools/
 scripts/
@@ -515,4 +519,4 @@ CLAUDE.md
 AGENTS.MD
 CONTRIBUTING.md
 CHANGELOG.md
-SECURITY.md
+/SECURITY.md

@@ -21,7 +21,7 @@ public sealed class KeyStore(string keyPath, byte[]? bundledKey = null)
     {
         if (File.Exists(KeyPath))
         {
-            var key = SgtaFile.ReadAllBytesLimited(KeyPath, 1024);
+            var key = SgtaFile.ReadAllBytesLimited(KeyPath, SaveCrypto.KeyLength);
             if (key.Length != SaveCrypto.KeyLength)
                 throw new SaveFormatException($"Key file '{KeyPath}' must be exactly {SaveCrypto.KeyLength} bytes.");
             return key;
