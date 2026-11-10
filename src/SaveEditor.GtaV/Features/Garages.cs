@@ -239,7 +239,8 @@ public static class Garages
         {
             // Each garage is a struct of (id, parked vehicles); find it by id.
             var garage = list.Children.FirstOrDefault(n => n.Children.Count == 2 && n.Children[0].IsValue
-                && long.TryParse(n.Children[0].ValueText, out var id) && unchecked((uint)id) == Known[g].Id);
+                && long.TryParse(n.Children[0].ValueText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id)
+                && unchecked((uint)id) == Known[g].Id);
             var entries = garage?.Children.FirstOrDefault(n => n.NameHash == Slots);
             if (entries == null || entries.Children.Count != 2 || !entries.Children.All(GarageSlot.HasLayout))
                 throw new SaveFormatException("The garage data in this save is not in the expected layout.");

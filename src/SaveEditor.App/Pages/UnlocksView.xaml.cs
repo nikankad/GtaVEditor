@@ -120,7 +120,9 @@ public partial class UnlocksView : UserControl
         SearchNavigation.Reveal(this, e => e.DataContext switch
         {
             WeaponUnlockModel weapon => name == weapon.Label + " at Ammu-Nation",
-            WardrobeModel wardrobe => wardrobe.Name == who && wardrobe.Categories.Any(c => c.Label.ToLowerInvariant() == name),
+            WardrobeModel wardrobe => wardrobe.Name == who && wardrobe.Categories.Any(c => c.Label.ToLowerInvariant() == name)
+                                      // "Michael wearing: top" (what a character has on now) is on the same card.
+                                      || who == wardrobe.Name + " wearing" && wardrobe.Wearing.Any(s => s.Label.ToLowerInvariant() == name),
             FlightLessonModel lesson => who == "Flight School" && lesson.Name == name,
             _ => label == "Director Mode actors" && e == DirectorCard,
         });
@@ -130,7 +132,12 @@ public partial class UnlocksView : UserControl
     public void Refresh()
     {
         foreach (var w in _weapons.Values.SelectMany(g => g).SelectMany(g => g.Weapons)) w.Refresh();
-        _wardrobes.ForEach(w => { w.Refresh(); foreach (var k in w.Categories) k.Refresh(); });
+        _wardrobes.ForEach(w =>
+        {
+            w.Refresh();
+            foreach (var k in w.Categories) k.Refresh();
+            foreach (var s in w.Wearing) s.Refresh();
+        });
         _lessons.ForEach(l => l.Refresh());
         ShowDirector();
     }

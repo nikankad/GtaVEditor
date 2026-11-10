@@ -42,6 +42,9 @@ public static class SaveComparer
             for (int i = 0; i < n; i++) if (blockA.Data[i] != blockB.Data[i]) changed++;
             blocks.Add(new(blockA.Id, blockA.Data.Length, blockB.Data.Length, changed));
         }
+        // Blocks that only the second save has.
+        foreach (var blockB in after.Body.Blocks.Where(b => before.Body.Blocks.All(a => a.Id != b.Id)))
+            blocks.Add(new(blockB.Id, 0, blockB.Data.Length, blockB.Data.Length));
 
         return new(stats.OrderByDescending(s => s.IsNamed).ThenBy(s => s.Character).ThenBy(s => s.Label).ToList(), blocks);
     }
@@ -69,7 +72,7 @@ public static class SaveComparer
             StatKind.Float => BitConverter.UInt32BitsToSingle((uint)y) - BitConverter.UInt32BitsToSingle((uint)x),
             _ => (double)y - x,
         };
-        if (def?.Unit == "ms") return (d >= 0 ? "+" : "-") + TimeSpan.FromMilliseconds(Math.Abs(d)).ToString(@"hh\:mm\:ss");
+        if (def?.Unit == "ms") return (d >= 0 ? "+" : "-") + TimeSpan.FromMilliseconds(Math.Abs(d)).ToString(@"d\d\ hh\:mm\:ss");
         var text = kind == StatKind.Float ? Math.Abs(d).ToString("G6") : Math.Abs(d).ToString("N0");
         return (d >= 0 ? "+" : "-") + (def?.Unit == "$" ? "$" : "") + text;
     }

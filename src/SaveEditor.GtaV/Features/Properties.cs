@@ -121,7 +121,6 @@ public sealed class Property
 
     private const uint PropertyData = 0x38301D26, List = 0xD6B3AB33;
 
-    // Usual owner: who owns it in the user's 100% save (every one a real purchase, so the game accepts that character).
     // Usual owner: who owns it in the user's 100% save (each a real in-game purchase, so the game accepts that character).
     private static readonly (string Field, string Name, string Kind, int Usual)[] Known =
     [

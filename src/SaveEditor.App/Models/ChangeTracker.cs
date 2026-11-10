@@ -152,9 +152,10 @@ public sealed class ChangeTracker
                     v => $"Near {MapLabel.Nearest(v.X, v.Y).Text} ({v.X:0}, {v.Y:0}, {v.Z:0})");
             }
             if (player.Clock is { } clock)
-                t.Track("Player", "Game date and time", () => (clock.Year, clock.Month, clock.Day, clock.Hour, clock.Minute),
-                    v => { clock.SetDate(v.Year, v.Month, v.Day); clock.SetTime(v.Hour, v.Minute); },
-                    v => $"{v.Day}/{v.Month}/{v.Year} {v.Hour:00}:{v.Minute:00}");
+                // The game counts months from 0 (January), so show month + 1.
+                t.Track("Player", "Game date and time", () => (clock.Year, clock.Month, clock.Day, clock.Hour, clock.Minute, clock.Second),
+                    v => { clock.SetDate(v.Year, v.Month, v.Day); clock.SetTime(v.Hour, v.Minute, v.Second); },
+                    v => $"{v.Day}/{v.Month + 1}/{v.Year} {v.Hour:00}:{v.Minute:00}");
         });
         // Vehicles can only be put back when the space was empty; parking a vehicle needs its colour too.
         Try(() =>

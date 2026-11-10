@@ -15,8 +15,10 @@ public static class SaveSlots
     public static int? IndexOf(string path)
     {
         var name = Path.GetFileName(path);
+        // Digits only: a plain int.TryParse would also accept "SGTA5+001" or "SGTA5 001", which the game doesn't list.
         return name.Length == 9 && name.StartsWith("SGTA5", StringComparison.OrdinalIgnoreCase)
-               && int.TryParse(name.AsSpan(5), out var i) && i is >= 0 and <= AutosaveIndex
+               && int.TryParse(name.AsSpan(5), System.Globalization.NumberStyles.None,
+                   System.Globalization.CultureInfo.InvariantCulture, out var i) && i is >= 0 and <= AutosaveIndex
             ? i : null;
     }
 

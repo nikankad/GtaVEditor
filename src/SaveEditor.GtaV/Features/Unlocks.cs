@@ -60,7 +60,7 @@ public static class WeaponUnlocks
 }
 
 /// <summary>
-/// One kind of clothing for one character (hairstyles, shoesâ€¦): the save keeps, for each group of 32 items, a bitset of
+/// One kind of clothing for one character (hairstyles, shoes…): the save keeps, for each group of 32 items, a bitset of
 /// the items the shops offer (AVAILABLE) and of those the character owns (ACQUIRED). The items' names aren't in the
 /// save, so they are handled by kind.
 /// </summary>
@@ -101,7 +101,7 @@ public sealed class Wardrobe
 {
     private readonly IReadOnlyList<(PsoNode Available, PsoNode Acquired)> _groups;
 
-    // The save's group names ("TORSO3", "PROP1"â€¦) belong to the game's clothing slots; groups of one slot are one kind here.
+    // The save's group names ("TORSO3", "PROP1"…) belong to the game's clothing slots; groups of one slot are one kind here.
     // Slots whose purpose isn't certain are gathered under "Other accessories".
     private static readonly (string Label, Func<string, bool> Match)[] Kinds =
     [

@@ -188,7 +188,7 @@ public sealed class OutfitSlotModel : Observable
     }
 }
 
-/// <summary>One kind of clothing (shoes, hatsâ€¦) with how much of it a character owns.</summary>
+/// <summary>One kind of clothing (shoes, hats…) with how much of it a character owns.</summary>
 public sealed class ClothingCategoryModel(ClothingCategory category, Action onChanged) : Observable
 {
     public string Label => category.Label;

@@ -417,6 +417,8 @@ public partial class EditorPage : UserControl, IGuardedPage
 
     private void BuyAllProperties_Click(object sender, RoutedEventArgs e)
     {
+        // Nothing to do when the businesses couldn't be read (reading them again would throw).
+        if (_properties.Count == 0) return;
         foreach (var p in _doc.Properties.Where(p => p.OwnerIndex == null)) p.OwnerIndex = p.UsualOwner;
         Changed();
         _properties.ForEach(p => p.Refresh());

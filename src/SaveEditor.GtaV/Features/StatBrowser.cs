@@ -69,7 +69,13 @@ public sealed class StatEntry
             case StatValueType.Int:
                 if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i)
                     || (Min is { } lo && i < lo) || (Max is { } hi && i > hi))
-                    throw new ArgumentException(Min != null ? $"Enter a whole number from {Min:N0} to {Max:N0}." : "Enter a whole number.");
+                    throw new ArgumentException((Min, Max) switch
+                    {
+                        ({ } a, { } b) => $"Enter a whole number from {a:N0} to {b:N0}.",
+                        ({ } a, null) => $"Enter a whole number of {a:N0} or more.",
+                        (null, { } b) => $"Enter a whole number of {b:N0} or less.",
+                        _ => "Enter a whole number.",
+                    });
                 _stats.SetInt(Name, i);
                 break;
             case StatValueType.Float:

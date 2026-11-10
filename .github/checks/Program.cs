@@ -207,6 +207,13 @@ try
             catch (SaveFormatException) { }
         }
     });
+    Check("Only plain-digit SGTA5 names map to game slots", () =>
+    {
+        Assert(SaveSlots.IndexOf("SGTA50000") == 0 && SaveSlots.IndexOf("sgta50014") == 14);
+        Assert(SaveSlots.IndexOf("SGTA50015") == SaveSlots.AutosaveIndex);
+        foreach (var name in new[] { "SGTA5+001", "SGTA5 001", "SGTA5001 ", "SGTA5-001", "SGTA50016", "SGTA5000" })
+            Assert(SaveSlots.IndexOf(name) == null);
+    });
 }
 finally { Directory.Delete(work, recursive: true); }
 Console.WriteLine($"{passed} passed, {failed} failed.");

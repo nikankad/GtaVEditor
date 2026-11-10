@@ -86,7 +86,11 @@ public sealed class CollectibleSet
 
     public void SetCollected(IEnumerable<CollectibleItem> items, bool collected)
     {
-        foreach (var item in items) item.Write(collected);
+        var list = items.ToList();
+        // An item of another kind would flip a bit of this kind's storage (bridges and knife flights share fields).
+        if (list.FirstOrDefault(i => !Items.Contains(i)) is { } foreign)
+            throw new ArgumentException($"{Name} No. {foreign.Number} is not part of this set.", nameof(items));
+        foreach (var item in list) item.Write(collected);
         Sync();
     }
 
